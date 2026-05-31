@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#5B8DEF">
+<title>Bebe em Dia</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; display: flex; justify-content: center; min-height: 100vh; }
+.app { width: 100%; max-width: 430px; background: #f5f5f5; min-height: 100vh; display: flex; flex-direction: column; }
+.header { background: #5B8DEF; padding: 48px 20px 20px; color: white; }
+.header h2 { font-size: 20px; font-weight: 600; }
+.header p { font-size: 13px; opacity: 0.85; margin-top: 3px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.content { flex: 1; padding: 16px; overflow-y: auto; padding-bottom: 80px; }
+.section-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin: 16px 0 10px; }
+.section-title:first-child { margin-top: 0; }
+.quick-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qbtn { background: white; border: 1px solid #eee; border-radius: 16px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; position: relative; transition: transform 0.1s; }
+.qbtn:active { transform: scale(0.95); background: #f0f4ff; }
+.qbtn .icon { font-size: 28px; }
+.qbtn .label { font-size: 13px; font-weight: 600; color: #333; text-align: center; }
+.qbtn .time { font-size: 11px; color: #999; text-align: center; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { background: white; border-radius: 14px; padding: 14px; text-align: center; border: 1px solid #eee; }
+.stat .val { font-size: 24px; font-weight: 700; color: #333; }
+.stat .lbl { font-size: 11px; color: #999; margin-top: 2px; }
+.card { background: white; border-radius: 16px; border: 1px solid #eee; overflow: hidden; margin-bottom: 10px; }
+.card-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f5f5f5; }
+.card-item:last-child { border-bottom: none; }
+.dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.dot-blue { background: #E6F1FB; }
+.dot-green { background: #E8F5E9; }
+.dot-red { background: #FFEBEE; }
+.ci { flex: 1; }
+.ci strong { font-size: 13px; font-weight: 600; color: #333; display: block; }
+.ci span { font-size: 12px; color: #999; }
+.ci-time { font-size: 12px; font-weight: 600; color: #5B8DEF; }
+.dr-btn { background: #5B8DEF; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border: none; width: 100%; margin-top: 4px; }
+.dr-btn strong { font-size: 14px; color: white; font-weight: 600; display: block; text-align: left; }
+.dr-btn span { font-size: 12px; color: rgba(255,255,255,0.85); }
+.dr-arrow { margin-left: auto; color: white; font-size: 20px; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: white; border-top: 1px solid #eee; display: flex; padding: 8px 0 20px; z-index: 100; }
+.nav { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
+.nav .nav-icon { font-size: 22px; }
+.nav .nav-lbl { font-size: 10px; color: #aaa; }
+.nav.active .nav-lbl { color: #5B8DEF; font-weight: 600; }
+.screen { display: none; }
+.screen.active { display: block; }
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 200; }
+.toast.show { opacity: 1; }
+.chat-wrap { display: flex; flex-direction: column; gap: 10px; min-height: 200px; }
+.msg-u { align-self: flex-end; background: #5B8DEF; color: white; padding: 10px 14px; border-radius: 18px 18px 4px 18px; font-size: 14px; max-width: 85%; }
+.msg-b { align-self: flex-start; background: white; border: 1px solid #eee; padding: 12px 14px; border-radius: 18px 18px 18px 4px; font-size: 14px; max-width: 90%; color: #333; line-height: 1.6; }
+.bot-hdr { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.bot-hdr strong { font-size: 12px; font-weight: 600; color: #5B8DEF; }
+.ia-pill { font-size: 10px; background: #E6F1FB; color: #185FA5; padding: 2px 7px; border-radius: 8px; font-weight: 600; }
+.input-row { display: flex; gap: 8px; margin-top: 12px; position: sticky; bottom: 0; background: #f5f5f5; padding: 8px 0; }
+.input-row input { flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 24px; font-size: 14px; background: white; outline: none; }
+.input-row input:focus { border-color: #5B8DEF; }
+.send-btn { width: 44px; height: 44px; border-radius: 50%; background: #5B8DEF; color: white; border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.send-btn:disabled { opacity: 0.4; }
+.disc { font-size: 11px; color: #bbb; text-align: center; padding: 8px; }
+.vac-hdr { background: #5B8DEF; padding: 14px 16px; color: white; }
+.vac-hdr h3 { font-size: 15px; font-weight: 600; }
+.vac-hdr p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.vac-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
+.vac-item:last-child { border-bottom: none; }
+.vac-info { flex: 1; }
+.vac-info strong { font-size: 13px; font-weight: 600; color: #333; display: block; }
+.vac-info span { font-size: 11px; color: #999; }
+.vac-dt { font-size: 11px; text-align: right; }
+.vac-dt.ok { color: #4CAF50; font-weight: 600; }
+.vac-dt.next { color: #5B8DEF; font-weight: 600; }
+.hist-item { background: white; border-radius: 14px; border: 1px solid #eee; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.hist-icon { font-size: 22px; }
+.hist-info strong { font-size: 13px; font-weight: 600; color: #333; display: block; }
+.hist-info span { font-size: 11px; color: #999; }
+.empty { text-align: center; color: #bbb; font-size: 14px; padding: 40px 20px; }
+.exp-btn { width: 100%; padding: 14px; background: #5B8DEF; color: white; border: none; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <h2>Oi! Levi esta bem? 👶</h2>
+        <p id="header-sub">Carregando...</p>
+      </div>
+      <div class="avatar">👶</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="screen-home" class="screen active">
+      <p class="section-title">Registro rapido</p>
+      <div class="quick-btns">
+        <div class="qbtn" onclick="registrar('mamada')">
+          <div class="icon">🍼</div>
+          <div class="label">Mamou agora</div>
+          <div class="time" id="t-mamada">...</div>
+        </div>
+        <div class="qbtn" onclick="registrar('xixi')">
+          <div class="icon">💧</div>
+          <div class="label">Fralda xixi</div>
+          <div class="time" id="t-xixi">...</div>
+        </div>
+        <div class="qbtn" onclick="registrar('coco')">
+          <div class="icon">💩</div>
+          <div class="label">Fralda coco</div>
+          <div class="time" id="t-coco">...</div>
+        </div>
+        <div class="qbtn" onclick="registrar('sono')">
+          <div class="icon">😴</div>
+          <div class="label">Dormiu agora</div>
+          <div class="time" id="t-sono">...</div>
+        </div>
+      </div>
+
+      <p class="section-title">Hoje</p>
+      <div class="stats">
+        <div class="stat"><div class="val" id="s-mam">0</div><div class="lbl">mamadas</div></div>
+        <div class="stat"><div class="val" id="s-fra">0</div><div class="lbl">fraldas</div></div>
+        <div class="stat"><div class="val" id="s-son">0</div><div class="lbl">sonos</div></div>
+        <div class="stat"><div class="val" id="s-dias">38d</div><div class="lbl">idade Levi</div></div>
+      </div>
+
+      <p class="section-title">Proximos eventos</p>
+      <div class="card">
+        <div class="card-item">
+          <div class="dot dot-blue">💊</div>
+          <div class="ci"><strong>Vitamina D</strong><span>1 gota · todo dia</span></div>
+          <div class="ci-time">14:00</div>
+        </div>
+        <div class="card-item">
+          <div class="dot dot-red">💉</div>
+          <div class="ci"><strong>Pentavalente 1a dose</strong><span>daqui 22 dias</span></div>
+          <div class="ci-time" style="color:#e53935">22d</div>
+        </div>
+      </div>
+
+      <button class="dr-btn" onclick="mudarTela('drbebe')">
+        <span style="font-size:28px">🤖</span>
+        <div>
+          <strong>Dr. Bebe — IA Real</strong>
+          <span>Pergunte sobre o Levi agora</span>
+        </div>
+        <span class="dr-arrow">›</span>
+      </button>
+    </div>
+
+    <div id="screen-historico" class="screen">
+      <p class="section-title">Ultimos registros</p>
+      <div id="lista-hist"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div id="screen-vacinas" class="screen">
+      <div class="card">
+        <div class="vac-hdr">
+          <h3>Carteira de Vacinacao Digital</h3>
+          <p>Levi Jose · 38 dias de vida</p>
+        </div>
+        <div id="lista-vac"><div class="empty">Carregando...</div></div>
+      </div>
+      <button class="exp-btn" onclick="showToast('Carteirinha exportada!')">⬇ Exportar PDF</button>
+    </div>
+
+    <div id="screen-drbebe" class="screen">
+      <div class="chat-wrap" id="chat-msgs">
+        <div class="msg-b">
+          <div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>
+          Ola! Sou o Dr. Bebe. O Levi tem 38 dias, ja tomou BCG e Hepatite B. Proxima vacina: Pentavalente em 22 dias. Pergunte qualquer coisa! 😊
+        </div>
+      </div>
+      <div class="input-row">
+        <input type="text" id="chat-in" placeholder="Pergunte sobre o Levi..." />
+        <button class="send-btn" id="send-btn" onclick="enviar()">➤</button>
+      </div>
+      <div class="disc">Dr. Bebe nao substitui orientacao medica. Consulte sempre o pediatra.</div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav active" id="nav-home" onclick="mudarTela('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-lbl">Inicio</div>
+    </div>
+    <div class="nav" id="nav-historico" onclick="mudarTela('historico')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-lbl">Historico</div>
+    </div>
+    <div class="nav" id="nav-vacinas" onclick="mudarTela('vacinas')">
+      <div class="nav-icon">💉</div>
+      <div class="nav-lbl">Vacinas</div>
+    </div>
+    <div class="nav" id="nav-drbebe" onclick="mudarTela('drbebe')">
+      <div class="nav-icon">🤖</div>
+      <div class="nav-lbl">Dr. Bebe</div>
+    </div>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPA_URL = 'https://lhajxmsunykxycdubsmx.supabase.co';
+const SUPA_KEY = 'sb_publishable_LJMB1KYTJzvuwci5ihpirA_HlpqKCSq';
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+let bebeId = null;
+const chat_hist = [];
+
+const SYSTEM = `Voce e o Dr. Bebe, assistente pediatrico acolhedor do app Bebe em Dia.
+Contexto: Levi Jose, 38 dias, nasceu 23/04/2026. Vacinas tomadas: BCG, Hepatite B. Proxima: Pentavalente 23/06/2026. Remedio: Vitamina D 1 gota/dia.
+Regras: responda em portugues brasileiro informal. NUNCA diagnostique. Maximo 150 palavras. Situacoes serias: termine com "Quando em duvida, consulte o pediatra."`;
+
+async function init() {
+  try {
+    const { data } = await db.from('bebes').select('*').eq('nome','Levi Jose').single();
+    if (data) {
+      bebeId = data.id;
+      const nasc = new Date('2026-04-23');
+      const dias = Math.floor((new Date() - nasc) / 86400000);
+      document.getElementById('header-sub').textContent = dias + ' dias · nasceu 23/04/2026';
+      document.getElementById('s-dias').textContent = dias + 'd';
+      carregarStats();
+      carregarVacinas();
+    }
+  } catch(e) { console.log(e); }
+}
+
+async function carregarStats() {
+  if (!bebeId) return;
+  const hoje = new Date().toISOString().split('T')[0];
+  const [m, f, s] = await Promise.all([
+    db.from('mamadas').select('id', {count:'exact'}).eq('bebe_id', bebeId).gte('registrado_em', hoje),
+    db.from('fraldas').select('id', {count:'exact'}).eq('bebe_id', bebeId).gte('registrado_em', hoje),
+    db.from('sono').select('id', {count:'exact'}).eq('bebe_id', bebeId).gte('registrado_em', hoje)
+  ]);
+  document.getElementById('s-mam').textContent = m.count || 0;
+  document.getElementById('s-fra').textContent = f.count || 0;
+  document.getElementById('s-son').textContent = s.count || 0;
+  carregarUltimos();
+}
+
+async function carregarUltimos() {
+  if (!bebeId) return;
+  const [m, fx, fc, s] = await Promise.all([
+    db.from('mamadas').select('registrado_em').eq('bebe_id', bebeId).order('registrado_em',{ascending:false}).limit(1),
+    db.from('fraldas').select('registrado_em').eq('bebe_id', bebeId).eq('tipo','xixi').order('registrado_em',{ascending:false}).limit(1),
+    db.from('fraldas').select('registrado_em').eq('bebe_id', bebeId).eq('tipo','coco').order('registrado_em',{ascending:false}).limit(1),
+    db.from('sono').select('registrado_em').eq('bebe_id', bebeId).order('registrado_em',{ascending:false}).limit(1)
+  ]);
+  document.getElementById('t-mamada').textContent = m.data && m.data[0] ? tempoAtras(m.data[0].registrado_em) : 'nenhuma hoje';
+  document.getElementById('t-xixi').textContent = fx.data && fx.data[0] ? tempoAtras(fx.data[0].registrado_em) : 'nenhuma hoje';
+  document.getElementById('t-coco').textContent = fc.data && fc.data[0] ? tempoAtras(fc.data[0].registrado_em) : 'nenhuma hoje';
+  document.getElementById('t-sono').textContent = s.data && s.data[0] ? tempoAtras(s.data[0].registrado_em) : 'nenhum hoje';
+}
+
+function tempoAtras(ts) {
+  const diff = Math.floor((new Date() - new Date(ts)) / 60000);
+  if (diff < 1) return 'agora mesmo';
+  if (diff < 60) return 'ha ' + diff + 'min';
+  const h = Math.floor(diff/60), m = diff%60;
+  return 'ha ' + h + 'h' + (m > 0 ? m + 'min' : '');
+}
+
+async function carregarHistorico() {
+  if (!bebeId) return;
+  const c = document.getElementById('lista-hist');
+  const [m, f, s] = await Promise.all([
+    db.from('mamadas').select('*').eq('bebe_id', bebeId).order('registrado_em',{ascending:false}).limit(8),
+    db.from('fraldas').select('*').eq('bebe_id', bebeId).order('registrado_em',{ascending:false}).limit(8),
+    db.from('sono').select('*').eq('bebe_id', bebeId).order('registrado_em',{ascending:false}).limit(8)
+  ]);
+  const todos = [
+    ...(m.data||[]).map(r=>({...r,cat:'mamada'})),
+    ...(f.data||[]).map(r=>({...r,cat:'fralda'})),
+    ...(s.data||[]).map(r=>({...r,cat:'sono'}))
+  ].sort((a,b)=>new Date(b.registrado_em)-new Date(a.registrado_em)).slice(0,15);
+  if (!todos.length) {
+    c.innerHTML = '<div class="empty">Nenhum registro ainda.<br>Use os botoes na tela inicial!</div>';
+    return;
+  }
+  const ic = {mamada:'🍼', sono:'😴'};
+  c.innerHTML = todos.map(r => {
+    const icon = r.cat==='fralda' ? (r.tipo==='coco'?'💩':'💧') : ic[r.cat];
+    const lbl = r.cat==='mamada' ? 'Mamada' : r.cat==='sono' ? 'Sono' : 'Fralda ' + r.tipo;
+    const dt = new Date(r.registrado_em).toLocaleString('pt-BR');
+    return `<div class="hist-item"><div class="hist-icon">${icon}</div><div class="hist-info"><strong>${lbl}</strong><span>${dt}</span></div></div>`;
+  }).join('');
+}
+
+async function carregarVacinas() {
+  if (!bebeId) return;
+  const { data } = await db.from('vacinas').select('*').eq('bebe_id', bebeId).order('data_prevista');
+  if (!data) return;
+  const si = {aplicada:'✅', pendente:'⏰', atrasada:'🔴'};
+  document.getElementById('lista-vac').innerHTML = data.map(v => {
+    const cls = v.status==='aplicada' ? 'ok' : 'next';
+    const dt = new Date(v.data_aplicada || v.data_prevista).toLocaleDateString('pt-BR');
+    return `<div class="vac-item"><span style="font-size:18px">${si[v.status]||'⏰'}</span><div class="vac-info"><strong>${v.nome}</strong><span>${v.status==='aplicada'?'Aplicada':'Prevista'}</span></div><div class="vac-dt ${cls}">${dt}</div></div>`;
+  }).join('');
+}
+
+async function registrar(tipo) {
+  if (!bebeId) { showToast('Aguarde...'); return; }
+  const lbl = {mamada:'🍼 Mamada salva!', xixi:'💧 Fralda xixi salva!', coco:'💩 Fralda coco salva!', sono:'😴 Sono salvo!'};
+  try {
+    if (tipo==='mamada') await db.from('mamadas').insert({bebe_id:bebeId, tipo:'amamentacao'});
+    else if (tipo==='xixi'||tipo==='coco') await db.from('fraldas').insert({bebe_id:bebeId, tipo});
+    else if (tipo==='sono') await db.from('sono').insert({bebe_id:bebeId, tipo:'soneca', inicio:new Date().toISOString()});
+    showToast('✓ ' + lbl[tipo]);
+    carregarStats();
+  } catch(e) { showToast('Erro. Tente novamente.'); }
+}
+
+function mudarTela(t) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+t).classList.add('active');
+  document.getElementById('nav-'+t).classList.add('active');
+  if (t==='historico') carregarHistorico();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+async function enviar() {
+  const inp = document.getElementById('chat-in');
+  const q = inp.value.trim();
+  if (!q) return;
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true; inp.value = '';
+  const msgs = document.getElementById('chat-msgs');
+  const mu = document.createElement('div');
+  mu.className = 'msg-u'; mu.textContent = q; msgs.appendChild(mu);
+  const mb = document.createElement('div');
+  mb.className = 'msg-b';
+  mb.innerHTML = '<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA</span></div><span style="color:#aaa">Pensando...</span>';
+  msgs.appendChild(mb); msgs.scrollTop = msgs.scrollHeight;
+  chat_hist.push({role:'user', content:q});
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYSTEM, messages:chat_hist})
+    });
+    const d = await r.json();
+    const resp = d.content && d.content[0] ? d.content[0].text : 'Desculpe, tente novamente.';
+    chat_hist.push({role:'assistant', content:resp});
+    if (bebeId) await db.from('perguntas_ia').insert({bebe_id:bebeId, pergunta:q, resposta:resp});
+    mb.innerHTML = '<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>' + resp.replace(/\n/g,'<br>');
+  } catch(e) {
+    mb.innerHTML = '<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Ops! Verifique sua conexao.';
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+  btn.disabled = false;
+}
+
+document.getElementById('chat-in').addEventListener('keypress', e=>{ if(e.key==='Enter') enviar(); });
+init();
+</script>
+</body>
+</html>
