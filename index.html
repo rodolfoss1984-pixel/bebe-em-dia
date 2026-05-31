@@ -184,12 +184,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const SUPA_URL='https://lhajxmsunykxycdubsmx.supabase.co';
 const SUPA_KEY='sb_publishable_LJMB1KYTJzvuwci5ihpirA_HlpqKCSq';
-const AKEY='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';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 let bebeId=null,sonoAtivo=false,sonoInicioId=null;
 const chat_hist=[];
 let bebeNome='Levi',bebeNasc='2026-04-23',pedNome='',pedTel='',pedClinica='';
+
+async function chamarIA(payload){
+  const r=await fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  });
+  return await r.json();
+}
 
 async function init(){
   try{
@@ -348,10 +356,8 @@ async function pedirResumo(){
   const coco=(f.data||[]).filter(r=>r.tipo==='coco').length;
   const proxVac=vac.data&&vac.data[0]?vac.data[0].nome+' em '+new Date(vac.data[0].data_prevista).toLocaleDateString('pt-BR'):'todas em dia';
   const dias=Math.floor((new Date()-new Date(bebeNasc))/86400000);
-  const ctx=`Resumo acolhedor do ${bebeNome} (${dias} dias): Mamadas hoje: ${(m.data||[]).length}x. Fraldas: ${xixi} xixi e ${coco} coco. Sono: ${hS}h${mS}min em ${(s.data||[]).length} sonecas. Proxima vacina: ${proxVac}. Maximo 120 palavras, portugues informal.`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:ctx}]})});
-    const d=await r.json();
+    const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:`Resumo acolhedor do ${bebeNome} (${dias} dias): Mamadas: ${(m.data||[]).length}x. Fraldas: ${xixi} xixi e ${coco} coco. Sono: ${hS}h${mS}min. Proxima vacina: ${proxVac}. Maximo 120 palavras, portugues informal.`}]});
     const resp=d.content&&d.content[0]?d.content[0].text:'Nao consegui gerar o resumo.';
     mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+resp.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Ops! Verifique sua conexao.';}
@@ -371,8 +377,7 @@ async function enviar(){
   const sys=`Voce e o Dr. Bebe, assistente pediatrico acolhedor. Bebe: ${bebeNome}, ${dias} dias. Pediatra: ${pedNome||'nao informado'}. Portugues informal, NUNCA diagnostique, maximo 150 palavras.`;
   chat_hist.push({role:'user',content:q});
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,system:sys,messages:chat_hist})});
-    const d=await r.json();
+    const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:400,system:sys,messages:chat_hist});
     const resp=d.content&&d.content[0]?d.content[0].text:'Desculpe, tente novamente.';
     chat_hist.push({role:'assistant',content:resp});
     if(bebeId)await db.from('perguntas_ia').insert({bebe_id:bebeId,pergunta:q,resposta:resp});
@@ -390,8 +395,7 @@ async function importarCaderneta(input){
   reader.onload=async function(e){
     const base64=e.target.result.split(',')[1];
     try{
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:800,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:base64}},{type:'text',text:'Caderneta de vacinacao. Liste vacinas aplicadas em JSON: [{"nome":"BCG","data":"2026-04-23"}]. Apenas JSON.'}]}]})});
-      const d=await r.json();
+      const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:800,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:base64}},{type:'text',text:'Caderneta de vacinacao brasileira. Liste APENAS vacinas aplicadas em JSON puro: [{"nome":"BCG","data":"2026-04-23"}]. Apenas o JSON, sem texto adicional.'}]}]});
       const txt=d.content&&d.content[0]?d.content[0].text:'[]';
       const vacinas=JSON.parse(txt.replace(/```json|```/g,'').trim());
       if(vacinas.length>0){
