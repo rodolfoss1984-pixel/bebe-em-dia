@@ -389,23 +389,51 @@ async function enviar(){
 async function importarCaderneta(input){
   if(!input.files||!input.files[0])return;
   const msg=document.getElementById('msg-importacao');
-  msg.style.display='block';msg.textContent='📷 Analisando a caderneta...';
+  msg.style.display='block';msg.textContent='📷 Processando imagem...';
   const file=input.files[0];
-  const reader=new FileReader();
-  reader.onload=async function(e){
-    const base64=e.target.result.split(',')[1];
+  
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  const img=new Image();
+  img.onload=async function(){
+    const maxW=1200,maxH=1200;
+    let w=img.width,h=img.height;
+    if(w>maxW){h=h*(maxW/w);w=maxW;}
+    if(h>maxH){w=w*(maxH/h);h=maxH;}
+    canvas.width=w;canvas.height=h;
+    ctx.drawImage(img,0,0,w,h);
+    const base64=canvas.toDataURL('image/jpeg',0.8).split(',')[1];
+    msg.textContent='🔍 Analisando vacinas...';
     try{
-      const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:800,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:base64}},{type:'text',text:'Caderneta de vacinacao brasileira. Liste APENAS vacinas aplicadas em JSON puro: [{"nome":"BCG","data":"2026-04-23"}]. Apenas o JSON, sem texto adicional.'}]}]});
+      const d=await chamarIA({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64}},
+          {type:'text',text:'Esta e uma caderneta de vacinacao brasileira. Procure por vacinas aplicadas com datas. Retorne APENAS um JSON no formato: [{"nome":"BCG","data":"2026-04-23"}]. Use o formato de data YYYY-MM-DD. Se nao encontrar vacinas retorne []. Apenas o JSON, sem explicacoes.'}
+        ]}]
+      });
       const txt=d.content&&d.content[0]?d.content[0].text:'[]';
-      const vacinas=JSON.parse(txt.replace(/```json|```/g,'').trim());
+      const clean=txt.replace(/```json|```/g,'').trim();
+      const vacinas=JSON.parse(clean);
       if(vacinas.length>0){
-        for(const v of vacinas)await db.from('vacinas').upsert({bebe_id:bebeId,nome:v.nome,data_aplicada:v.data,data_prevista:v.data,status:'aplicada'},{onConflict:'bebe_id,nome'});
-        msg.textContent='✅ '+vacinas.length+' vacinas importadas!';
+        for(const v of vacinas){
+          await db.from('vacinas').upsert(
+            {bebe_id:bebeId,nome:v.nome,data_aplicada:v.data,data_prevista:v.data,status:'aplicada'},
+            {onConflict:'bebe_id,nome'}
+          );
+        }
+        msg.textContent='✅ '+vacinas.length+' vacinas importadas: '+vacinas.map(v=>v.nome).join(', ');
         carregarVacinas();
-      }else{msg.textContent='⚠️ Nao encontrei vacinas. Tente foto mais clara.';}
-    }catch(e){msg.textContent='❌ Erro ao processar. Tente novamente.';}
+      }else{
+        msg.textContent='⚠️ Nao encontrei vacinas na imagem. Tente uma foto mais proxima e bem iluminada.';
+      }
+    }catch(e){
+      console.log(e);
+      msg.textContent='❌ Erro: '+e.message;
+    }
   };
-  reader.readAsDataURL(file);
+  img.src=URL.createObjectURL(file);
 }
 
 function atualizarFoto(input){
