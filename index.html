@@ -233,7 +233,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
   <div class="hdr" id="app-hdr">
     <div class="hdr-deco"></div>
     <div class="hdr-deco2"></div>
-    <div class="hdr-status"><span>9:41</span><span id="hdr-time"></span></div>
+    <div class="hdr-status"></div>
     <div class="hdr-main">
       <div class="hdr-left">
         <p id="hdr-saudacao">Boa tarde</p>
@@ -490,7 +490,6 @@ function tempoAtras(ts){
 
 async function init(){
   document.body.style.opacity='0';
-  document.getElementById('hdr-time').textContent=horaAgora();
   document.getElementById('hdr-saudacao').textContent=saudacao();
   const tema=localStorage.getItem('tema')||'azul';
   aplicarTema(tema);
