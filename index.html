@@ -12,8 +12,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-user-select:none;user-select:none}
 input,textarea{-webkit-user-select:text;user-select:text}
-body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;visibility:hidden}
-body.ready{visibility:visible}
+body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;position:relative;background:#F2F5FB}
 
 /* LOGIN */
@@ -548,7 +547,6 @@ async function init(){
   const tema=localStorage.getItem('tema')||'azul';
   aplicarTema(tema);renderTemas();
   const {data:{session}}=await db.auth.getSession();
-  document.body.classList.add('ready');
   if(session){userId=session.user.id;await carregarUsuario(session.user);}
   else{document.getElementById('login-screen').classList.remove('hide');}
   db.auth.onAuthStateChange(async(event,session)=>{
