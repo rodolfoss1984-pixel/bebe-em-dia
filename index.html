@@ -881,7 +881,7 @@ function selStatus(s){
 }
 
 // EVENTOS
-document.addEventListener('DOMContentLoaded',()=>{
+window.onload=function(){
   $('btn-google').addEventListener('click',()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}}));
   $('btn-ob').addEventListener('click',salvarOB);
   $('btn-config').addEventListener('click',()=>mudarTela('config'));
@@ -919,7 +919,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   history.pushState(null,'',location.href);
   window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
   init();
-});
+};
 </script>
 </body>
 </html>
