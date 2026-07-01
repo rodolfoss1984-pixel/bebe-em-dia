@@ -663,7 +663,7 @@ async function carregarVac(){
     const at=v.status==='pendente'&&dt<hj;const st=at?'atrasada':v.status;
     const cls=st==='aplicada'?'ok':st==='atrasada'?'late':'next';
     const si={aplicada:'&#x2705;',pendente:'&#x23F0;',atrasada:'&#x1F534;'};
-    const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" onclick="marcarVac(''+v.id+'')">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
+    const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" data-id="'+v.id+'" onclick="marcarVac(this.dataset.id)">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
     return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada em '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
   }).join('');
   verificarAlertas();
