@@ -664,7 +664,7 @@ async function carregarVac(){
     const cls=st==='aplicada'?'ok':st==='atrasada'?'late':'next';
     const si={aplicada:'&#x2705;',pendente:'&#x23F0;',atrasada:'&#x1F534;'};
     const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" data-id="'+v.id+'" onclick="marcarVac(this.dataset.id)">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
-    return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada em '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
+    return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada em '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';.nome+'</strong><span>'+(st==='aplicada'?'Aplicada em '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
   }).join('');
   verificarAlertas();
 }
@@ -837,12 +837,9 @@ function atualizarFoto(input){
 }
 
 async function salvarConfig(){
-  async function salvarConfig(){
-  alert('salvando...');
   BNOME=$('cfg-nome').value||BNOME;BNASC=$('cfg-nasc').value||BNASC;PEDNOME=$('cfg-ped-nome').value||'';
-  if(BID)await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID).catch(e=>alert('Erro banco: '+e.message));
+  if(BID)await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID).catch(()=>{});
   atualizarIdade();aplicarTema(TEMA);toast('Configuracoes salvas!');mudarTela('home');
-};
 }
 
 async function salvarOB(){
@@ -884,7 +881,7 @@ function selStatus(s){
 }
 
 // EVENTOS
-window.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',()=>{
   $('btn-google').addEventListener('click',()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}}));
   $('btn-ob').addEventListener('click',salvarOB);
   $('btn-config').addEventListener('click',()=>mudarTela('config'));
@@ -921,16 +918,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('nav-drbebe').addEventListener('click',()=>mudarTela('drbebe'));
   history.pushState(null,'',location.href);
   window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
- init();
+  init();
 });
-
-// fallback
-setTimeout(()=>{
-  const b=document.getElementById('btn-salvar-cfg');
-  if(b&&!b._ev){b._ev=true;b.addEventListener('click',salvarConfig);}
-  const g=document.getElementById('btn-google');
-  if(g&&!g._ev){g._ev=true;g.addEventListener('click',()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}}));}
-},1000);
 </script>
 </body>
 </html>
