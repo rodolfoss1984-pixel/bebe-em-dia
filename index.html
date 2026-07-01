@@ -884,7 +884,7 @@ function selStatus(s){
 }
 
 // EVENTOS
-window.addEventListener('load',()=>{
+window.addEventListener('DOMContentLoaded',()=>{
   $('btn-google').addEventListener('click',()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}}));
   $('btn-ob').addEventListener('click',salvarOB);
   $('btn-config').addEventListener('click',()=>mudarTela('config'));
