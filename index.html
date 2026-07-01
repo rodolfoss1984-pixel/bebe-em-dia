@@ -6,36 +6,51 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1A2744">
 <title>Bebe em Dia</title>
-  <link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
-.app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;position:relative}
+body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;opacity:0;transition:opacity .3s}
+body.ready{opacity:1}
+.app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;position:relative;background:#F2F5FB}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;max-width:430px;margin:0 auto;left:50%;transform:translateX(-50%);width:100%}
+.login-screen.hide{display:none}
+.login-logo{font-size:64px;margin-bottom:16px}
+.login-title{font-size:32px;font-weight:800;color:white;text-align:center;margin-bottom:8px}
+.login-sub{font-size:15px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:48px;line-height:1.6}
+.login-features{width:100%;margin-bottom:40px;display:flex;flex-direction:column;gap:12px}
+.login-feature{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border-radius:14px;padding:12px 16px}
+.login-feature-ico{font-size:24px;flex-shrink:0}
+.login-feature-txt{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
+.google-btn{width:100%;padding:16px;background:white;color:#1A2744;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.google-btn:active{transform:scale(.98)}
+.google-btn svg{width:24px;height:24px;flex-shrink:0}
+.login-disc{font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-top:16px}
 
 /* ONBOARDING */
-.onboarding{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:500;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top, 48px) 24px env(safe-area-inset-bottom, 32px);max-width:430px;margin:0 auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.onboarding{position:fixed;inset:0;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:400;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,48px) 24px env(safe-area-inset-bottom,32px);max-width:430px;margin:0 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;left:50%;transform:translateX(-50%);width:100%}
 .onboarding.hide{display:none}
-.ob-logo{font-size:44px;margin-bottom:8px}
-.ob-title{font-size:28px;font-weight:800;color:white;text-align:center;margin-bottom:8px}
-.ob-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:16px;line-height:1.5}
-.ob-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:24px;width:100%;margin-bottom:16px}
-.ob-card h3{font-size:14px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
-.ob-field{margin-bottom:14px}
-.ob-field label{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.ob-field input{width:100%;padding:14px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;font-size:15px;color:white;outline:none}
+.ob-logo{font-size:44px;margin-bottom:8px;margin-top:8px}
+.ob-title{font-size:24px;font-weight:800;color:white;text-align:center;margin-bottom:6px}
+.ob-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:20px;line-height:1.5}
+.ob-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:20px;width:100%;margin-bottom:12px}
+.ob-card h3{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.ob-field{margin-bottom:12px}
+.ob-field:last-child{margin-bottom:0}
+.ob-field label{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.ob-field input{width:100%;padding:12px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;font-size:15px;color:white;outline:none}
 .ob-field input::placeholder{color:rgba(255,255,255,.3)}
-.ob-field input:focus{border-color:#4EC9B0;background:rgba(255,255,255,.15)}
-.ob-btn{width:100%;padding:16px;background:#4EC9B0;color:#1A2744;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;margin-top:8px}
+.ob-field input:focus{border-color:#4EC9B0}
+.ob-btn{width:100%;padding:16px;background:#4EC9B0;color:#1A2744;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;margin-top:4px}
 .ob-btn:active{transform:scale(.98)}
 
 /* HEADER */
 .hdr{background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);padding:48px 20px 56px;position:relative;overflow:hidden;flex-shrink:0}
 .hdr-deco{position:absolute;right:-20px;top:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
 .hdr-deco2{position:absolute;left:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)}
-.hdr-status{display:flex;justify-content:space-between;margin-bottom:16px;position:relative;z-index:2}
-.hdr-status span{font-size:11px;font-weight:700;color:rgba(255,255,255,.6)}
 .hdr-main{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
 .hdr-left p{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
 .hdr-left h2{font-size:22px;font-weight:800;color:white;line-height:1.2;margin-bottom:14px}
@@ -55,13 +70,13 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .hdr-stat .hn{font-size:15px;font-weight:800;color:white}
 .hdr-stat .hl{font-size:7px;color:rgba(255,255,255,.5);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
 
-/* FLOAT CARD */
+/* FLOAT */
 .float-card{background:#F2F5FB;border-radius:28px 28px 0 0;margin-top:-24px;flex:1;position:relative;z-index:3;padding-bottom:80px;overflow-y:auto}
 .fc-body{padding:16px 16px 0}
 .sec{font-size:9px;font-weight:800;color:#A0AABB;text-transform:uppercase;letter-spacing:.8px;margin:12px 0 10px}
 .sec:first-child{margin-top:4px}
 
-/* BOTOES REGISTRO */
+/* BOTOES */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
 .qbtn{background:white;border-radius:20px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 3px 14px rgba(26,39,68,.08);cursor:pointer;transition:transform .1s;border:2px solid transparent}
 .qbtn:active{transform:scale(.97)}
@@ -84,7 +99,6 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .ev-info strong{font-size:10px;font-weight:700;color:#1A2744;display:block}
 .ev-info span{font-size:9px;color:#A0AABB}
 .ev-time{font-size:10px;font-weight:800}
-
 .dr-card{background:linear-gradient(135deg,#4EC9B0,#2980B9);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(78,201,176,.3);margin-bottom:8px;cursor:pointer}
 .dr-ico{width:42px;height:42px;background:rgba(255,255,255,.2);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .dr-card strong{font-size:12px;color:white;font-weight:800;display:block}
@@ -142,6 +156,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .cfg-label{font-size:12px;color:#A0AABB;font-weight:600;width:90px;flex-shrink:0}
 .cfg-input{flex:1;border:none;font-size:14px;color:#1A2744;outline:none;background:transparent;font-weight:500}
 .save-btn{width:100%;padding:16px;background:#1A2744;color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+.logout-btn{width:100%;padding:16px;background:white;color:#E74C3C;border:1.5px solid #E74C3C;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}
 .foto-perfil-btn{width:100%;padding:14px;background:#4EC9B0;color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
 .av-cfg{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#4EC9B0,#2980B9);padding:4px;margin:0 auto 12px;box-shadow:0 4px 16px rgba(78,201,176,.3)}
 .av-cfg-in{width:100%;height:100%;border-radius:50%;background:#1A2744;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;cursor:pointer}
@@ -152,6 +167,10 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .tema-dot{width:24px;height:24px;border-radius:8px}
 .tema-nome{font-size:7px;font-weight:700;color:#A0AABB}
 .tema-btn.sel .tema-nome{color:#1A2744}
+.user-info{background:white;border-radius:18px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(26,39,68,.07)}
+.user-info img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.user-info-txt strong{font-size:14px;font-weight:700;color:#1A2744;display:block}
+.user-info-txt span{font-size:12px;color:#A0AABB}
 
 /* BOTTOM SHEET */
 .bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
@@ -173,10 +192,9 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .form-field{margin-bottom:12px}
 .form-field label{font-size:11px;font-weight:700;color:#A0AABB;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
 .form-field input,.form-field select{width:100%;padding:12px 14px;border:1.5px solid #EEF0F8;border-radius:12px;font-size:14px;color:#1A2744;outline:none;background:white}
-.form-field input:focus,.form-field select:focus{border-color:#4EC9B0}
+.form-field input:focus{border-color:#4EC9B0}
 .status-btns{display:flex;gap:8px}
 .status-btn{flex:1;padding:10px;border-radius:12px;border:1.5px solid #EEF0F8;background:white;font-size:12px;font-weight:700;color:#A0AABB;cursor:pointer;text-align:center}
-.status-btn.sel{border-color:#4EC9B0;color:#1A2744;background:#E8FBF7}
 .status-btn.sel.tomada{border-color:#4EC9B0;color:#1A8A70;background:#E8FBF7}
 .status-btn.sel.agendada{border-color:#2980B9;color:#2980B9;background:#E8F4FF}
 .form-save{width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
@@ -191,27 +209,44 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 .nav-item.active .nav-lbl{color:#1A2744;font-weight:800}
 .screen{display:none}
 .screen.active{display:block}
-
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A2744;color:white;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:300}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">👶</div>
+  <div class="login-title">Bebe em Dia</div>
+  <div class="login-sub">Seu assistente inteligente para cuidar do seu bebe com tranquilidade</div>
+  <div class="login-features">
+    <div class="login-feature"><div class="login-feature-ico">🍼</div><div class="login-feature-txt">Registre mamadas e fraldas em 1 toque</div></div>
+    <div class="login-feature"><div class="login-feature-ico">💉</div><div class="login-feature-txt">Calendario de vacinas com alertas automaticos</div></div>
+    <div class="login-feature"><div class="login-feature-ico">🤖</div><div class="login-feature-txt">Dr. Bebe — IA pediatrica disponivel 24h</div></div>
+    <div class="login-feature"><div class="login-feature-ico">👫</div><div class="login-feature-txt">Pai e mae compartilham os mesmos dados</div></div>
+  </div>
+  <button class="google-btn" onclick="loginGoogle()">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Entrar com Google
+  </button>
+  <div class="login-disc">Seus dados ficam salvos com segurança na sua conta Google</div>
+</div>
+
 <!-- ONBOARDING -->
-<div class="onboarding" id="onboarding">
+<div class="onboarding hide" id="onboarding">
   <div class="ob-logo">👶</div>
-  <div class="ob-title">Bebe em Dia</div>
-  <div class="ob-sub">Seu assistente inteligente para cuidar do seu bebe com tranquilidade e carinho</div>
+  <div class="ob-title">Vamos comecar!</div>
+  <div class="ob-sub">Conte-nos sobre voce e seu bebe</div>
   <div class="ob-card">
-    <h3>Sobre voce</h3>
+    <h3>Seus dados</h3>
     <div class="ob-field">
       <label>Seu nome</label>
       <input type="text" id="ob-responsavel" placeholder="Ex: Rodolfo"/>
     </div>
   </div>
   <div class="ob-card">
-    <h3>Sobre o bebe</h3>
+    <h3>Dados do bebe</h3>
     <div class="ob-field">
       <label>Nome do bebe</label>
       <input type="text" id="ob-nome" placeholder="Ex: Levi Jose"/>
@@ -225,15 +260,13 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
       <input type="number" id="ob-peso" placeholder="Ex: 3.5" step="0.1"/>
     </div>
   </div>
-  <button class="ob-btn" onclick="salvarOnboarding()">Comecar agora →</button>
+  <button class="ob-btn" onclick="salvarOnboarding()">Comecar →</button>
 </div>
 
 <div class="app" id="main-app" style="display:none">
-  <!-- HEADER -->
   <div class="hdr" id="app-hdr">
     <div class="hdr-deco"></div>
     <div class="hdr-deco2"></div>
-    <div class="hdr-status"></div>
     <div class="hdr-main">
       <div class="hdr-left">
         <p id="hdr-saudacao">Boa tarde</p>
@@ -260,77 +293,54 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
 
   <div class="float-card">
     <div class="fc-body">
-
-      <!-- HOME -->
       <div id="screen-home" class="screen active">
         <div class="sec">Registro rapido</div>
         <div class="grid">
           <div class="qbtn" onclick="abrirBS('mamada')">
-            <div class="ico-box" style="background:#FFF0E8">
-              <svg width="34" height="34" viewBox="0 0 100 100" fill="none"><rect x="38" y="18" width="24" height="44" rx="12" fill="#FF8C42"/><ellipse cx="50" cy="18" rx="12" ry="7" fill="#FFB07A"/><rect x="44" y="10" width="12" height="10" rx="4" fill="#FFB07A"/><rect x="34" y="52" width="32" height="12" rx="6" fill="#E07030"/><rect x="42" y="30" width="16" height="3" rx="1.5" fill="white" opacity=".3"/></svg>
-            </div>
+            <div class="ico-box" style="background:#FFF0E8"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><rect x="38" y="18" width="24" height="44" rx="12" fill="#FF8C42"/><ellipse cx="50" cy="18" rx="12" ry="7" fill="#FFB07A"/><rect x="44" y="10" width="12" height="10" rx="4" fill="#FFB07A"/><rect x="34" y="52" width="32" height="12" rx="6" fill="#E07030"/></svg></div>
             <div class="btn-lbl">Mamadeira</div>
             <div class="btn-tm" id="t-mamada">nenhuma hoje</div>
           </div>
           <div class="qbtn" id="btn-sono" onclick="abrirBS('sono')">
-            <div class="ico-box" style="background:#E8F8F5">
-              <svg width="34" height="34" viewBox="0 0 100 100" fill="none"><path d="M75 52C75 69 62 82 45 82C28 82 15 69 15 52C15 35 28 22 45 22C35 35 35 49 45 59C55 69 68 69 75 52Z" fill="#4EC9B0"/><circle cx="68" cy="20" r="5" fill="#FFD700"/><circle cx="80" cy="33" r="3.5" fill="#FFD700" opacity=".7"/><circle cx="58" cy="12" r="3" fill="#FFD700" opacity=".5"/></svg>
-            </div>
+            <div class="ico-box" style="background:#E8F8F5"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><path d="M75 52C75 69 62 82 45 82C28 82 15 69 15 52C15 35 28 22 45 22C35 35 35 49 45 59C55 69 68 69 75 52Z" fill="#4EC9B0"/><circle cx="68" cy="20" r="5" fill="#FFD700"/><circle cx="80" cy="33" r="3.5" fill="#FFD700" opacity=".7"/><circle cx="58" cy="12" r="3" fill="#FFD700" opacity=".5"/></svg></div>
             <div class="btn-lbl" id="sono-lbl">Dormiu agora</div>
             <div class="btn-tm" id="t-sono">nenhum hoje</div>
           </div>
           <div class="qbtn" onclick="abrirBS('xixi')">
-            <div class="ico-box" style="background:#FFFBE6">
-              <svg width="34" height="34" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="72" rx="22" ry="10" fill="#F5C518" opacity=".3"/><path d="M50 18C38 18 28 30 28 46C28 60 36 72 50 78C64 72 72 60 72 46C72 30 62 18 50 18Z" fill="#F5C518"/><path d="M50 18C44 18 40 22 38 28C42 26 46 25 50 25C54 25 58 26 62 28C60 22 56 18 50 18Z" fill="#FFE066"/><ellipse cx="42" cy="40" rx="5" ry="7" fill="white" opacity=".35"/></svg>
-            </div>
+            <div class="ico-box" style="background:#FFFBE6"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="72" rx="22" ry="10" fill="#F5C518" opacity=".3"/><path d="M50 18C38 18 28 30 28 46C28 60 36 72 50 78C64 72 72 60 72 46C72 30 62 18 50 18Z" fill="#F5C518"/><ellipse cx="42" cy="40" rx="5" ry="7" fill="white" opacity=".35"/></svg></div>
             <div class="btn-lbl">Fralda xixi</div>
             <div class="btn-tm" id="t-xixi">nenhuma hoje</div>
           </div>
           <div class="qbtn" onclick="abrirBS('coco')">
-            <div class="ico-box" style="background:#FFF3E6">
-              <svg width="34" height="34" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="78" rx="24" ry="8" fill="#8B4513" opacity=".25"/><ellipse cx="50" cy="72" rx="22" ry="12" fill="#8B4513"/><ellipse cx="50" cy="60" rx="18" ry="11" fill="#A0522D"/><ellipse cx="50" cy="50" rx="14" ry="10" fill="#8B4513"/><ellipse cx="50" cy="42" rx="10" ry="8" fill="#A0522D"/><circle cx="46" cy="40" r="2" fill="#3E1A00"/><circle cx="54" cy="40" r="2" fill="#3E1A00"/><path d="M45 46 Q50 51 55 46" stroke="#3E1A00" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-            </div>
+            <div class="ico-box" style="background:#FFF3E6"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="78" rx="24" ry="8" fill="#8B4513" opacity=".25"/><ellipse cx="50" cy="72" rx="22" ry="12" fill="#8B4513"/><ellipse cx="50" cy="60" rx="18" ry="11" fill="#A0522D"/><ellipse cx="50" cy="50" rx="14" ry="10" fill="#8B4513"/><ellipse cx="50" cy="42" rx="10" ry="8" fill="#A0522D"/><circle cx="46" cy="40" r="2" fill="#3E1A00"/><circle cx="54" cy="40" r="2" fill="#3E1A00"/><path d="M45 46 Q50 51 55 46" stroke="#3E1A00" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
             <div class="btn-lbl">Fralda coco</div>
             <div class="btn-tm" id="t-coco">nenhuma hoje</div>
           </div>
         </div>
-
         <div class="sec">Proximos eventos</div>
         <div class="ev-card">
           <div class="ev-hdr"><strong>Agenda</strong><span onclick="mudarTela('vacinas')">Ver vacinas →</span></div>
           <div id="lista-eventos"><div class="empty" style="padding:16px;font-size:12px">Nenhum evento cadastrado</div></div>
         </div>
-
         <div class="dr-card" onclick="mudarTela('drbebe')">
-          <div class="dr-ico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="white" stroke="none"/><circle cx="12" cy="10" r="1" fill="white" stroke="none"/><circle cx="15" cy="10" r="1" fill="white" stroke="none"/></svg>
-          </div>
+          <div class="dr-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="white" stroke="none"/><circle cx="12" cy="10" r="1" fill="white" stroke="none"/><circle cx="15" cy="10" r="1" fill="white" stroke="none"/></svg></div>
           <div><strong>Dr. Bebe — IA Real</strong><span>Pergunte qualquer coisa sobre o bebe</span></div>
           <svg style="margin-left:auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
 
-      <!-- HISTORICO -->
       <div id="screen-historico" class="screen">
         <div class="sec">Ultimos registros</div>
         <div id="lista-hist"><div class="empty">Nenhum registro ainda.<br>Use os botoes na tela inicial!</div></div>
       </div>
 
-      <!-- VACINAS -->
       <div id="screen-vacinas" class="screen">
         <div id="vac-alertas"></div>
-
         <div id="form-vac-wrap" style="display:none">
           <div class="form-vac">
-            <h3>➕ Nova vacina</h3>
-            <div class="form-field">
-              <label>Nome da vacina</label>
-              <input type="text" id="vac-nome-input" placeholder="Ex: BCG, Pentavalente..."/>
-            </div>
-            <div class="form-field">
-              <label>Data</label>
-              <input type="date" id="vac-data-input"/>
-            </div>
+            <h3>Nova vacina</h3>
+            <div class="form-field"><label>Nome da vacina</label><input type="text" id="vac-nome-input" placeholder="Ex: BCG, Pentavalente..."/></div>
+            <div class="form-field"><label>Data</label><input type="date" id="vac-data-input"/></div>
             <div class="form-field">
               <label>Status</label>
               <div class="status-btns">
@@ -342,31 +352,20 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
             <button class="form-cancel" onclick="fecharFormVac()">Cancelar</button>
           </div>
         </div>
-
         <button class="add-vac-btn" onclick="abrirFormVac()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Adicionar vacina
         </button>
-
         <div class="vac-card">
-          <div class="vac-hdr-inner">
-            <div>
-              <h3>Carteira de Vacinacao</h3>
-              <p id="vac-sub">Carregando...</p>
-            </div>
-          </div>
-          <div id="lista-vac"><div class="empty">Nenhuma vacina cadastrada ainda.<br>Adicione acima!</div></div>
+          <div class="vac-hdr-inner"><div><h3>Carteira de Vacinacao</h3><p id="vac-sub">Carregando...</p></div></div>
+          <div id="lista-vac"><div class="empty">Nenhuma vacina cadastrada ainda.</div></div>
         </div>
       </div>
 
-      <!-- DR BEBE -->
       <div id="screen-drbebe" class="screen">
         <button class="resumo-btn" onclick="pedirResumo()">📊 Como esta o bebe agora?</button>
         <div class="chat-wrap" id="chat-msgs">
-          <div class="msg-b">
-            <div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>
-            Ola! Sou o Dr. Bebe. Pergunte qualquer coisa sobre o seu bebe — estou aqui 24h, inclusive de madrugada! 😊
-          </div>
+          <div class="msg-b"><div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>Ola! Sou o Dr. Bebe. Pergunte qualquer coisa sobre o seu bebe — estou aqui 24h! 😊</div>
         </div>
         <div class="chat-input-row">
           <input type="text" id="chat-in" placeholder="Pergunte sobre o bebe..."/>
@@ -375,19 +374,19 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
         <div class="disc">Dr. Bebe nao substitui orientacao medica. Consulte sempre o pediatra.</div>
       </div>
 
-      <!-- CONFIG -->
       <div id="screen-config" class="screen">
+        <div class="sec">Conta Google</div>
+        <div class="user-info" id="user-info-card">
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8F0FB;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+          <div class="user-info-txt"><strong id="user-nome">Carregando...</strong><span id="user-email">---</span></div>
+        </div>
+
         <div class="sec">Foto do bebe</div>
         <div class="av-cfg" onclick="document.getElementById('input-foto').click()">
           <div class="av-cfg-in" id="av-cfg-inner">👶</div>
         </div>
         <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="atualizarFoto(this)">
         <button class="foto-perfil-btn" onclick="document.getElementById('input-foto').click()">📷 Alterar foto do bebe</button>
-
-        <div class="sec">Seus dados</div>
-        <div class="cfg-card">
-          <div class="cfg-item"><div class="cfg-label">Seu nome</div><input class="cfg-input" id="cfg-responsavel" type="text" placeholder="Seu nome"/></div>
-        </div>
 
         <div class="sec">Dados do bebe</div>
         <div class="cfg-card">
@@ -408,8 +407,11 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
         </div>
 
         <button class="save-btn" onclick="salvarConfig()">✓ Salvar configuracoes</button>
+        <button class="logout-btn" onclick="logout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E74C3C" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair da conta
+        </button>
       </div>
-
     </div>
   </div>
 
@@ -442,7 +444,6 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
   </nav>
 </div>
 
-<!-- BOTTOM SHEET -->
 <div class="bs-overlay" id="bs-overlay" onclick="fecharBS(event)">
   <div class="bs-sheet">
     <div class="bs-handle"></div>
@@ -456,7 +457,6 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -464,7 +464,7 @@ const SUPA_URL='https://lhajxmsunykxycdubsmx.supabase.co';
 const SUPA_KEY='sb_publishable_LJMB1KYTJzvuwci5ihpirA_HlpqKCSq';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
-let bebeId=null,sonoAtivo=false,sonoInicioId=null,bsTipo=null;
+let bebeId=null,sonoAtivo=false,sonoInicioId=null,bsTipo=null,userId=null;
 const chat_hist=[];
 let bebeNome='Bebe',bebeNasc='',responsavel='',pedNome='';
 let vacStatusSel='tomada';
@@ -488,9 +488,23 @@ function tempoAtras(ts){
   return'ha '+h+'h'+(m>0?m+'min':'');
 }
 
+async function loginGoogle(){
+  const {error}=await db.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:window.location.origin}
+  });
+  if(error)showToast('Erro ao conectar com Google');
+}
+
+async function logout(){
+  await db.auth.signOut();
+  bebeId=null;userId=null;
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-screen').classList.remove('hide');
+  showToast('Ate logo!');
+}
+
 async function init(){
-  document.body.style.opacity='0';
-  document.getElementById('hdr-saudacao').textContent=saudacao();
   const tema=localStorage.getItem('tema')||'azul';
   aplicarTema(tema);
   renderTemas();
@@ -499,45 +513,55 @@ async function init(){
     document.getElementById('avatar-btn').innerHTML=`<img src="${foto}" alt="foto">`;
     document.getElementById('av-cfg-inner').innerHTML=`<img src="${foto}" alt="foto">`;
   }
-  const cfg=localStorage.getItem('bebe_config');
-  if(cfg){
-    const c=JSON.parse(cfg);
-    bebeNome=c.nome||'Bebe';bebeNasc=c.nasc||'';
-    responsavel=c.responsavel||'';pedNome=c.pedNome||'';
-    aplicarCfgUI();
+  const {data:{session}}=await db.auth.getSession();
+  document.body.classList.add('ready');
+  if(session){
+    userId=session.user.id;
+    await carregarUsuario(session.user);
+  } else {
+    document.getElementById('login-screen').classList.remove('hide');
   }
-  try{
-    const {data}=await db.from('bebes').select('*').limit(1).single();
-    if(data){
-      mostrarApp();
-document.body.style.opacity='1';
-document.body.style.transition='opacity .3s';
-      bebeId=data.id;
-      bebeNome=data.nome;bebeNasc=data.data_nascimento;
-      localStorage.setItem('bebe_config',JSON.stringify({nome:bebeNome,nasc:bebeNasc,responsavel,pedNome}));
-      mostrarApp();
-      atualizarIdade();
-      carregarStats();
-      carregarVacinas();
-      verificarSono();
-      verificarAlertasVacina();
-    } else {
-      mostrarOnboarding();
+  db.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session){
+      userId=session.user.id;
+      document.getElementById('login-screen').classList.add('hide');
+      await carregarUsuario(session.user);
+    } else if(event==='SIGNED_OUT'){
+      document.getElementById('login-screen').classList.remove('hide');
+      document.getElementById('main-app').style.display='none';
     }
-  }catch(e){mostrarOnboarding();}
+  });
 }
 
-function mostrarOnboarding(){
-  document.body.style.opacity='1';
-  document.body.style.transition='opacity .3s';
-  document.getElementById('onboarding').classList.remove('hide');
-  document.getElementById('main-app').style.display='none';
-  const hoje=new Date().toISOString().split('T')[0];
-  document.getElementById('ob-nasc').value=hoje;
+async function carregarUsuario(user){
+  document.getElementById('user-nome').textContent=user.user_metadata?.full_name||user.email;
+  document.getElementById('user-email').textContent=user.email;
+  if(user.user_metadata?.avatar_url){
+    document.getElementById('user-info-card').querySelector('div').innerHTML=`<img src="${user.user_metadata.avatar_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`;
+  }
+  const saud=saudacao();
+  const primeiroNome=(user.user_metadata?.full_name||'').split(' ')[0]||'';
+  document.getElementById('hdr-saudacao').textContent=saud+(primeiroNome?', '+primeiroNome:'');
+  const {data:bebes}=await db.from('bebes').select('*').eq('user_id',userId).limit(1);
+  if(bebes&&bebes.length>0){
+    const b=bebes[0];
+    bebeId=b.id;bebeNome=b.nome;bebeNasc=b.data_nascimento;
+    mostrarApp();
+    atualizarIdade();
+    carregarStats();
+    carregarVacinas();
+    verificarSono();
+    verificarAlertasVacina();
+  } else {
+    document.getElementById('onboarding').classList.remove('hide');
+    const hoje=new Date().toISOString().split('T')[0];
+    document.getElementById('ob-nasc').value=hoje;
+  }
 }
 
 function mostrarApp(){
   document.getElementById('onboarding').classList.add('hide');
+  document.getElementById('login-screen').classList.add('hide');
   document.getElementById('main-app').style.display='flex';
 }
 
@@ -546,20 +570,17 @@ async function salvarOnboarding(){
   const nasc=document.getElementById('ob-nasc').value;
   const resp=document.getElementById('ob-responsavel').value.trim();
   const peso=document.getElementById('ob-peso').value;
-  if(!nome||!nasc){showToastOb('Preencha nome e data de nascimento!');return;}
+  if(!nome||!nasc){showToast('Preencha nome e data!');return;}
   try{
-    const {data}=await db.from('bebes').insert({nome,data_nascimento:nasc,sexo:'masculino',peso_nascimento:parseFloat(peso)||0}).select().single();
+    const {data}=await db.from('bebes').insert({nome,data_nascimento:nasc,sexo:'masculino',peso_nascimento:parseFloat(peso)||0,user_id:userId}).select().single();
     if(data){
       bebeId=data.id;bebeNome=nome;bebeNasc=nasc;responsavel=resp;
-      localStorage.setItem('bebe_config',JSON.stringify({nome,nasc,responsavel:resp,pedNome:''}));
       mostrarApp();
       atualizarIdade();
       carregarStats();
     }
-  }catch(e){showToastOb('Erro ao salvar. Tente novamente.');}
+  }catch(e){showToast('Erro ao salvar. Tente novamente.');}
 }
-
-function showToastOb(msg){showToast(msg);}
 
 function atualizarIdade(){
   if(!bebeNasc)return 0;
@@ -568,17 +589,10 @@ function atualizarIdade(){
   document.getElementById('hdr-idade').textContent=dias+' dias de vida';
   document.getElementById('av-nome-hdr').textContent=bebeNome;
   document.getElementById('vac-sub').textContent=bebeNome+' · '+dias+' dias';
-  const saud=saudacao();
-  document.getElementById('hdr-saudacao').textContent=saud+', '+(responsavel||'');
   document.getElementById('hdr-titulo').innerHTML=bebeNome+' esta<br><em>bem hoje?</em>';
-  return dias;
-}
-
-function aplicarCfgUI(){
   document.getElementById('cfg-nome').value=bebeNome;
   document.getElementById('cfg-nasc').value=bebeNasc;
-  document.getElementById('cfg-responsavel').value=responsavel;
-  if(pedNome)document.getElementById('cfg-ped-nome').value=pedNome;
+  return dias;
 }
 
 function renderTemas(){
@@ -653,7 +667,7 @@ async function carregarEventos(){
     const dias=Math.floor((new Date(v.data_prevista)-new Date())/86400000);
     const atrasada=dias<0;
     const cor=atrasada?'#E74C3C':dias<=7?'#FFB020':'#2980B9';
-    const txt=atrasada?`atrasada ${Math.abs(dias)} dias`:dias===0?'hoje!':dias+'d';
+    const txt=atrasada?`atrasada ${Math.abs(dias)}d`:dias===0?'hoje!':dias+'d';
     items.push(`<div class="ev-item"><div class="ev-dot" style="background:${atrasada?'#FFF0F0':'#FFF8E8'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2.2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="ev-info"><strong>${v.nome}</strong><span>${atrasada?'ATRASADA!':'Proxima vacina'}</span></div><div class="ev-time" style="color:${cor}">${txt}</div></div>`);
     document.getElementById('hs-vac').textContent=atrasada?'❗':dias+'d';
   }
@@ -683,10 +697,7 @@ async function verificarAlertasVacina(){
 async function carregarVacinas(){
   if(!bebeId)return;
   const {data}=await db.from('vacinas').select('*').eq('bebe_id',bebeId).order('data_prevista');
-  if(!data||!data.length){
-    document.getElementById('lista-vac').innerHTML='<div class="empty">Nenhuma vacina cadastrada ainda.<br>Adicione acima!</div>';
-    return;
-  }
+  if(!data||!data.length){document.getElementById('lista-vac').innerHTML='<div class="empty">Nenhuma vacina cadastrada ainda.<br>Adicione acima!</div>';return;}
   const hoje=new Date();
   const si={aplicada:'✅',pendente:'⏰',atrasada:'🔴'};
   document.getElementById('lista-vac').innerHTML=data.map(v=>{
@@ -695,8 +706,8 @@ async function carregarVacinas(){
     const atrasada=v.status==='pendente'&&dt<hoje;
     const status=atrasada?'atrasada':v.status;
     const cls=status==='aplicada'?'ok':status==='atrasada'?'late':'next';
-    const marcarBtn=status!=='aplicada'?`<button class="vac-marcar ${status==='atrasada'?'late':''}" onclick="marcarTomada('${v.id}')">Tomada</button>`:'';
-    return`<div class="vac-item"><div class="vac-status">${si[status]||'⏰'}</div><div class="vac-info"><strong>${v.nome}</strong><span>${status==='aplicada'?'Aplicada':'Prevista para'} ${dtFmt}</span></div>${marcarBtn||`<div class="vac-dt ${cls}">${dtFmt}</div>`}</div>`;
+    const marcarBtn=status!=='aplicada'?`<button class="vac-marcar ${status==='atrasada'?'late':''}" onclick="marcarTomada('${v.id}')">Tomada</button>`:`<div class="vac-dt ${cls}">${dtFmt}</div>`;
+    return`<div class="vac-item"><div class="vac-status">${si[status]||'⏰'}</div><div class="vac-info"><strong>${v.nome}</strong><span>${status==='aplicada'?'Aplicada em '+dtFmt:'Prevista para '+dtFmt}</span></div>${marcarBtn}</div>`;
   }).join('');
   verificarAlertasVacina();
 }
@@ -704,8 +715,7 @@ async function carregarVacinas(){
 async function marcarTomada(id){
   await db.from('vacinas').update({status:'aplicada',data_aplicada:new Date().toISOString().split('T')[0]}).eq('id',id);
   showToast('✅ Vacina marcada como tomada!');
-  carregarVacinas();
-  carregarEventos();
+  carregarVacinas();carregarEventos();
 }
 
 function abrirFormVac(){
@@ -713,11 +723,8 @@ function abrirFormVac(){
   document.getElementById('vac-nome-input').value='';
   document.getElementById('vac-data-input').value=new Date().toISOString().split('T')[0];
   selStatus('tomada');
-  document.getElementById('vac-nome-input').focus();
 }
-
 function fecharFormVac(){document.getElementById('form-vac-wrap').style.display='none';}
-
 function selStatus(s){
   vacStatusSel=s;
   document.getElementById('sb-tomada').className='status-btn tomada'+(s==='tomada'?' sel':'');
@@ -734,9 +741,7 @@ async function salvarVacina(){
   else{obj.data_prevista=data;}
   await db.from('vacinas').insert(obj);
   showToast(vacStatusSel==='tomada'?'✅ Vacina registrada!':'⏰ Vacina agendada!');
-  fecharFormVac();
-  carregarVacinas();
-  carregarEventos();
+  fecharFormVac();carregarVacinas();carregarEventos();
 }
 
 async function carregarHistorico(){
@@ -749,9 +754,8 @@ async function carregarHistorico(){
   ]);
   const todos=[...(m.data||[]).map(r=>({...r,cat:'mamada'})),...(f.data||[]).map(r=>({...r,cat:'fralda'})),...(s.data||[]).map(r=>({...r,cat:'sono'}))].sort((a,b)=>new Date(b.registrado_em)-new Date(a.registrado_em)).slice(0,20);
   if(!todos.length){c.innerHTML='<div class="empty">Nenhum registro ainda.<br>Use os botoes na tela inicial!</div>';return;}
-  const icos={mamada:'🍼',sono:'🌙'};
   c.innerHTML=todos.map(r=>{
-    const icon=r.cat==='fralda'?(r.tipo==='coco'?'💩':'💧'):icos[r.cat];
+    const icon=r.cat==='fralda'?(r.tipo==='coco'?'💩':'💧'):(r.cat==='sono'?'🌙':'🍼');
     let lbl=r.cat==='mamada'?'Mamadeira':r.cat==='sono'?'Sono':'Fralda '+r.tipo;
     if(r.cat==='sono'&&r.fim){const dur=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);const h=Math.floor(dur/60),mn=dur%60;lbl+=' — '+(h>0?h+'h ':'')+mn+'min';}
     const bg=r.cat==='mamada'?'#FFF0E8':r.cat==='sono'?'#E8F8F5':r.tipo==='coco'?'#FFF3E6':'#FFFBE6';
@@ -778,11 +782,9 @@ function abrirBS(tipo){
   document.getElementById('bs-confirm-btn').style.background=cfg.cor;
   document.getElementById('bs-overlay').classList.add('show');
 }
-
 function fecharBS(e){
   if(e&&e.target!==document.getElementById('bs-overlay'))return;
-  document.getElementById('bs-overlay').classList.remove('show');
-  bsTipo=null;
+  document.getElementById('bs-overlay').classList.remove('show');bsTipo=null;
 }
 
 async function confirmarBS(){
@@ -883,24 +885,15 @@ function atualizarFoto(input){
   reader.readAsDataURL(input.files[0]);
 }
 
-function salvarConfig(){
+async function salvarConfig(){
   bebeNome=document.getElementById('cfg-nome').value||bebeNome;
   bebeNasc=document.getElementById('cfg-nasc').value||bebeNasc;
-  responsavel=document.getElementById('cfg-responsavel').value||'';
   pedNome=document.getElementById('cfg-ped-nome').value||'';
-  const cfg={nome:bebeNome,nasc:bebeNasc,responsavel,pedNome};
-  localStorage.setItem('bebe_config',JSON.stringify(cfg));
-  console.log('Config salva:',cfg);
-  if(bebeId){
-    db.from('bebes').update({nome:bebeNome,data_nascimento:bebeNasc}).eq('id',bebeId).then(({error})=>{
-      if(error)console.log('Erro ao salvar no banco:',error);
-      else console.log('Bebe atualizado no banco!');
-    });
-  }
+  if(bebeId){await db.from('bebes').update({nome:bebeNome,data_nascimento:bebeNasc}).eq('id',bebeId).catch(()=>{});}
   atualizarIdade();
   aplicarTema(temaAtual);
   showToast('✓ Configuracoes salvas!');
-  setTimeout(()=>mudarTela('home'),500);
+  mudarTela('home');
 }
 
 function mudarTela(t){
