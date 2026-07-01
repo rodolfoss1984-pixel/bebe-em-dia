@@ -489,6 +489,7 @@ function tempoAtras(ts){
 }
 
 async function init(){
+  document.body.style.opacity='0';
   document.getElementById('hdr-time').textContent=horaAgora();
   document.getElementById('hdr-saudacao').textContent=saudacao();
   const tema=localStorage.getItem('tema')||'azul';
@@ -509,6 +510,9 @@ async function init(){
   try{
     const {data}=await db.from('bebes').select('*').limit(1).single();
     if(data){
+      mostrarApp();
+document.body.style.opacity='1';
+document.body.style.transition='opacity .3s';
       bebeId=data.id;
       bebeNome=data.nome;bebeNasc=data.data_nascimento;
       localStorage.setItem('bebe_config',JSON.stringify({nome:bebeNome,nasc:bebeNasc,responsavel,pedNome}));
@@ -525,6 +529,8 @@ async function init(){
 }
 
 function mostrarOnboarding(){
+  document.body.style.opacity='1';
+  document.body.style.transition='opacity .3s';
   document.getElementById('onboarding').classList.remove('hide');
   document.getElementById('main-app').style.display='none';
   const hoje=new Date().toISOString().split('T')[0];
