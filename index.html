@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 p,h1,h2,h3,h4,span,div,label{-webkit-user-select:none;user-select:none}
 input,textarea{-webkit-user-select:text;user-select:text}
-body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;opacity:0}
+body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;opacity:0;transition:opacity .4s}
 .app{width:100%;max-width:430px;min-height:100vh;display:none;flex-direction:column;position:relative;background:#F2F5FB}
 .app.show{display:flex}
 
@@ -530,9 +530,9 @@ function mudarTela(t){
   if(t==='crescimento'){carregarCresc();$('form-cresc-wrap').style.display='none';}
 }
 
-function mostrarLogin(){$('login-screen').classList.add('show');$('onboarding').classList.remove('show');$('main-app').classList.remove('show');}
-function mostrarOB(){$('login-screen').classList.remove('show');$('onboarding').classList.add('show');$('main-app').classList.remove('show');$('ob-nasc').value=new Date().toISOString().split('T')[0];}
-function mostrarApp(){$('login-screen').classList.remove('show');$('onboarding').classList.remove('show');$('main-app').classList.add('show');}
+function mostrarLogin(){document.body.style.opacity='1';$('login-screen').classList.add('show');$('onboarding').classList.remove('show');$('main-app').classList.remove('show');}
+function mostrarOB(){document.body.style.opacity='1';$('login-screen').classList.remove('show');$('onboarding').classList.add('show');$('main-app').classList.remove('show');$('ob-nasc').value=new Date().toISOString().split('T')[0];}
+function mostrarApp(){document.body.style.opacity='1';$('login-screen').classList.remove('show');$('onboarding').classList.remove('show');$('main-app').classList.add('show');}
 
 async function init(){
   history.pushState(null,'',location.href);
@@ -565,7 +565,7 @@ async function carregarUsuario(user){
   const {data:bebes}=await db.from('bebes').select('*').eq('user_id',UID).limit(1);
   if(bebes&&bebes.length>0){
     const b=bebes[0];BID=b.id;BNOME=b.nome;BNASC=b.data_nascimento;PEDNOME=b.pediatra_nome||'';
-    if(PEDNOME)$('cfg-ped-nome').value=PEDNOME;
+    var pedEl=document.getElementById('cfg-ped-nome');if(pedEl&&PEDNOME)pedEl.value=PEDNOME;
     mostrarApp();atualizarIdade();carregarStats();carregarVac();verificarSono();verificarAlertas();
   }else mostrarOB();
 }
@@ -840,7 +840,7 @@ function atualizarFoto(input){
 async function salvarConfig(){
   const nn=document.getElementById('cfg-nome').value;
   const nb=document.getElementById('cfg-nasc').value;
-  const np=document.getElementById('cfg-ped-nome').value;
+  const np=(document.getElementById('cfg-ped-nome')||{}).value||'';
   if(nn)BNOME=nn;
   if(nb)BNASC=nb;
   PEDNOME=np||'';
