@@ -837,9 +837,12 @@ function atualizarFoto(input){
 }
 
 async function salvarConfig(){
+  async function salvarConfig(){
+  alert('salvando...');
   BNOME=$('cfg-nome').value||BNOME;BNASC=$('cfg-nasc').value||BNASC;PEDNOME=$('cfg-ped-nome').value||'';
-  if(BID)await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID).catch(()=>{});
+  if(BID)await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID).catch(e=>alert('Erro banco: '+e.message));
   atualizarIdade();aplicarTema(TEMA);toast('Configuracoes salvas!');mudarTela('home');
+};
 }
 
 async function salvarOB(){
