@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 p,h1,h2,h3,h4,span,div,label{-webkit-user-select:none;user-select:none}
 input,textarea{-webkit-user-select:text;user-select:text}
-body{background:#1A2744;display:flex;justify-content:center;min-height:100vh}
+body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;opacity:0}
 .app{width:100%;max-width:430px;min-height:100vh;display:none;flex-direction:column;position:relative;background:#F2F5FB}
 .app.show{display:flex}
 
@@ -540,6 +540,7 @@ async function init(){
   TEMA=localStorage.getItem('tema')||'azul';
   aplicarTema(TEMA);
   const {data:{session}}=await db.auth.getSession();
+  document.body.style.opacity='1';
   if(session){UID=session.user.id;await carregarUsuario(session.user);}
   else mostrarLogin();
   db.auth.onAuthStateChange(async(ev,ses)=>{
@@ -837,8 +838,16 @@ function atualizarFoto(input){
 }
 
 async function salvarConfig(){
-  BNOME=$('cfg-nome').value||BNOME;BNASC=$('cfg-nasc').value||BNASC;PEDNOME=$('cfg-ped-nome').value||'';
-  if(BID)await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID).catch(()=>{});
+  const nn=document.getElementById('cfg-nome').value;
+  const nb=document.getElementById('cfg-nasc').value;
+  const np=document.getElementById('cfg-ped-nome').value;
+  if(nn)BNOME=nn;
+  if(nb)BNASC=nb;
+  PEDNOME=np||'';
+  if(BID){
+    const {error}=await db.from('bebes').update({nome:BNOME,data_nascimento:BNASC,pediatra_nome:PEDNOME}).eq('id',BID);
+    if(error){toast('Erro: '+error.message);return;}
+  }
   atualizarIdade();aplicarTema(TEMA);toast('Configuracoes salvas!');mudarTela('home');
 }
 
