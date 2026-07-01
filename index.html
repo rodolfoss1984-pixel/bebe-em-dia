@@ -921,8 +921,16 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('nav-drbebe').addEventListener('click',()=>mudarTela('drbebe'));
   history.pushState(null,'',location.href);
   window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
-  init();
+ init();
 });
+
+// fallback
+setTimeout(()=>{
+  const b=document.getElementById('btn-salvar-cfg');
+  if(b&&!b._ev){b._ev=true;b.addEventListener('click',salvarConfig);}
+  const g=document.getElementById('btn-google');
+  if(g&&!g._ev){g._ev=true;g.addEventListener('click',()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}}));}
+},1000);
 </script>
 </body>
 </html>
