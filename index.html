@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1A2744">
 <title>Bebe em Dia</title>
@@ -10,28 +10,29 @@
 <link rel="apple-touch-icon" href="/icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;opacity:0;transition:opacity .3s}
-body.ready{opacity:1}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;visibility:hidden}
+body.ready{visibility:visible}
 .app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;position:relative;background:#F2F5FB}
 
 /* LOGIN */
-.login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;max-width:430px;margin:0 auto;left:50%;transform:translateX(-50%);width:100%}
+.login-screen{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
 .login-screen.hide{display:none}
 .login-logo{font-size:64px;margin-bottom:16px}
 .login-title{font-size:32px;font-weight:800;color:white;text-align:center;margin-bottom:8px}
-.login-sub{font-size:15px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:48px;line-height:1.6}
-.login-features{width:100%;margin-bottom:40px;display:flex;flex-direction:column;gap:12px}
+.login-sub{font-size:14px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:40px;line-height:1.6}
+.login-features{width:100%;margin-bottom:36px;display:flex;flex-direction:column;gap:10px}
 .login-feature{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border-radius:14px;padding:12px 16px}
-.login-feature-ico{font-size:24px;flex-shrink:0}
+.login-feature-ico{font-size:22px;flex-shrink:0}
 .login-feature-txt{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
 .google-btn{width:100%;padding:16px;background:white;color:#1A2744;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.2)}
 .google-btn:active{transform:scale(.98)}
 .google-btn svg{width:24px;height:24px;flex-shrink:0}
-.login-disc{font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-top:16px}
+.login-disc{font-size:11px;color:rgba(255,255,255,.3);text-align:center;margin-top:14px}
 
 /* ONBOARDING */
-.onboarding{position:fixed;inset:0;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:400;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,48px) 24px env(safe-area-inset-bottom,32px);max-width:430px;margin:0 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;left:50%;transform:translateX(-50%);width:100%}
+.onboarding{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);z-index:400;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,48px) 24px env(safe-area-inset-bottom,32px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .onboarding.hide{display:none}
 .ob-logo{font-size:44px;margin-bottom:8px;margin-top:8px}
 .ob-title{font-size:24px;font-weight:800;color:white;text-align:center;margin-bottom:6px}
@@ -48,7 +49,7 @@ body.ready{opacity:1}
 .ob-btn:active{transform:scale(.98)}
 
 /* HEADER */
-.hdr{background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);padding:48px 20px 56px;position:relative;overflow:hidden;flex-shrink:0}
+.hdr{background:linear-gradient(160deg,#1A2744 0%,#243060 60%,#1E3A5F 100%);padding:env(safe-area-inset-top,48px) 20px 56px;position:relative;overflow:hidden;flex-shrink:0}
 .hdr-deco{position:absolute;right:-20px;top:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
 .hdr-deco2{position:absolute;left:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)}
 .hdr-main{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
@@ -87,7 +88,7 @@ body.ready{opacity:1}
 .btn-tm{font-size:9px;color:#A0AABB;font-weight:500}
 .btn-tm.sono-txt{color:#4EC9B0;opacity:.7}
 
-/* AGENDA */
+/* CARDS */
 .ev-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:10px;box-shadow:0 3px 14px rgba(26,39,68,.07)}
 .ev-hdr{background:#1A2744;padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
 .ev-hdr strong{font-size:11px;font-weight:800;color:white}
@@ -113,7 +114,7 @@ body.ready{opacity:1}
 
 /* VACINAS */
 .vac-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:10px;box-shadow:0 3px 14px rgba(26,39,68,.07)}
-.vac-hdr-inner{background:#1A2744;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.vac-hdr-inner{background:#1A2744;padding:14px 16px}
 .vac-hdr-inner h3{font-size:14px;font-weight:800;color:white}
 .vac-hdr-inner p{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
 .vac-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F0F4FB}
@@ -128,14 +129,36 @@ body.ready{opacity:1}
 .vac-dt.late{color:#E74C3C}
 .vac-marcar{background:#4EC9B0;color:white;border:none;border-radius:8px;padding:4px 10px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
 .vac-marcar.late{background:#E74C3C}
-.add-vac-btn{width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.add-btn{width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
 .alert-banner{background:#FFF0F0;border:1.5px solid #E74C3C;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .alert-banner .alert-ico{font-size:20px;flex-shrink:0}
 .alert-banner strong{font-size:12px;font-weight:700;color:#C0392B;display:block}
 .alert-banner span{font-size:10px;color:#E74C3C}
 
+/* CRESCIMENTO */
+.cresc-card{background:white;border-radius:18px;padding:16px;margin-bottom:10px;box-shadow:0 3px 14px rgba(26,39,68,.07)}
+.cresc-card h3{font-size:13px;font-weight:800;color:#1A2744;margin-bottom:12px}
+.cresc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.cresc-stat{background:#F2F5FB;border-radius:12px;padding:10px;text-align:center}
+.cresc-stat .cn{font-size:18px;font-weight:800;color:#1A2744}
+.cresc-stat .cl{font-size:9px;color:#A0AABB;margin-top:2px;font-weight:600}
+.cresc-stat .cd{font-size:9px;font-weight:600;margin-top:2px}
+.cresc-stat .cd.up{color:#4EC9B0}
+.cresc-stat .cd.down{color:#E74C3C}
+.cresc-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0F4FB}
+.cresc-item:last-child{border-bottom:none}
+.cresc-item-info{flex:1}
+.cresc-item-info strong{font-size:12px;font-weight:700;color:#1A2744;display:block}
+.cresc-item-info span{font-size:10px;color:#A0AABB}
+.cresc-item-vals{text-align:right}
+.cresc-item-vals strong{font-size:11px;font-weight:700;color:#1A2744;display:block}
+.cresc-item-vals span{font-size:9px;color:#A0AABB}
+.grafico{width:100%;height:80px;margin:8px 0;position:relative}
+.grafico-linha{position:absolute;bottom:0;left:0;right:0;top:0}
+
 /* DR BEBE */
-.resumo-btn{width:100%;padding:14px;background:white;color:#4EC9B0;border:2px solid #4EC9B0;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.resumo-btn{width:100%;padding:14px;background:white;color:#4EC9B0;border:2px solid #4EC9B0;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.analise-btn{width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
 .chat-wrap{display:flex;flex-direction:column;gap:10px;min-height:200px}
 .msg-u{align-self:flex-end;background:#1A2744;color:white;padding:12px 16px;border-radius:18px 18px 4px 18px;font-size:13px;max-width:85%;line-height:1.5}
 .msg-b{align-self:flex-start;background:white;border:1px solid #EEF0F8;padding:12px 16px;border-radius:18px 18px 18px 4px;font-size:13px;max-width:90%;color:#1A2744;line-height:1.6;box-shadow:0 2px 10px rgba(26,39,68,.07)}
@@ -154,7 +177,7 @@ body.ready{opacity:1}
 .cfg-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #F0F4FB}
 .cfg-item:last-child{border-bottom:none}
 .cfg-label{font-size:12px;color:#A0AABB;font-weight:600;width:90px;flex-shrink:0}
-.cfg-input{flex:1;border:none;font-size:14px;color:#1A2744;outline:none;background:transparent;font-weight:500}
+.cfg-input{flex:1;border:none;font-size:14px;color:#1A2744;outline:none;background:transparent;font-weight:500;-webkit-user-select:text;user-select:text}
 .save-btn{width:100%;padding:16px;background:#1A2744;color:white;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
 .logout-btn{width:100%;padding:16px;background:white;color:#E74C3C;border:1.5px solid #E74C3C;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}
 .foto-perfil-btn{width:100%;padding:14px;background:#4EC9B0;color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -168,7 +191,7 @@ body.ready{opacity:1}
 .tema-nome{font-size:7px;font-weight:700;color:#A0AABB}
 .tema-btn.sel .tema-nome{color:#1A2744}
 .user-info{background:white;border-radius:18px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(26,39,68,.07)}
-.user-info img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.user-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .user-info-txt strong{font-size:14px;font-weight:700;color:#1A2744;display:block}
 .user-info-txt span{font-size:12px;color:#A0AABB}
 
@@ -186,12 +209,12 @@ body.ready{opacity:1}
 .bs-cancel{flex:1;padding:14px;border-radius:14px;border:1.5px solid #E0E8F0;background:white;font-size:14px;font-weight:700;color:#A0AABB;cursor:pointer}
 .bs-confirm{flex:1;padding:14px;border-radius:14px;border:none;font-size:14px;font-weight:700;color:white;cursor:pointer}
 
-/* FORM VACINA */
-.form-vac{background:white;border-radius:18px;padding:16px;margin-bottom:10px;box-shadow:0 3px 14px rgba(26,39,68,.07)}
-.form-vac h3{font-size:14px;font-weight:800;color:#1A2744;margin-bottom:14px}
+/* FORM */
+.form-card{background:white;border-radius:18px;padding:16px;margin-bottom:10px;box-shadow:0 3px 14px rgba(26,39,68,.07)}
+.form-card h3{font-size:14px;font-weight:800;color:#1A2744;margin-bottom:14px}
 .form-field{margin-bottom:12px}
 .form-field label{font-size:11px;font-weight:700;color:#A0AABB;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
-.form-field input,.form-field select{width:100%;padding:12px 14px;border:1.5px solid #EEF0F8;border-radius:12px;font-size:14px;color:#1A2744;outline:none;background:white}
+.form-field input,.form-field select{width:100%;padding:12px 14px;border:1.5px solid #EEF0F8;border-radius:12px;font-size:14px;color:#1A2744;outline:none;background:white;-webkit-user-select:text;user-select:text}
 .form-field input:focus{border-color:#4EC9B0}
 .status-btns{display:flex;gap:8px}
 .status-btn{flex:1;padding:10px;border-radius:12px;border:1.5px solid #EEF0F8;background:white;font-size:12px;font-weight:700;color:#A0AABB;cursor:pointer;text-align:center}
@@ -201,7 +224,7 @@ body.ready{opacity:1}
 .form-cancel{width:100%;padding:12px;background:white;color:#A0AABB;border:1.5px solid #EEF0F8;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
 
 /* NAV */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #EEF0F8;display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(26,39,68,.08)}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #EEF0F8;display:flex;padding:8px 0 env(safe-area-inset-bottom,20px);z-index:100;box-shadow:0 -4px 20px rgba(26,39,68,.08)}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:2px 0}
 .nav-dot{width:5px;height:5px;border-radius:50%;margin:0 auto 1px;opacity:0;background:#4EC9B0}
 .nav-item.active .nav-dot{opacity:1}
@@ -223,14 +246,14 @@ body.ready{opacity:1}
   <div class="login-features">
     <div class="login-feature"><div class="login-feature-ico">🍼</div><div class="login-feature-txt">Registre mamadas e fraldas em 1 toque</div></div>
     <div class="login-feature"><div class="login-feature-ico">💉</div><div class="login-feature-txt">Calendario de vacinas com alertas automaticos</div></div>
-    <div class="login-feature"><div class="login-feature-ico">🤖</div><div class="login-feature-txt">Dr. Bebe — IA pediatrica disponivel 24h</div></div>
-    <div class="login-feature"><div class="login-feature-ico">👫</div><div class="login-feature-txt">Pai e mae compartilham os mesmos dados</div></div>
+    <div class="login-feature"><div class="login-feature-ico">📊</div><div class="login-feature-txt">Acompanhe o crescimento com graficos</div></div>
+    <div class="login-feature"><div class="login-feature-ico">🤖</div><div class="login-feature-txt">Dr. Bebe com analise inteligente dos dados</div></div>
   </div>
   <button class="google-btn" onclick="loginGoogle()">
     <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
     Entrar com Google
   </button>
-  <div class="login-disc">Seus dados ficam salvos com segurança na sua conta Google</div>
+  <div class="login-disc">Seus dados ficam salvos com seguranca na sua conta Google</div>
 </div>
 
 <!-- ONBOARDING -->
@@ -240,46 +263,29 @@ body.ready{opacity:1}
   <div class="ob-sub">Conte-nos sobre voce e seu bebe</div>
   <div class="ob-card">
     <h3>Seus dados</h3>
-    <div class="ob-field">
-      <label>Seu nome</label>
-      <input type="text" id="ob-responsavel" placeholder="Ex: Rodolfo"/>
-    </div>
+    <div class="ob-field"><label>Seu nome</label><input type="text" id="ob-responsavel" placeholder="Ex: Rodolfo"/></div>
   </div>
   <div class="ob-card">
     <h3>Dados do bebe</h3>
-    <div class="ob-field">
-      <label>Nome do bebe</label>
-      <input type="text" id="ob-nome" placeholder="Ex: Levi Jose"/>
-    </div>
-    <div class="ob-field">
-      <label>Data de nascimento</label>
-      <input type="date" id="ob-nasc"/>
-    </div>
-    <div class="ob-field">
-      <label>Peso ao nascer (kg)</label>
-      <input type="number" id="ob-peso" placeholder="Ex: 3.5" step="0.1"/>
-    </div>
+    <div class="ob-field"><label>Nome do bebe</label><input type="text" id="ob-nome" placeholder="Ex: Levi Jose"/></div>
+    <div class="ob-field"><label>Data de nascimento</label><input type="date" id="ob-nasc"/></div>
+    <div class="ob-field"><label>Peso ao nascer (kg)</label><input type="number" id="ob-peso" placeholder="Ex: 3.5" step="0.1"/></div>
+    <div class="ob-field"><label>Altura ao nascer (cm)</label><input type="number" id="ob-altura" placeholder="Ex: 50" step="0.1"/></div>
   </div>
   <button class="ob-btn" onclick="salvarOnboarding()">Comecar →</button>
 </div>
 
 <div class="app" id="main-app" style="display:none">
   <div class="hdr" id="app-hdr">
-    <div class="hdr-deco"></div>
-    <div class="hdr-deco2"></div>
+    <div class="hdr-deco"></div><div class="hdr-deco2"></div>
     <div class="hdr-main">
       <div class="hdr-left">
         <p id="hdr-saudacao">Boa tarde</p>
         <h2 id="hdr-titulo">Bebe esta<br><em>bem hoje?</em></h2>
-        <div class="hdr-badge" id="hdr-badge">
-          <div class="hdr-badge-dot"></div>
-          <span id="hdr-idade">0 dias de vida</span>
-        </div>
+        <div class="hdr-badge" id="hdr-badge"><div class="hdr-badge-dot"></div><span id="hdr-idade">0 dias</span></div>
       </div>
       <div class="hdr-right">
-        <div class="av-ring" onclick="mudarTela('config')">
-          <div class="av-inner" id="avatar-btn">👶</div>
-        </div>
+        <div class="av-ring" onclick="mudarTela('config')"><div class="av-inner" id="avatar-btn">👶</div></div>
         <div class="av-name" id="av-nome-hdr">Bebe</div>
       </div>
     </div>
@@ -293,6 +299,8 @@ body.ready{opacity:1}
 
   <div class="float-card">
     <div class="fc-body">
+
+      <!-- HOME -->
       <div id="screen-home" class="screen active">
         <div class="sec">Registro rapido</div>
         <div class="grid">
@@ -302,12 +310,12 @@ body.ready{opacity:1}
             <div class="btn-tm" id="t-mamada">nenhuma hoje</div>
           </div>
           <div class="qbtn" id="btn-sono" onclick="abrirBS('sono')">
-            <div class="ico-box" style="background:#E8F8F5"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><path d="M75 52C75 69 62 82 45 82C28 82 15 69 15 52C15 35 28 22 45 22C35 35 35 49 45 59C55 69 68 69 75 52Z" fill="#4EC9B0"/><circle cx="68" cy="20" r="5" fill="#FFD700"/><circle cx="80" cy="33" r="3.5" fill="#FFD700" opacity=".7"/><circle cx="58" cy="12" r="3" fill="#FFD700" opacity=".5"/></svg></div>
+            <div class="ico-box" style="background:#E8F8F5"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><path d="M75 52C75 69 62 82 45 82C28 82 15 69 15 52C15 35 28 22 45 22C35 35 35 49 45 59C55 69 68 69 75 52Z" fill="#4EC9B0"/><circle cx="68" cy="20" r="5" fill="#FFD700"/><circle cx="80" cy="33" r="3.5" fill="#FFD700" opacity=".7"/></svg></div>
             <div class="btn-lbl" id="sono-lbl">Dormiu agora</div>
             <div class="btn-tm" id="t-sono">nenhum hoje</div>
           </div>
           <div class="qbtn" onclick="abrirBS('xixi')">
-            <div class="ico-box" style="background:#FFFBE6"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="72" rx="22" ry="10" fill="#F5C518" opacity=".3"/><path d="M50 18C38 18 28 30 28 46C28 60 36 72 50 78C64 72 72 60 72 46C72 30 62 18 50 18Z" fill="#F5C518"/><ellipse cx="42" cy="40" rx="5" ry="7" fill="white" opacity=".35"/></svg></div>
+            <div class="ico-box" style="background:#FFFBE6"><svg width="34" height="34" viewBox="0 0 100 100" fill="none"><path d="M50 18C38 18 28 30 28 46C28 60 36 72 50 78C64 72 72 60 72 46C72 30 62 18 50 18Z" fill="#F5C518"/><ellipse cx="42" cy="40" rx="5" ry="7" fill="white" opacity=".35"/></svg></div>
             <div class="btn-lbl">Fralda xixi</div>
             <div class="btn-tm" id="t-xixi">nenhuma hoje</div>
           </div>
@@ -324,20 +332,22 @@ body.ready{opacity:1}
         </div>
         <div class="dr-card" onclick="mudarTela('drbebe')">
           <div class="dr-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="white" stroke="none"/><circle cx="12" cy="10" r="1" fill="white" stroke="none"/><circle cx="15" cy="10" r="1" fill="white" stroke="none"/></svg></div>
-          <div><strong>Dr. Bebe — IA Real</strong><span>Pergunte qualquer coisa sobre o bebe</span></div>
+          <div><strong>Dr. Bebe — IA Real</strong><span>Analise inteligente dos seus dados</span></div>
           <svg style="margin-left:auto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
 
+      <!-- HISTORICO -->
       <div id="screen-historico" class="screen">
         <div class="sec">Ultimos registros</div>
-        <div id="lista-hist"><div class="empty">Nenhum registro ainda.<br>Use os botoes na tela inicial!</div></div>
+        <div id="lista-hist"><div class="empty">Nenhum registro ainda.</div></div>
       </div>
 
+      <!-- VACINAS -->
       <div id="screen-vacinas" class="screen">
         <div id="vac-alertas"></div>
         <div id="form-vac-wrap" style="display:none">
-          <div class="form-vac">
+          <div class="form-card">
             <h3>Nova vacina</h3>
             <div class="form-field"><label>Nome da vacina</label><input type="text" id="vac-nome-input" placeholder="Ex: BCG, Pentavalente..."/></div>
             <div class="form-field"><label>Data</label><input type="date" id="vac-data-input"/></div>
@@ -352,20 +362,56 @@ body.ready{opacity:1}
             <button class="form-cancel" onclick="fecharFormVac()">Cancelar</button>
           </div>
         </div>
-        <button class="add-vac-btn" onclick="abrirFormVac()">
+        <button class="add-btn" onclick="abrirFormVac()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Adicionar vacina
         </button>
         <div class="vac-card">
-          <div class="vac-hdr-inner"><div><h3>Carteira de Vacinacao</h3><p id="vac-sub">Carregando...</p></div></div>
-          <div id="lista-vac"><div class="empty">Nenhuma vacina cadastrada ainda.</div></div>
+          <div class="vac-hdr-inner"><h3>Carteira de Vacinacao</h3><p id="vac-sub">Carregando...</p></div>
+          <div id="lista-vac"><div class="empty">Nenhuma vacina cadastrada.</div></div>
         </div>
       </div>
 
+      <!-- CRESCIMENTO -->
+      <div id="screen-crescimento" class="screen">
+        <div id="form-cresc-wrap" style="display:none">
+          <div class="form-card">
+            <h3>Registrar medicao</h3>
+            <div class="form-field"><label>Data da medicao</label><input type="date" id="cresc-data-input"/></div>
+            <div class="form-field"><label>Peso (kg)</label><input type="number" id="cresc-peso-input" placeholder="Ex: 4.2" step="0.01"/></div>
+            <div class="form-field"><label>Altura (cm)</label><input type="number" id="cresc-altura-input" placeholder="Ex: 53" step="0.1"/></div>
+            <div class="form-field"><label>Local</label>
+              <select id="cresc-local-input">
+                <option value="consulta">Consulta pediatra</option>
+                <option value="casa">Em casa</option>
+                <option value="ubs">UBS/Posto</option>
+              </select>
+            </div>
+            <button class="form-save" onclick="salvarCrescimento()">Salvar medicao</button>
+            <button class="form-cancel" onclick="fecharFormCresc()">Cancelar</button>
+          </div>
+        </div>
+        <button class="add-btn" onclick="abrirFormCresc()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar medicao
+        </button>
+        <div class="cresc-card">
+          <h3>📏 Evolucao do bebe</h3>
+          <div class="cresc-stats">
+            <div class="cresc-stat"><div class="cn" id="c-peso">--</div><div class="cl">Peso (kg)</div><div class="cd up" id="c-peso-d"></div></div>
+            <div class="cresc-stat"><div class="cn" id="c-altura">--</div><div class="cl">Altura (cm)</div><div class="cd up" id="c-altura-d"></div></div>
+            <div class="cresc-stat"><div class="cn" id="c-imc">--</div><div class="cl">IMC</div><div class="cd" id="c-imc-d"></div></div>
+          </div>
+          <div id="lista-cresc"><div class="empty" style="padding:20px">Nenhuma medicao registrada.<br>Adicione acima!</div></div>
+        </div>
+      </div>
+
+      <!-- DR BEBE -->
       <div id="screen-drbebe" class="screen">
-        <button class="resumo-btn" onclick="pedirResumo()">📊 Como esta o bebe agora?</button>
+        <button class="resumo-btn" onclick="pedirResumo()">📊 Como esta o bebe hoje?</button>
+        <button class="analise-btn" onclick="pedirAnalise()">🔬 Analise inteligente dos dados</button>
         <div class="chat-wrap" id="chat-msgs">
-          <div class="msg-b"><div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>Ola! Sou o Dr. Bebe. Pergunte qualquer coisa sobre o seu bebe — estou aqui 24h! 😊</div>
+          <div class="msg-b"><div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>Ola! Sou o Dr. Bebe. Use os botoes acima para analises automaticas ou me faca qualquer pergunta! 😊</div>
         </div>
         <div class="chat-input-row">
           <input type="text" id="chat-in" placeholder="Pergunte sobre o bebe..."/>
@@ -374,44 +420,39 @@ body.ready{opacity:1}
         <div class="disc">Dr. Bebe nao substitui orientacao medica. Consulte sempre o pediatra.</div>
       </div>
 
+      <!-- CONFIG -->
       <div id="screen-config" class="screen">
-        <div class="sec">Conta Google</div>
+        <div class="sec">Conta</div>
         <div class="user-info" id="user-info-card">
-          <div style="width:44px;height:44px;border-radius:50%;background:#E8F0FB;display:flex;align-items:center;justify-content:center;font-size:20px">👤</div>
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8F0FB;display:flex;align-items:center;justify-content:center;font-size:20px" id="user-avatar-wrap">👤</div>
           <div class="user-info-txt"><strong id="user-nome">Carregando...</strong><span id="user-email">---</span></div>
         </div>
-
         <div class="sec">Foto do bebe</div>
         <div class="av-cfg" onclick="document.getElementById('input-foto').click()">
           <div class="av-cfg-in" id="av-cfg-inner">👶</div>
         </div>
         <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="atualizarFoto(this)">
         <button class="foto-perfil-btn" onclick="document.getElementById('input-foto').click()">📷 Alterar foto do bebe</button>
-
         <div class="sec">Dados do bebe</div>
         <div class="cfg-card">
           <div class="cfg-item"><div class="cfg-label">Nome</div><input class="cfg-input" id="cfg-nome" type="text"/></div>
           <div class="cfg-item"><div class="cfg-label">Nascimento</div><input class="cfg-input" id="cfg-nasc" type="date"/></div>
           <div class="cfg-item"><div class="cfg-label">Peso nasc.</div><input class="cfg-input" id="cfg-peso" type="text"/></div>
         </div>
-
         <div class="sec">Pediatra</div>
         <div class="cfg-card">
           <div class="cfg-item"><div class="cfg-label">Nome</div><input class="cfg-input" id="cfg-ped-nome" type="text" placeholder="Dr. Ana Paula"/></div>
           <div class="cfg-item"><div class="cfg-label">Telefone</div><input class="cfg-input" id="cfg-ped-tel" type="tel" placeholder="(18) 99999-9999"/></div>
         </div>
-
         <div class="sec">Tema do app</div>
-        <div class="cfg-card" style="padding:12px">
-          <div class="temas-grid" id="temas-grid"></div>
-        </div>
-
+        <div class="cfg-card" style="padding:12px"><div class="temas-grid" id="temas-grid"></div></div>
         <button class="save-btn" onclick="salvarConfig()">✓ Salvar configuracoes</button>
         <button class="logout-btn" onclick="logout()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E74C3C" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sair da conta
         </button>
       </div>
+
     </div>
   </div>
 
@@ -431,15 +472,15 @@ body.ready{opacity:1}
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0C8D8" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <div class="nav-lbl">Vacinas</div>
     </div>
+    <div class="nav-item" id="nav-crescimento" onclick="mudarTela('crescimento')">
+      <div class="nav-dot"></div>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0C8D8" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <div class="nav-lbl">Crescimento</div>
+    </div>
     <div class="nav-item" id="nav-drbebe" onclick="mudarTela('drbebe')">
       <div class="nav-dot"></div>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0C8D8" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       <div class="nav-lbl">Dr. Bebe</div>
-    </div>
-    <div class="nav-item" id="nav-config" onclick="mudarTela('config')">
-      <div class="nav-dot"></div>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0C8D8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <div class="nav-lbl">Config</div>
     </div>
   </nav>
 </div>
@@ -466,7 +507,7 @@ const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 let bebeId=null,sonoAtivo=false,sonoInicioId=null,bsTipo=null,userId=null;
 const chat_hist=[];
-let bebeNome='Bebe',bebeNasc='',responsavel='',pedNome='';
+let bebeNome='Bebe',bebeNasc='',pedNome='';
 let vacStatusSel='tomada';
 
 const temas=[
@@ -487,40 +528,29 @@ function tempoAtras(ts){
   const h=Math.floor(diff/60),m=diff%60;
   return'ha '+h+'h'+(m>0?m+'min':'');
 }
+function diasIdade(){return bebeNasc?Math.floor((new Date()-new Date(bebeNasc))/86400000):0;}
 
 async function loginGoogle(){
-  const {error}=await db.auth.signInWithOAuth({
-    provider:'google',
-    options:{redirectTo:window.location.origin}
-  });
-  if(error)showToast('Erro ao conectar com Google');
+  await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});
 }
 
 async function logout(){
   await db.auth.signOut();
-  bebeId=null;userId=null;
+  bebeId=null;userId=null;bebeNome='Bebe';bebeNasc='';
   document.getElementById('main-app').style.display='none';
   document.getElementById('login-screen').classList.remove('hide');
-  showToast('Ate logo!');
+  history.pushState(null,'',window.location.href);
 }
 
 async function init(){
+  history.pushState(null,'',window.location.href);
+  window.addEventListener('popstate',()=>history.pushState(null,'',window.location.href));
   const tema=localStorage.getItem('tema')||'azul';
-  aplicarTema(tema);
-  renderTemas();
-  const foto=localStorage.getItem('bebe_foto');
-  if(foto){
-    document.getElementById('avatar-btn').innerHTML=`<img src="${foto}" alt="foto">`;
-    document.getElementById('av-cfg-inner').innerHTML=`<img src="${foto}" alt="foto">`;
-  }
+  aplicarTema(tema);renderTemas();
   const {data:{session}}=await db.auth.getSession();
   document.body.classList.add('ready');
-  if(session){
-    userId=session.user.id;
-    await carregarUsuario(session.user);
-  } else {
-    document.getElementById('login-screen').classList.remove('hide');
-  }
+  if(session){userId=session.user.id;await carregarUsuario(session.user);}
+  else{document.getElementById('login-screen').classList.remove('hide');}
   db.auth.onAuthStateChange(async(event,session)=>{
     if(event==='SIGNED_IN'&&session){
       userId=session.user.id;
@@ -537,25 +567,30 @@ async function carregarUsuario(user){
   document.getElementById('user-nome').textContent=user.user_metadata?.full_name||user.email;
   document.getElementById('user-email').textContent=user.email;
   if(user.user_metadata?.avatar_url){
-    document.getElementById('user-info-card').querySelector('div').innerHTML=`<img src="${user.user_metadata.avatar_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`;
+    document.getElementById('user-avatar-wrap').innerHTML=`<img src="${user.user_metadata.avatar_url}" class="user-avatar">`;
   }
   const saud=saudacao();
   const primeiroNome=(user.user_metadata?.full_name||'').split(' ')[0]||'';
   document.getElementById('hdr-saudacao').textContent=saud+(primeiroNome?', '+primeiroNome:'');
+  const fotoKey='bebe_foto_'+user.id;
+  const foto=localStorage.getItem(fotoKey);
+  if(foto){
+    document.getElementById('avatar-btn').innerHTML=`<img src="${foto}" alt="foto">`;
+    document.getElementById('av-cfg-inner').innerHTML=`<img src="${foto}" alt="foto">`;
+  } else {
+    document.getElementById('avatar-btn').innerHTML='👶';
+    document.getElementById('av-cfg-inner').innerHTML='👶';
+  }
   const {data:bebes}=await db.from('bebes').select('*').eq('user_id',userId).limit(1);
   if(bebes&&bebes.length>0){
     const b=bebes[0];
     bebeId=b.id;bebeNome=b.nome;bebeNasc=b.data_nascimento;
-    mostrarApp();
-    atualizarIdade();
-    carregarStats();
-    carregarVacinas();
-    verificarSono();
-    verificarAlertasVacina();
+    pedNome=b.pediatra_nome||'';
+    if(pedNome)document.getElementById('cfg-ped-nome').value=pedNome;
+    mostrarApp();atualizarIdade();carregarStats();carregarVacinas();verificarSono();verificarAlertasVacina();
   } else {
     document.getElementById('onboarding').classList.remove('hide');
-    const hoje=new Date().toISOString().split('T')[0];
-    document.getElementById('ob-nasc').value=hoje;
+    document.getElementById('ob-nasc').value=new Date().toISOString().split('T')[0];
   }
 }
 
@@ -568,50 +603,46 @@ function mostrarApp(){
 async function salvarOnboarding(){
   const nome=document.getElementById('ob-nome').value.trim();
   const nasc=document.getElementById('ob-nasc').value;
-  const resp=document.getElementById('ob-responsavel').value.trim();
   const peso=document.getElementById('ob-peso').value;
+  const altura=document.getElementById('ob-altura').value;
   if(!nome||!nasc){showToast('Preencha nome e data!');return;}
   try{
-    const {data}=await db.from('bebes').insert({nome,data_nascimento:nasc,sexo:'masculino',peso_nascimento:parseFloat(peso)||0,user_id:userId}).select().single();
+    const {data}=await db.from('bebes').insert({nome,data_nascimento:nasc,peso_nascimento:parseFloat(peso)||0,user_id:userId}).select().single();
     if(data){
-      bebeId=data.id;bebeNome=nome;bebeNasc=nasc;responsavel=resp;
-      mostrarApp();
-      atualizarIdade();
-      carregarStats();
+      bebeId=data.id;bebeNome=nome;bebeNasc=nasc;
+      if(peso||altura){
+        await db.from('crescimento').insert({bebe_id:bebeId,user_id:userId,data_medicao:nasc,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(altura)||null});
+      }
+      mostrarApp();atualizarIdade();carregarStats();
     }
-  }catch(e){showToast('Erro ao salvar. Tente novamente.');}
+  }catch(e){showToast('Erro ao salvar.');}
 }
 
 function atualizarIdade(){
-  if(!bebeNasc)return 0;
-  const nasc=new Date(bebeNasc);
-  const dias=Math.floor((new Date()-nasc)/86400000);
+  if(!bebeNasc)return;
+  const dias=diasIdade();
   document.getElementById('hdr-idade').textContent=dias+' dias de vida';
   document.getElementById('av-nome-hdr').textContent=bebeNome;
   document.getElementById('vac-sub').textContent=bebeNome+' · '+dias+' dias';
   document.getElementById('hdr-titulo').innerHTML=bebeNome+' esta<br><em>bem hoje?</em>';
   document.getElementById('cfg-nome').value=bebeNome;
   document.getElementById('cfg-nasc').value=bebeNasc;
-  return dias;
 }
 
 function renderTemas(){
-  const g=document.getElementById('temas-grid');
-  if(!g)return;
+  const g=document.getElementById('temas-grid');if(!g)return;
   g.innerHTML=temas.map(t=>`<div class="tema-btn ${t.id===temaAtual?'sel':''}" onclick="aplicarTema('${t.id}')"><div class="tema-dot" style="background:${t.cor}"></div><div class="tema-nome">${t.nome}</div></div>`).join('');
 }
 
 function aplicarTema(id){
-  temaAtual=id;
-  const t=temas.find(x=>x.id===id);
-  const hdr=document.getElementById('app-hdr');
-  if(hdr)hdr.style.background=t.hdr;
+  temaAtual=id;const t=temas.find(x=>x.id===id);
+  const hdr=document.getElementById('app-hdr');if(hdr)hdr.style.background=t.hdr;
   document.querySelectorAll('.ev-hdr,.vac-hdr-inner').forEach(el=>el.style.background=t.cor);
   document.querySelectorAll('.dr-card').forEach(el=>el.style.background=`linear-gradient(135deg,${t.accent},${t.cor})`);
+  document.querySelectorAll('.analise-btn').forEach(el=>el.style.background=t.cor);
   document.querySelectorAll('.hdr-badge-dot').forEach(el=>{el.style.background=t.accent;el.style.boxShadow=`0 0 8px ${t.accent}`});
   document.querySelectorAll('.hdr-left h2 em').forEach(el=>el.style.color=t.accent);
-  localStorage.setItem('tema',id);
-  renderTemas();
+  localStorage.setItem('tema',id);renderTemas();
 }
 
 async function verificarSono(){
@@ -640,8 +671,7 @@ async function carregarStats(){
   const totalSono=((s.data||[]).reduce((acc,r)=>{if(r.fim)acc+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return acc;},0));
   const hS=Math.floor(totalSono/60),mS=totalSono%60;
   document.getElementById('hs-son').textContent=totalSono>0?(hS>0?hS+'h':mS+'m'):'0h';
-  carregarUltimos();
-  carregarEventos();
+  carregarUltimos();carregarEventos();
 }
 
 async function carregarUltimos(){
@@ -681,15 +711,14 @@ async function verificarAlertasVacina(){
   const hoje=new Date();
   const atrasadas=data.filter(v=>new Date(v.data_prevista)<hoje);
   const proximas=data.filter(v=>{const d=Math.floor((new Date(v.data_prevista)-hoje)/86400000);return d>=0&&d<=7;});
-  const alertas=document.getElementById('vac-alertas');
-  if(!alertas)return;
+  const alertas=document.getElementById('vac-alertas');if(!alertas)return;
   let html='';
   if(atrasadas.length>0){
     html+=`<div class="alert-banner"><div class="alert-ico">🔴</div><div><strong>${atrasadas.length} vacina${atrasadas.length>1?'s':''} atrasada${atrasadas.length>1?'s':''}!</strong><span>${atrasadas.map(v=>v.nome).join(', ')}</span></div></div>`;
     const badge=document.getElementById('hdr-badge');
     if(badge){badge.classList.add('alerta');document.getElementById('hdr-idade').textContent='⚠️ Vacina atrasada!';}
   } else if(proximas.length>0){
-    html+=`<div class="alert-banner" style="background:#FFF8E8;border-color:#FFB020"><div class="alert-ico">⚠️</div><div><strong style="color:#B7790A">${proximas.length} vacina${proximas.length>1?'s':''} esta semana!</strong><span style="color:#FFB020">${proximas.map(v=>v.nome).join(', ')}</span></div></div>`;
+    html+=`<div class="alert-banner" style="background:#FFF8E8;border-color:#FFB020"><div class="alert-ico">⚠️</div><div><strong style="color:#B7790A">${proximas.length} vacina esta semana!</strong><span style="color:#FFB020">${proximas.map(v=>v.nome).join(', ')}</span></div></div>`;
   }
   alertas.innerHTML=html;
 }
@@ -697,7 +726,7 @@ async function verificarAlertasVacina(){
 async function carregarVacinas(){
   if(!bebeId)return;
   const {data}=await db.from('vacinas').select('*').eq('bebe_id',bebeId).order('data_prevista');
-  if(!data||!data.length){document.getElementById('lista-vac').innerHTML='<div class="empty">Nenhuma vacina cadastrada ainda.<br>Adicione acima!</div>';return;}
+  if(!data||!data.length){document.getElementById('lista-vac').innerHTML='<div class="empty">Nenhuma vacina cadastrada.</div>';return;}
   const hoje=new Date();
   const si={aplicada:'✅',pendente:'⏰',atrasada:'🔴'};
   document.getElementById('lista-vac').innerHTML=data.map(v=>{
@@ -706,42 +735,93 @@ async function carregarVacinas(){
     const atrasada=v.status==='pendente'&&dt<hoje;
     const status=atrasada?'atrasada':v.status;
     const cls=status==='aplicada'?'ok':status==='atrasada'?'late':'next';
-    const marcarBtn=status!=='aplicada'?`<button class="vac-marcar ${status==='atrasada'?'late':''}" onclick="marcarTomada('${v.id}')">Tomada</button>`:`<div class="vac-dt ${cls}">${dtFmt}</div>`;
-    return`<div class="vac-item"><div class="vac-status">${si[status]||'⏰'}</div><div class="vac-info"><strong>${v.nome}</strong><span>${status==='aplicada'?'Aplicada em '+dtFmt:'Prevista para '+dtFmt}</span></div>${marcarBtn}</div>`;
+    const btn=status!=='aplicada'?`<button class="vac-marcar ${status==='atrasada'?'late':''}" onclick="marcarTomada('${v.id}')">Tomada</button>`:`<div class="vac-dt ${cls}">${dtFmt}</div>`;
+    return`<div class="vac-item"><div class="vac-status">${si[status]||'⏰'}</div><div class="vac-info"><strong>${v.nome}</strong><span>${status==='aplicada'?'Aplicada em '+dtFmt:'Prevista para '+dtFmt}</span></div>${btn}</div>`;
   }).join('');
   verificarAlertasVacina();
 }
 
 async function marcarTomada(id){
   await db.from('vacinas').update({status:'aplicada',data_aplicada:new Date().toISOString().split('T')[0]}).eq('id',id);
-  showToast('✅ Vacina marcada como tomada!');
-  carregarVacinas();carregarEventos();
+  showToast('✅ Vacina marcada como tomada!');carregarVacinas();carregarEventos();
 }
 
-function abrirFormVac(){
-  document.getElementById('form-vac-wrap').style.display='block';
-  document.getElementById('vac-nome-input').value='';
-  document.getElementById('vac-data-input').value=new Date().toISOString().split('T')[0];
-  selStatus('tomada');
-}
+function abrirFormVac(){document.getElementById('form-vac-wrap').style.display='block';document.getElementById('vac-nome-input').value='';document.getElementById('vac-data-input').value=new Date().toISOString().split('T')[0];selStatus('tomada');}
 function fecharFormVac(){document.getElementById('form-vac-wrap').style.display='none';}
 function selStatus(s){
   vacStatusSel=s;
   document.getElementById('sb-tomada').className='status-btn tomada'+(s==='tomada'?' sel':'');
   document.getElementById('sb-agendada').className='status-btn agendada'+(s==='agendada'?' sel':'');
 }
-
 async function salvarVacina(){
   const nome=document.getElementById('vac-nome-input').value.trim();
   const data=document.getElementById('vac-data-input').value;
   if(!nome||!data){showToast('Preencha nome e data!');return;}
-  if(!bebeId){showToast('Cadastre o bebe primeiro!');return;}
-  const obj={bebe_id:bebeId,nome,status:vacStatusSel==='tomada'?'aplicada':'pendente'};
-  if(vacStatusSel==='tomada'){obj.data_aplicada=data;obj.data_prevista=data;}
-  else{obj.data_prevista=data;}
+  const obj={bebe_id:bebeId,user_id:userId,nome,status:vacStatusSel==='tomada'?'aplicada':'pendente'};
+  if(vacStatusSel==='tomada'){obj.data_aplicada=data;obj.data_prevista=data;}else{obj.data_prevista=data;}
   await db.from('vacinas').insert(obj);
   showToast(vacStatusSel==='tomada'?'✅ Vacina registrada!':'⏰ Vacina agendada!');
   fecharFormVac();carregarVacinas();carregarEventos();
+}
+
+async function carregarCrescimento(){
+  if(!bebeId)return;
+  const {data}=await db.from('crescimento').select('*').eq('bebe_id',bebeId).order('data_medicao',{ascending:false});
+  if(!data||!data.length){
+    document.getElementById('lista-cresc').innerHTML='<div class="empty" style="padding:20px">Nenhuma medicao registrada.<br>Adicione acima!</div>';
+    return;
+  }
+  const ultimo=data[0];
+  const penultimo=data.length>1?data[1]:null;
+  if(ultimo.peso_kg){
+    document.getElementById('c-peso').textContent=ultimo.peso_kg;
+    if(penultimo&&penultimo.peso_kg){
+      const diff=(ultimo.peso_kg-penultimo.peso_kg).toFixed(2);
+      const el=document.getElementById('c-peso-d');
+      el.textContent=(diff>0?'+':'')+diff+'kg';
+      el.className='cd '+(diff>=0?'up':'down');
+    }
+  }
+  if(ultimo.altura_cm){
+    document.getElementById('c-altura').textContent=ultimo.altura_cm;
+    if(penultimo&&penultimo.altura_cm){
+      const diff=(ultimo.altura_cm-penultimo.altura_cm).toFixed(1);
+      const el=document.getElementById('c-altura-d');
+      el.textContent=(diff>0?'+':'')+diff+'cm';
+      el.className='cd '+(diff>=0?'up':'down');
+    }
+  }
+  if(ultimo.peso_kg&&ultimo.altura_cm){
+    const imc=(ultimo.peso_kg/((ultimo.altura_cm/100)**2)).toFixed(1);
+    document.getElementById('c-imc').textContent=imc;
+    document.getElementById('c-imc-d').textContent='kg/m²';
+  }
+  const locais={consulta:'Consulta',casa:'Em casa',ubs:'UBS'};
+  document.getElementById('lista-cresc').innerHTML=data.map(r=>`
+    <div class="cresc-item">
+      <div style="width:36px;height:36px;border-radius:10px;background:#E8F0FB;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📏</div>
+      <div class="cresc-item-info">
+        <strong>${new Date(r.data_medicao).toLocaleDateString('pt-BR')}</strong>
+        <span>${locais[r.local]||'Medicao'}</span>
+      </div>
+      <div class="cresc-item-vals">
+        <strong>${r.peso_kg?r.peso_kg+'kg':'--'} · ${r.altura_cm?r.altura_cm+'cm':'--'}</strong>
+        <span>${r.peso_kg&&r.altura_cm?(r.peso_kg/((r.altura_cm/100)**2)).toFixed(1)+' IMC':''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirFormCresc(){document.getElementById('form-cresc-wrap').style.display='block';document.getElementById('cresc-data-input').value=new Date().toISOString().split('T')[0];}
+function fecharFormCresc(){document.getElementById('form-cresc-wrap').style.display='none';}
+async function salvarCrescimento(){
+  const data=document.getElementById('cresc-data-input').value;
+  const peso=document.getElementById('cresc-peso-input').value;
+  const altura=document.getElementById('cresc-altura-input').value;
+  const local=document.getElementById('cresc-local-input').value;
+  if(!data||(!peso&&!altura)){showToast('Preencha ao menos peso ou altura!');return;}
+  await db.from('crescimento').insert({bebe_id:bebeId,user_id:userId,data_medicao:data,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(altura)||null,local});
+  showToast('📏 Medicao registrada!');fecharFormCresc();carregarCrescimento();
 }
 
 async function carregarHistorico(){
@@ -753,7 +833,7 @@ async function carregarHistorico(){
     db.from('sono').select('*').eq('bebe_id',bebeId).order('registrado_em',{ascending:false}).limit(10)
   ]);
   const todos=[...(m.data||[]).map(r=>({...r,cat:'mamada'})),...(f.data||[]).map(r=>({...r,cat:'fralda'})),...(s.data||[]).map(r=>({...r,cat:'sono'}))].sort((a,b)=>new Date(b.registrado_em)-new Date(a.registrado_em)).slice(0,20);
-  if(!todos.length){c.innerHTML='<div class="empty">Nenhum registro ainda.<br>Use os botoes na tela inicial!</div>';return;}
+  if(!todos.length){c.innerHTML='<div class="empty">Nenhum registro ainda.</div>';return;}
   c.innerHTML=todos.map(r=>{
     const icon=r.cat==='fralda'?(r.tipo==='coco'?'💩':'💧'):(r.cat==='sono'?'🌙':'🍼');
     let lbl=r.cat==='mamada'?'Mamadeira':r.cat==='sono'?'Sono':'Fralda '+r.tipo;
@@ -771,8 +851,7 @@ const bsConfig={
 };
 
 function abrirBS(tipo){
-  bsTipo=tipo;
-  const cfg=bsConfig[tipo];
+  bsTipo=tipo;const cfg=bsConfig[tipo];
   if(tipo==='sono'){cfg.titulo=sonoAtivo?'Registrar acordou?':'Registrar dormiu?';cfg.sub=sonoAtivo?'O bebe acordou agora?':'O bebe dormiu agora?';}
   document.getElementById('bs-ico').style.cssText=`background:${cfg.bgIco};border-radius:20px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px`;
   document.getElementById('bs-ico').innerHTML=cfg.icon;
@@ -786,17 +865,16 @@ function fecharBS(e){
   if(e&&e.target!==document.getElementById('bs-overlay'))return;
   document.getElementById('bs-overlay').classList.remove('show');bsTipo=null;
 }
-
 async function confirmarBS(){
   document.getElementById('bs-overlay').classList.remove('show');
   if(!bebeId||!bsTipo){showToast('Aguarde...');return;}
   try{
-    if(bsTipo==='mamada'){await db.from('mamadas').insert({bebe_id:bebeId,tipo:'amamentacao'});showToast('🍼 Mamada registrada!');}
-    else if(bsTipo==='xixi'){await db.from('fraldas').insert({bebe_id:bebeId,tipo:'xixi'});showToast('💧 Fralda xixi registrada!');}
-    else if(bsTipo==='coco'){await db.from('fraldas').insert({bebe_id:bebeId,tipo:'coco'});showToast('💩 Fralda coco registrada!');}
+    if(bsTipo==='mamada'){await db.from('mamadas').insert({bebe_id:bebeId,user_id:userId,tipo:'amamentacao'});showToast('🍼 Mamada registrada!');}
+    else if(bsTipo==='xixi'){await db.from('fraldas').insert({bebe_id:bebeId,user_id:userId,tipo:'xixi'});showToast('💧 Fralda xixi registrada!');}
+    else if(bsTipo==='coco'){await db.from('fraldas').insert({bebe_id:bebeId,user_id:userId,tipo:'coco'});showToast('💩 Fralda coco registrada!');}
     else if(bsTipo==='sono'){
       if(!sonoAtivo){
-        const {data}=await db.from('sono').insert({bebe_id:bebeId,tipo:'soneca',inicio:new Date().toISOString()}).select();
+        const {data}=await db.from('sono').insert({bebe_id:bebeId,user_id:userId,tipo:'soneca',inicio:new Date().toISOString()}).select();
         if(data){sonoAtivo=true;sonoInicioId=data[0].id;}
         document.getElementById('btn-sono').classList.add('sono-ativo');
         document.getElementById('sono-lbl').textContent='Acordou agora';
@@ -820,102 +898,69 @@ async function confirmarBS(){
   bsTipo=null;
 }
 
+async function coletarDados7dias(){
+  if(!bebeId)return{};
+  const inicio=new Date();inicio.setDate(inicio.getDate()-7);
+  const inicioStr=inicio.toISOString();
+  const [m,f,s,c,v]=await Promise.all([
+    db.from('mamadas').select('registrado_em').eq('bebe_id',bebeId).gte('registrado_em',inicioStr),
+    db.from('fraldas').select('tipo,registrado_em').eq('bebe_id',bebeId).gte('registrado_em',inicioStr),
+    db.from('sono').select('inicio,fim').eq('bebe_id',bebeId).gte('registrado_em',inicioStr),
+    db.from('crescimento').select('*').eq('bebe_id',bebeId).order('data_medicao',{ascending:false}).limit(3),
+    db.from('vacinas').select('nome,data_prevista,status').eq('bebe_id',bebeId).eq('status','pendente').order('data_prevista').limit(1)
+  ]);
+  const totalSono=((s.data||[]).reduce((acc,r)=>{if(r.fim)acc+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return acc;},0));
+  const mediaSono=Math.round(totalSono/7);
+  const xixi=(f.data||[]).filter(r=>r.tipo==='xixi').length;
+  const coco=(f.data||[]).filter(r=>r.tipo==='coco').length;
+  const mediaXixi=(xixi/7).toFixed(1);
+  const mediaCoco=(coco/7).toFixed(1);
+  const mediaMamadas=((m.data||[]).length/7).toFixed(1);
+  const ultCresc=c.data&&c.data[0];
+  const penultCresc=c.data&&c.data[1];
+  return{
+    mamadas:(m.data||[]).length,mediaMamadas,
+    xixi,coco,mediaXixi,mediaCoco,
+    totalSono,mediaSono,
+    ultPeso:ultCresc?.peso_kg,ultAltura:ultCresc?.altura_cm,
+    diffPeso:ultCresc&&penultCresc?((ultCresc.peso_kg||0)-(penultCresc.peso_kg||0)).toFixed(2):null,
+    diffAltura:ultCresc&&penultCresc?((ultCresc.altura_cm||0)-(penultCresc.altura_cm||0)).toFixed(1):null,
+    proxVac:v.data&&v.data[0]?v.data[0].nome:null,
+    diasVac:v.data&&v.data[0]?Math.floor((new Date(v.data[0].data_prevista)-new Date())/86400000):null
+  };
+}
+
 async function pedirResumo(){
   const msgs=document.getElementById('chat-msgs');
   const mb=document.createElement('div');mb.className='msg-b';
   mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div><span style="color:#A0AABB">Analisando o dia...</span>';
   msgs.appendChild(mb);msgs.scrollTop=msgs.scrollHeight;
   const hoje=new Date().toISOString().split('T')[0];
-  const dias=bebeNasc?Math.floor((new Date()-new Date(bebeNasc))/86400000):0;
-  const [m,f,s,vac]=await Promise.all([
+  const [m,f,s]=await Promise.all([
     db.from('mamadas').select('registrado_em').eq('bebe_id',bebeId).gte('registrado_em',hoje),
     db.from('fraldas').select('tipo').eq('bebe_id',bebeId).gte('registrado_em',hoje),
-    db.from('sono').select('inicio,fim').eq('bebe_id',bebeId).gte('registrado_em',hoje),
-    db.from('vacinas').select('nome,data_prevista').eq('bebe_id',bebeId).eq('status','pendente').order('data_prevista').limit(1)
+    db.from('sono').select('inicio,fim').eq('bebe_id',bebeId).gte('registrado_em',hoje)
   ]);
   const totalSono=(s.data||[]).reduce((acc,r)=>{if(r.fim)acc+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return acc;},0);
   const hS=Math.floor(totalSono/60),mS=totalSono%60;
   const xixi=(f.data||[]).filter(r=>r.tipo==='xixi').length;
   const coco=(f.data||[]).filter(r=>r.tipo==='coco').length;
-  const proxVac=vac.data&&vac.data[0]?vac.data[0].nome+' em '+new Date(vac.data[0].data_prevista).toLocaleDateString('pt-BR'):'todas em dia';
+  const dias=diasIdade();
+  const sonoEsperado=dias<30?16:dias<90?15:14;
   try{
-    const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:`Resumo acolhedor do ${bebeNome} (${dias} dias): Mamadas: ${(m.data||[]).length}x. Fraldas: ${xixi} xixi e ${coco} coco. Sono: ${hS}h${mS}min. Proxima vacina: ${proxVac}. Maximo 120 palavras, portugues informal e acolhedor.`}]});
+    const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:500,messages:[{role:'user',content:`Voce e o Dr. Bebe, assistente pediatrico especialista. Analise os dados REAIS de hoje do ${bebeNome} (${dias} dias de vida) e seja especifico e clinicamente preciso:
+- Mamadas hoje: ${(m.data||[]).length}x (esperado para a idade: 8-12x)
+- Fraldas xixi: ${xixi}x (esperado: 6-8x molhadas)
+- Fraldas coco: ${coco}x
+- Sono total hoje: ${hS}h${mS}min (esperado para ${dias} dias: ~${sonoEsperado}h)
+
+IMPORTANTE: Se os valores estiverem abaixo do esperado, alerte claramente. Nao diga que e normal se nao for. Seja honesto mas acolhedor. Maximo 150 palavras. Termine com recomendacao pratica.`}]});
     const resp=d.content&&d.content[0]?d.content[0].text:'Nao consegui gerar o resumo.';
     mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+resp.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Ops! Verifique sua conexao.';}
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function enviar(){
-  const inp=document.getElementById('chat-in');
-  const q=inp.value.trim();if(!q)return;
-  const btn=document.getElementById('send-btn');btn.disabled=true;inp.value='';
+async function pedirAnalise(){
   const msgs=document.getElementById('chat-msgs');
-  const mu=document.createElement('div');mu.className='msg-u';mu.textContent=q;msgs.appendChild(mu);
-  const mb=document.createElement('div');mb.className='msg-b';
-  mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA</span></div><span style="color:#A0AABB">Pensando...</span>';
-  msgs.appendChild(mb);msgs.scrollTop=msgs.scrollHeight;
-  const dias=bebeNasc?Math.floor((new Date()-new Date(bebeNasc))/86400000):0;
-  const sys=`Voce e o Dr. Bebe, assistente pediatrico acolhedor. Bebe: ${bebeNome}, ${dias} dias. Pediatra: ${pedNome||'nao informado'}. Portugues informal, NUNCA diagnostique, maximo 150 palavras.`;
-  chat_hist.push({role:'user',content:q});
-  try{
-    const d=await chamarIA({model:'claude-haiku-4-5-20251001',max_tokens:400,system:sys,messages:chat_hist});
-    const resp=d.content&&d.content[0]?d.content[0].text:'Desculpe, tente novamente.';
-    chat_hist.push({role:'assistant',content:resp});
-    if(bebeId)await db.from('perguntas_ia').insert({bebe_id:bebeId,pergunta:q,resposta:resp}).catch(()=>{});
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+resp.replace(/\n/g,'<br>');
-  }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Ops! Verifique sua conexao.';}
-  msgs.scrollTop=msgs.scrollHeight;btn.disabled=false;
-}
-
-async function chamarIA(payload){
-  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  return await r.json();
-}
-
-function atualizarFoto(input){
-  if(!input.files||!input.files[0])return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    localStorage.setItem('bebe_foto',e.target.result);
-    document.getElementById('avatar-btn').innerHTML=`<img src="${e.target.result}" alt="foto">`;
-    document.getElementById('av-cfg-inner').innerHTML=`<img src="${e.target.result}" alt="foto">`;
-    showToast('✓ Foto atualizada!');
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
-async function salvarConfig(){
-  bebeNome=document.getElementById('cfg-nome').value||bebeNome;
-  bebeNasc=document.getElementById('cfg-nasc').value||bebeNasc;
-  pedNome=document.getElementById('cfg-ped-nome').value||'';
-  if(bebeId){await db.from('bebes').update({nome:bebeNome,data_nascimento:bebeNasc}).eq('id',bebeId).catch(()=>{});}
-  atualizarIdade();
-  aplicarTema(temaAtual);
-  showToast('✓ Configuracoes salvas!');
-  mudarTela('home');
-}
-
-function mudarTela(t){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('screen-'+t).classList.add('active');
-  const nav=document.getElementById('nav-'+t);
-  if(nav)nav.classList.add('active');
-  document.querySelectorAll('.nav-item svg').forEach(s=>s.style.stroke='#C0C8D8');
-  if(nav)nav.querySelectorAll('svg').forEach(s=>s.style.stroke='#1A2744');
-  if(t==='historico')carregarHistorico();
-  if(t==='vacinas'){carregarVacinas();fecharFormVac();}
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-document.getElementById('chat-in').addEventListener('keypress',e=>{if(e.key==='Enter')enviar();});
-init();
-</script>
-</body>
-</html>
+  co
