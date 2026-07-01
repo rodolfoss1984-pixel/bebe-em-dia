@@ -884,17 +884,24 @@ function atualizarFoto(input){
   reader.readAsDataURL(input.files[0]);
 }
 
-async function salvarConfig(){
+function salvarConfig(){
   bebeNome=document.getElementById('cfg-nome').value||bebeNome;
   bebeNasc=document.getElementById('cfg-nasc').value||bebeNasc;
   responsavel=document.getElementById('cfg-responsavel').value||'';
   pedNome=document.getElementById('cfg-ped-nome').value||'';
-  localStorage.setItem('bebe_config',JSON.stringify({nome:bebeNome,nasc:bebeNasc,responsavel,pedNome}));
-  if(bebeId){await db.from('bebes').update({nome:bebeNome,data_nascimento:bebeNasc}).eq('id',bebeId).catch(()=>{});}
+  const cfg={nome:bebeNome,nasc:bebeNasc,responsavel,pedNome};
+  localStorage.setItem('bebe_config',JSON.stringify(cfg));
+  console.log('Config salva:',cfg);
+  if(bebeId){
+    db.from('bebes').update({nome:bebeNome,data_nascimento:bebeNasc}).eq('id',bebeId).then(({error})=>{
+      if(error)console.log('Erro ao salvar no banco:',error);
+      else console.log('Bebe atualizado no banco!');
+    });
+  }
   atualizarIdade();
   aplicarTema(temaAtual);
   showToast('✓ Configuracoes salvas!');
-  mudarTela('home');
+  setTimeout(()=>mudarTela('home'),500);
 }
 
 function mudarTela(t){
