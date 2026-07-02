@@ -237,6 +237,12 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
 .hist-info strong{font-size:13px;font-weight:700;color:#1A2744;display:block}
 .hist-info span{font-size:11px;color:#A0AABB}
 .hist-edit{font-size:11px;color:var(--acc);cursor:pointer;font-weight:600;padding:4px 8px}
+.filtro-tipo,.filtro-periodo{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filtro-tipo::-webkit-scrollbar,.filtro-periodo::-webkit-scrollbar{display:none}
+.filtro-btn{flex-shrink:0;padding:8px 14px;border-radius:20px;background:white;border:1.5px solid #EEF0F8;font-size:11px;font-weight:700;color:#A0AABB;cursor:pointer;white-space:nowrap}
+.filtro-btn.ativo{background:var(--cor);border-color:var(--cor);color:white}
+.hist-resumo{background:white;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(26,39,68,.07)}
+.hist-resumo span{font-size:12px;font-weight:600;color:#4A5A7A}
 
 /* VACINAS */
 .vac-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F0F4FB}
@@ -388,7 +394,22 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
       <div id="screen-historico" class="screen">
         <div class="sec">Ultimos registros</div>
         <button class="btn-primary" id="btn-novo-registro">+ Adicionar registro manual</button>
+        <div class="filtro-tipo" id="filtro-tipo">
+          <div class="filtro-btn ativo" data-tipo="todos">Todos</div>
+          <div class="filtro-btn" data-tipo="mamada">Mamada</div>
+          <div class="filtro-btn" data-tipo="sono">Sono</div>
+          <div class="filtro-btn" data-tipo="xixi">Xixi</div>
+          <div class="filtro-btn" data-tipo="coco">Coco</div>
+        </div>
+        <div class="filtro-periodo" id="filtro-periodo">
+          <div class="filtro-btn" data-periodo="hoje">Hoje</div>
+          <div class="filtro-btn" data-periodo="7">7 dias</div>
+          <div class="filtro-btn" data-periodo="30">30 dias</div>
+          <div class="filtro-btn ativo" data-periodo="tudo">Tudo</div>
+        </div>
+        <div class="hist-resumo" id="hist-resumo" style="display:none"><span id="hist-resumo-txt"></span></div>
         <div id="lista-hist"><div class="empty">Nenhum registro ainda.</div></div>
+        <button class="btn-secondary" id="hist-ver-mais" style="display:none">Ver mais</button>
       </div>
 
       <!-- VACINAS -->
@@ -899,23 +920,83 @@ async function carregarEventos(){
 }
 
 // HISTORICO
+let histFiltroTipo='todos';
+let histFiltroPeriodo='tudo';
+let histPagina=0;
+let histTodos=[];
+const HIST_POR_PAG=20;
+
 async function carregarHist(){
   if(!S.bebeId)return;
   const [m,f,s]=await Promise.all([
-    db.from('mamadas').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(15),
-    db.from('fraldas').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(15),
-    db.from('sono').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(10),
+    db.from('mamadas').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(200),
+    db.from('fraldas').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(200),
+    db.from('sono').select('*').eq('bebe_id',S.bebeId).order('registrado_em',{ascending:false}).limit(200),
   ]);
-  const todos=[...(m.data||[]).map(r=>({...r,_t:'mamada'})),...(f.data||[]).map(r=>({...r,_t:r.tipo})),...(s.data||[]).map(r=>({...r,_t:'sono'}))].sort((a,b)=>new Date(b.registrado_em||b.inicio)-new Date(a.registrado_em||a.inicio)).slice(0,30);
-  if(!todos.length){$('lista-hist').innerHTML='<div class="empty">Nenhum registro.</div>';return;}
-  $('lista-hist').innerHTML=todos.map(r=>{
-    const ico=r._t==='mamada'?'&#x1F37C;':r._t==='xixi'?'&#x1F4A7;':r._t==='coco'?'&#x1F4A9;':'&#x1F319;';
-    const bg=r._t==='mamada'?'#FFF0E8':r._t==='sono'?'#E8F8F5':r._t==='coco'?'#FFF3E6':'#FFFBE6';
+  let todos=[...(m.data||[]).map(r=>({...r,_t:'mamada'})),...(f.data||[]).map(r=>({...r,_t:r.tipo})),...(s.data||[]).map(r=>({...r,_t:'sono'}))].sort((a,b)=>new Date(b.registrado_em||b.inicio)-new Date(a.registrado_em||a.inicio));
+  if(histFiltroTipo!=='todos')todos=todos.filter(r=>r._t===histFiltroTipo);
+  if(histFiltroPeriodo!=='tudo'){
+    const limite=histFiltroPeriodo==='hoje'?new Date().setHours(0,0,0,0):Date.now()-Number(histFiltroPeriodo)*86400000;
+    todos=todos.filter(r=>new Date(r.registrado_em||r.inicio).getTime()>=limite);
+  }
+  histTodos=todos;
+  renderHist();
+}
+
+function renderHist(){
+  const lista=$('lista-hist');
+  const mams=histTodos.filter(r=>r._t==='mamada').length;
+  const xixis=histTodos.filter(r=>r._t==='xixi').length;
+  const cocos=histTodos.filter(r=>r._t==='coco').length;
+  const totalSono=histTodos.filter(r=>r._t==='sono').reduce((a,r)=>{if(r.fim)a+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return a;},0);
+  const hS=Math.floor(totalSono/60),mS=totalSono%60;
+  const resumo=$('hist-resumo');
+  const resumoTxt=$('hist-resumo-txt');
+  if(histTodos.length>0){
+    resumo.style.display='block';
+    const parts=[];
+    if(mams)parts.push(mams+'x mamadas');
+    if(hS||mS)parts.push('sono: '+(hS?hS+'h ':'')+mS+'min');
+    if(xixis)parts.push(xixis+'x xixi');
+    if(cocos)parts.push(cocos+'x coco');
+    resumoTxt.textContent=parts.join(' · ');
+  }else{
+    resumo.style.display='none';
+  }
+
+  if(!histTodos.length){
+    lista.innerHTML='<div class="empty">Nenhum registro encontrado.</div>';
+    $('hist-ver-mais').style.display='none';
+    return;
+  }
+
+  const ico={mamada:'&#x1F37C;',sono:'&#x1F319;',xixi:'&#x1F4A7;',coco:'&#x1F4A9;'};
+  const bg={mamada:'#FFF0E8',sono:'#E8F8F5',xixi:'#FFFBE6',coco:'#FFF3E6'};
+  const pagina=histTodos.slice(0,(histPagina+1)*HIST_POR_PAG);
+  const temMais=histTodos.length>(histPagina+1)*HIST_POR_PAG;
+
+  lista.innerHTML=pagina.map(r=>{
     let lbl=r._t==='mamada'?'Mamadeira':r._t==='sono'?'Sono':'Fralda '+r._t;
     if(r._t==='sono'&&r.fim){const dur=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);const h=Math.floor(dur/60),mn=dur%60;lbl+=' - '+(h?h+'h ':'')+mn+'min';}
     const dt=fmtDt(r.registrado_em||r.inicio);
-    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg+'">'+ ico+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" data-id="'+r.id+'" data-tipo="'+r._t+'" onclick="abrirEditById(this.dataset.id,this.dataset.tipo)">Editar</div></div>';
+    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg[r._t]+'">'+ico[r._t]+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" data-id="'+r.id+'" data-tipo="'+r._t+'" onclick="abrirEditById(this.dataset.id,this.dataset.tipo)">Editar</div></div>';
   }).join('');
+
+  $('hist-ver-mais').style.display=temMais?'block':'none';
+}
+
+function filtrarHistTipo(tipo){
+  histFiltroTipo=tipo;
+  histPagina=0;
+  document.querySelectorAll('#filtro-tipo .filtro-btn').forEach(b=>b.classList.toggle('ativo',b.dataset.tipo===tipo));
+  carregarHist();
+}
+
+function filtrarHistPeriodo(periodo){
+  histFiltroPeriodo=periodo;
+  histPagina=0;
+  document.querySelectorAll('#filtro-periodo .filtro-btn').forEach(b=>b.classList.toggle('ativo',b.dataset.periodo===periodo));
+  carregarHist();
 }
 
 async function abrirEditById(id,tipo){
@@ -1419,6 +1500,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('edit-cancel').onclick=()=>$('edit-overlay').classList.remove('show');
   $('edit-salvar').onclick=salvarEdit;
   $('edit-excluir').onclick=excluirEdit;
+  // FILTROS HISTORICO
+  document.querySelectorAll('#filtro-tipo .filtro-btn').forEach(b=>b.onclick=()=>filtrarHistTipo(b.dataset.tipo));
+  document.querySelectorAll('#filtro-periodo .filtro-btn').forEach(b=>b.onclick=()=>filtrarHistPeriodo(b.dataset.periodo));
+  $('hist-ver-mais').onclick=()=>{histPagina++;renderHist();};
   // NOVO REGISTRO
   $('btn-novo-registro').onclick=abrirNovoReg;
   $('novo-reg-overlay').onclick=e=>{if(e.target===$('novo-reg-overlay'))$('novo-reg-overlay').classList.remove('show');};
