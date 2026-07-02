@@ -277,18 +277,21 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
 <div class="fullscreen show" id="tela-login">
   <div class="login-logo">&#x1F476;</div>
   <div class="login-title">Bebe em Dia</div>
-  <div class="login-sub">Seu assistente inteligente para cuidar do seu bebe com tranquilidade</div>
+  <div class="login-sub">Seu assistente inteligente para cuidar do seu bebe</div>
   <div class="login-features">
     <div class="login-feat"><div class="login-feat-ico">&#x1F37C;</div><div class="login-feat-txt">Registre mamadas e fraldas em 1 toque</div></div>
     <div class="login-feat"><div class="login-feat-ico">&#x1F489;</div><div class="login-feat-txt">Vacinas com alertas automaticos</div></div>
     <div class="login-feat"><div class="login-feat-ico">&#x1F4CA;</div><div class="login-feat-txt">Crescimento e analise inteligente</div></div>
     <div class="login-feat"><div class="login-feat-ico">&#x1F91D;</div><div class="login-feat-txt">Pai e mae compartilham tudo</div></div>
   </div>
-  <button class="google-btn" id="btn-google">
-    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-    Entrar com Google
-  </button>
-  <div class="login-disc">Seus dados ficam salvos com seguranca na sua conta</div>
+  <div style="width:100%">
+    <div class="ob-field"><label style="color:rgba(255,255,255,.5);font-size:11px;font-weight:600;text-transform:uppercase;display:block;margin-bottom:5px">Email</label><input type="email" id="login-email" placeholder="seu@email.com" style="width:100%;padding:14px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;font-size:15px;color:white;outline:none;margin-bottom:10px"/></div>
+    <div class="ob-field"><label style="color:rgba(255,255,255,.5);font-size:11px;font-weight:600;text-transform:uppercase;display:block;margin-bottom:5px">Senha</label><input type="password" id="login-senha" placeholder="Sua senha" style="width:100%;padding:14px 16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;font-size:15px;color:white;outline:none;margin-bottom:10px"/></div>
+    <button id="btn-entrar" style="width:100%;padding:16px;background:var(--acc);color:#1A2744;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px">Entrar</button>
+    <button id="btn-cadastrar" style="width:100%;padding:16px;background:rgba(255,255,255,.1);color:white;border:1.5px solid rgba(255,255,255,.3);border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Criar conta</button>
+    <div id="login-msg" style="font-size:12px;color:rgba(255,255,255,.5);text-align:center;min-height:20px"></div>
+    <div id="resetar-wrap" style="text-align:center;margin-top:8px"><span id="btn-resetar" style="font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;text-decoration:underline">Esqueci minha senha</span></div>
+  </div>
 </div>
 
 <!-- ONBOARDING -->
@@ -1193,13 +1196,9 @@ async function init(){
 
 async function entrar(user){
   S.userId=user.id;
-  $('user-nome').textContent=user.user_metadata?.full_name||user.email;
+  $('user-nome').textContent=user.email;
   $('user-email').textContent=user.email;
-  if(user.user_metadata?.avatar_url){
-    $('user-av-wrap').innerHTML='<img src="'+user.user_metadata.avatar_url+'" class="user-avatar">';
-  }
-  const fn=(user.user_metadata?.full_name||'').split(' ')[0]||'';
-  $('hdr-saudacao').textContent=saud()+(fn?', '+fn:'');
+  $('hdr-saudacao').textContent=saud();
   const foto=localStorage.getItem('foto_'+user.id);
   if(foto){$('av-inner').innerHTML='<img src="'+foto+'">';$('av-cfg-in').innerHTML='<img src="'+foto+'">';}
   const {data:bebes}=await db.from('bebes').select('*').eq('user_id',S.userId).limit(1);
@@ -1252,17 +1251,34 @@ async function verificarSono(){
 // EVENTOS
 document.addEventListener('DOMContentLoaded',()=>{
   // LOGIN
-  $('btn-google').onclick=async()=>{
-    const {error}=await db.auth.signInWithOAuth({
-      provider:'google',
-      options:{
-        redirectTo:location.origin,
-        skipBrowserRedirect:false,
-        queryParams:{prompt:'select_account'}
-      }
-    });
-    if(error)showToast('Erro: '+error.message);
+  const loginMsg=id=>$('login-msg').textContent=id;
+  $('btn-entrar').onclick=async()=>{
+    const email=$('login-email').value.trim();
+    const senha=$('login-senha').value;
+    if(!email||!senha){loginMsg('Preencha email e senha!');return;}
+    $('btn-entrar').textContent='Entrando...';$('btn-entrar').disabled=true;
+    const {error}=await db.auth.signInWithPassword({email,password:senha});
+    $('btn-entrar').textContent='Entrar';$('btn-entrar').disabled=false;
+    if(error)loginMsg('Email ou senha incorretos.');
   };
+  $('btn-cadastrar').onclick=async()=>{
+    const email=$('login-email').value.trim();
+    const senha=$('login-senha').value;
+    if(!email||!senha){loginMsg('Preencha email e senha!');return;}
+    if(senha.length<6){loginMsg('Senha deve ter ao menos 6 caracteres.');return;}
+    $('btn-cadastrar').textContent='Criando conta...';$('btn-cadastrar').disabled=true;
+    const {error}=await db.auth.signUp({email,password:senha});
+    $('btn-cadastrar').textContent='Criar conta';$('btn-cadastrar').disabled=false;
+    if(error)loginMsg('Erro: '+error.message);
+    else loginMsg('Conta criada! Verifique seu email para confirmar.');
+  };
+  $('btn-resetar').onclick=async()=>{
+    const email=$('login-email').value.trim();
+    if(!email){loginMsg('Digite seu email primeiro.');return;}
+    await db.auth.resetPasswordForEmail(email);
+    loginMsg('Email de recuperacao enviado!');
+  };
+  $('login-senha').onkeypress=e=>{if(e.key==='Enter')$('btn-entrar').click();};
   // ONBOARDING
   $('btn-ob').onclick=salvarOB;
   // NAV
