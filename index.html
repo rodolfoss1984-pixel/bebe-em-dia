@@ -10,6 +10,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.png">
 <script src="/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --cor:#1A2744;--cor2:#243060;--acc:#4EC9B0;--acc2:#2980B9;
@@ -441,16 +442,46 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
           </div>
         </div>
         <button class="btn-primary" id="btn-add-cresc">+ Registrar medicao</button>
-        <div class="form-card">
-          <h3>Evolucao do bebe</h3>
-          <div class="cresc-stats">
-            <div class="cresc-stat"><div class="cn" id="c-peso">--</div><div class="cl">Peso kg</div><div class="cd" id="c-peso-d"></div></div>
-            <div class="cresc-stat"><div class="cn" id="c-alt">--</div><div class="cl">Altura cm</div><div class="cd" id="c-alt-d"></div></div>
-            <div class="cresc-stat"><div class="cn" id="c-pc">--</div><div class="cl">PC cm</div><div class="cd" id="c-pc-d"></div></div>
-            <div class="cresc-stat"><div class="cn" id="c-imc">--</div><div class="cl">IMC</div><div class="cd" id="c-imc-d"></div></div>
+
+        <div class="sec">Resumo atual</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Peso atual</div>
+            <div style="font-size:26px;font-weight:800;color:#1A2744" id="c-peso">--</div>
+            <div style="font-size:11px;font-weight:600;margin-top:2px" id="c-peso-d"></div>
           </div>
-          <div id="lista-cresc"><div class="empty" style="padding:20px">Nenhuma medicao.</div></div>
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Altura</div>
+            <div style="font-size:26px;font-weight:800;color:#1A2744" id="c-alt">--</div>
+            <div style="font-size:11px;font-weight:600;margin-top:2px" id="c-alt-d"></div>
+          </div>
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Perim. Cefalico</div>
+            <div style="font-size:26px;font-weight:800;color:#1A2744" id="c-pc">--</div>
+            <div style="font-size:11px;font-weight:600;margin-top:2px" id="c-pc-d"></div>
+          </div>
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Ultima medicao</div>
+            <div style="font-size:18px;font-weight:800;color:#1A2744" id="c-ultima-dt">--</div>
+            <div style="font-size:11px;color:#A0AABB;margin-top:2px" id="c-ultima-local"></div>
+          </div>
         </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Ganho de peso</div>
+            <div style="font-size:20px;font-weight:800;color:#4EC9B0" id="c-ganho-peso">--</div>
+            <div style="font-size:10px;color:#A0AABB;margin-top:2px">desde inicio</div>
+          </div>
+          <div class="form-card" style="padding:14px;text-align:center;margin-bottom:0">
+            <div style="font-size:11px;color:#A0AABB;font-weight:600;text-transform:uppercase;margin-bottom:4px">Dias desde medicao</div>
+            <div style="font-size:20px;font-weight:800;color:#1A2744" id="c-dias-medicao">--</div>
+            <div style="font-size:10px;color:#A0AABB;margin-top:2px">dias atras</div>
+          </div>
+        </div>
+
+        <button class="btn-secondary" id="btn-ver-grafico" style="margin-bottom:8px">Ver grafico de evolucao</button>
+        <div id="lista-cresc" style="display:none"></div>
       </div>
 
       <!-- DR BEBE -->
@@ -947,44 +978,68 @@ async function salvarVac(){
 // CRESCIMENTO
 async function carregarCresc(){
   if(!S.bebeId)return;
-  const {data}=await db.from('crescimento').select('*').eq('bebe_id',S.bebeId).order('data_medicao',{ascending:false});
-  if(!data||!data.length){$('lista-cresc').innerHTML='<div class="empty" style="padding:20px">Nenhuma medicao.</div>';return;}
-  const u=data[0];const p=data[1];
-  const setS=(id,val,prev,un)=>{
-    if(val===null||val===undefined){$(id).textContent='--';$(id+'_d')&&($(id+'_d').textContent='');return;}
-    $(id).textContent=val;
-    if(prev!==null&&prev!==undefined){const d=(val-prev).toFixed(un==='kg'?2:1);const el=$(id+'-d');if(el){el.textContent=(d>0?'+':'')+d+un;el.className='cd '+(d>=0?'up':'dn');}}
-  };
-  setS('c-peso',u.peso_kg,p?.peso_kg,'kg');
-  setS('c-alt',u.altura_cm,p?.altura_cm,'cm');
-  setS('c-pc',u.pc_cm,p?.pc_cm,'cm');
-  if(u.peso_kg&&u.altura_cm){
-    const imc=(u.peso_kg/((u.altura_cm/100)**2)).toFixed(1);
-    $('c-imc').textContent=imc;$('c-imc-d').textContent='kg/m²';
+  const {data}=await db.from('crescimento').select('*').eq('bebe_id',S.bebeId).order('data_medicao',{ascending:true});
+  if(!data||!data.length){
+    ['c-peso','c-alt','c-pc','c-ultima-dt','c-ganho-peso','c-dias-medicao'].forEach(id=>{const el=$(id);if(el)el.textContent='--';});
+    return;
   }
+  const ultimo=data[data.length-1];
+  const primeiro=data[0];
+  const anterior=data.length>1?data[data.length-2]:null;
+
+  // Peso atual
+  if(ultimo.peso_kg){
+    $('c-peso').textContent=ultimo.peso_kg+'kg';
+    if(anterior&&anterior.peso_kg){
+      const diff=(ultimo.peso_kg-anterior.peso_kg).toFixed(2);
+      $('c-peso-d').textContent=(diff>0?'+':'')+diff+'kg';
+      $('c-peso-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
+    }
+  }
+
+  // Altura atual
+  if(ultimo.altura_cm){
+    $('c-alt').textContent=ultimo.altura_cm+'cm';
+    if(anterior&&anterior.altura_cm){
+      const diff=(ultimo.altura_cm-anterior.altura_cm).toFixed(1);
+      $('c-alt-d').textContent=(diff>0?'+':'')+diff+'cm';
+      $('c-alt-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
+    }
+  }
+
+  // PC atual
+  if(ultimo.pc_cm){
+    $('c-pc').textContent=ultimo.pc_cm+'cm';
+    if(anterior&&anterior.pc_cm){
+      const diff=(ultimo.pc_cm-anterior.pc_cm).toFixed(1);
+      $('c-pc-d').textContent=(diff>0?'+':'')+diff+'cm';
+      $('c-pc-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
+    }
+  }
+
+  // Ultima medicao
+  const dtUltima=new Date(ultimo.data_medicao);
+  $('c-ultima-dt').textContent=dtUltima.toLocaleDateString('pt-BR');
   const loc={consulta:'Consulta',casa:'Em casa',ubs:'UBS'};
-  $('lista-cresc').innerHTML=data.map(r=>'<div class="card-item"><div class="card-item-dot" style="background:#E8F0FB;font-size:18px">&#x1F4CF;</div><div class="card-item-info"><strong>'+new Date(r.data_medicao).toLocaleDateString('pt-BR')+'</strong><span>'+(loc[r.local]||'Medicao')+'</span></div><div class="card-item-right" style="font-size:10px;color:#1A2744"><strong>'+(r.peso_kg?r.peso_kg+'kg':'-')+' / '+(r.altura_cm?r.altura_cm+'cm':'-')+(r.pc_cm?' / PC:'+r.pc_cm:'')+'</strong><div style="color:#A0AABB;font-size:9px">'+(r.peso_kg&&r.altura_cm?(r.peso_kg/((r.altura_cm/100)**2)).toFixed(1)+' IMC':'')+'</div></div></div>').join('');
+  $('c-ultima-local').textContent=loc[ultimo.local]||'';
+
+  // Ganho total de peso
+  if(primeiro.peso_kg&&ultimo.peso_kg){
+    const ganho=(ultimo.peso_kg-primeiro.peso_kg).toFixed(2);
+    $('c-ganho-peso').textContent=(ganho>0?'+':'')+ganho+'kg';
+    $('c-ganho-peso').style.color=ganho>=0?'#4EC9B0':'#E74C3C';
+  }
+
+  // Dias desde ultima medicao
+  const diasDesde=Math.floor((new Date()-dtUltima)/86400000);
+  $('c-dias-medicao').textContent=diasDesde;
+  if(diasDesde>30)$('c-dias-medicao').style.color='#E74C3C';
+
+  // Guardar dados para grafico
+  S.crescData=data;
 }
 
-async function salvarCresc(){
-  const data=$('cr-data').value;
-  const peso=$('cr-peso').value;
-  const alt=$('cr-altura').value;
-  const pc=$('cr-pc').value;
-  const local=$('cr-local').value;
-  if(!data){showToast('Selecione a data!');return;}
-  if(!peso&&!alt&&!pc){showToast('Preencha ao menos um campo!');return;}
-  const obj={bebe_id:S.bebeId,user_id:S.userId,data_medicao:data,local};
-  if(peso)obj.peso_kg=parseFloat(peso);
-  if(alt)obj.altura_cm=parseFloat(alt);
-  if(pc)obj.pc_cm=parseFloat(pc);
-  const {error}=await db.from('crescimento').insert(obj);
-  if(error){showToast('Erro: '+error.message);return;}
-  showToast('Medicao salva!');$('form-cresc').style.display='none';
-  $('cr-peso').value='';$('cr-altura').value='';$('cr-pc').value='';
-  carregarCresc();
-}
-
+// DR BEBE
 // DR BEBE
 async function pedirResumo(){
   const msgs=$('chat-msgs');
@@ -1251,6 +1306,47 @@ async function verificarSono(){
 }
 
 // EVENTOS
+
+function abrirGrafico(){
+  const data=S.crescData;
+  if(!data||!data.length){showToast('Nenhuma medicao registrada!');return;}
+  const datas=data.map(r=>new Date(r.data_medicao).toLocaleDateString('pt-BR'));
+  const pesos=data.map(r=>r.peso_kg||null);
+  const alturas=data.map(r=>r.altura_cm||null);
+  const pcs=data.map(r=>r.pc_cm||null);
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML=`<div style="background:white;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:#E0E8F0;border-radius:2px;margin:0 auto 16px"></div>
+    <div style="font-size:16px;font-weight:800;color:#1A2744;margin-bottom:16px">Evolucao do crescimento</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Peso (kg)</div>
+      <canvas id="graf-peso" height="120"></canvas>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Altura (cm)</div>
+      <canvas id="graf-alt" height="120"></canvas>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Perimetro Cefalico (cm)</div>
+      <canvas id="graf-pc" height="120"></canvas>
+    </div>
+    <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer">Fechar</button>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  const cfg=(id,lbl,cor,vals)=>{
+    const ctx=document.getElementById(id);
+    if(!ctx)return;
+    new Chart(ctx,{type:'line',data:{labels:datas,datasets:[{label:lbl,data:vals,borderColor:cor,backgroundColor:cor+'22',borderWidth:2.5,pointRadius:4,pointBackgroundColor:cor,tension:0.3,spanGaps:true}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'#F0F4FB'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:10},maxRotation:0}}}}});
+  };
+  setTimeout(()=>{
+    cfg('graf-peso','Peso','#4EC9B0',pesos);
+    cfg('graf-alt','Altura','#2980B9',alturas);
+    cfg('graf-pc','PC','#9B59B6',pcs);
+  },100);
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   // LOGIN
   const loginMsg=id=>$('login-msg').textContent=id;
@@ -1323,6 +1419,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btn-add-cresc').onclick=()=>{$('form-cresc').style.display='block';$('cr-data').value=new Date().toISOString().split('T')[0];};
   $('btn-cancelar-cresc').onclick=()=>$('form-cresc').style.display='none';
   $('btn-salvar-cresc').onclick=salvarCresc;
+  $('btn-ver-grafico').onclick=abrirGrafico;
   // DR BEBE
   $('btn-resumo').onclick=pedirResumo;
   $('btn-analise').onclick=pedirAnalise;
