@@ -878,7 +878,7 @@ async function carregarHist(){
     let lbl=r._t==='mamada'?'Mamadeira':r._t==='sono'?'Sono':'Fralda '+r._t;
     if(r._t==='sono'&&r.fim){const dur=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);const h=Math.floor(dur/60),mn=dur%60;lbl+=' - '+(h?h+'h ':'')+mn+'min';}
     const dt=fmtDt(r.registrado_em||r.inicio);
-    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg+'">'+ico+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" data-id="'+r.id+'" data-tipo="'+r._t+'" onclick="abrirEditById(this.dataset.id,this.dataset.tipo)">Editar</div></div>';
+    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg+'">'+ ico+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" data-id="'+r.id+'" data-tipo="'+r._t+'" onclick="abrirEditById(this.dataset.id,this.dataset.tipo)">Editar</div></div>';
   }).join('');
 }
 
@@ -1000,8 +1000,7 @@ async function pedirResumo(){
     const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:'Analise clinica de hoje do '+S.bebeNome+' ('+d+' dias). Mamadas: '+(m.data||[]).length+'x (esperado 8-12x). Xixi: '+xi+'x (esperado 6-8x). Coco: '+co+'x. Sono: '+Math.floor(ts/60)+'h'+ts%60+'min (esperado ~'+se+'h). Se abaixo do esperado, alerte claramente. Nao diga normal se nao for. Max 120 palavras. Portugues informal.'}]})});
     const json=await resp.json();
     const txt=json.content&&json.content[0]?json.content[0].text:'Erro ao gerar.';
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+txt.replace(/
-/g,'<br>');
+    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+txt.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Erro de conexao.';}
   msgs.scrollTop=msgs.scrollHeight;
 }
@@ -1027,8 +1026,7 @@ async function pedirAnalise(){
     const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:'Analise clinica 7 dias do '+S.bebeNome+' ('+d+' dias): mamadas/dia: '+((m.data||[]).length/7).toFixed(1)+' (esperado 8-12x), xixi/dia: '+(xi/7).toFixed(1)+' (esperado 6-8x), coco/dia: '+(co/7).toFixed(1)+', sono/dia: '+Math.round(ts/7)+'min (esperado ~'+(d<30?960:900)+'min). Peso: '+(c.data&&c.data[0]?c.data[0].peso_kg:'nao registrado')+'kg, Altura: '+(c.data&&c.data[0]?c.data[0].altura_cm:'nao registrado')+'cm. Proxima vacina: '+(v.data&&v.data[0]?v.data[0].nome:'nenhuma')+'. Faca correlacao clinica real. Alerte se abaixo do esperado. Max 200 palavras. Portugues informal.'}]})});
     const json=await resp.json();
     const txt=json.content&&json.content[0]?json.content[0].text:'Erro.';
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Analise 7 dias</span></div>'+txt.replace(/
-/g,'<br>');
+    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Analise 7 dias</span></div>'+txt.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Erro de conexao.';}
   msgs.scrollTop=msgs.scrollHeight;
 }
@@ -1051,8 +1049,7 @@ async function gerarDoc(tipo){
     const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompts[tipo]}]})});
     const json=await resp.json();
     const txt=json.content&&json.content[0]?json.content[0].text:'Erro.';
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Documento</span></div>'+txt.replace(/
-/g,'<br>');
+    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Documento</span></div>'+txt.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Erro de conexao.';}
   msgs.scrollTop=msgs.scrollHeight;
 }
@@ -1072,8 +1069,7 @@ async function enviarChat(){
     const txt=json.content&&json.content[0]?json.content[0].text:'Tente novamente.';
     S.chatHist.push({role:'assistant',content:txt});
     if(S.bebeId)await db.from('perguntas_ia').insert({bebe_id:S.bebeId,user_id:S.userId,pergunta:q,resposta:txt}).catch(()=>{});
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+txt.replace(/
-/g,'<br>');
+    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">IA Real</span></div>'+txt.replace(/\n/g,'<br>');
   }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Erro de conexao.';}
   msgs.scrollTop=msgs.scrollHeight;$('btn-send').disabled=false;
 }
