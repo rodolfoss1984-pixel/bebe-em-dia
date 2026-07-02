@@ -10,7 +10,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.png">
 <script src="/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="/chart.min.js"></script>
 <style>
 :root{
   --cor:#1A2744;--cor2:#243060;--acc:#4EC9B0;--acc2:#2980B9;
@@ -1037,6 +1037,25 @@ async function carregarCresc(){
 
   // Guardar dados para grafico
   S.crescData=data;
+}
+
+async function salvarCresc(){
+  const data=$('cr-data').value;
+  const peso=$('cr-peso').value;
+  const alt=$('cr-altura').value;
+  const pc=$('cr-pc').value;
+  const local=$('cr-local').value;
+  if(!data){showToast('Selecione a data!');return;}
+  if(!peso&&!alt&&!pc){showToast('Preencha ao menos um campo!');return;}
+  const obj={bebe_id:S.bebeId,user_id:S.userId,data_medicao:data,local};
+  if(peso)obj.peso_kg=parseFloat(peso);
+  if(alt)obj.altura_cm=parseFloat(alt);
+  if(pc)obj.pc_cm=parseFloat(pc);
+  const {error}=await db.from('crescimento').insert(obj);
+  if(error){showToast('Erro: '+error.message);return;}
+  showToast('Medicao salva!');$('form-cresc').style.display='none';
+  $('cr-peso').value='';$('cr-altura').value='';$('cr-pc').value='';
+  carregarCresc();
 }
 
 // DR BEBE
