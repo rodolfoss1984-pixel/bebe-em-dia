@@ -1247,6 +1247,7 @@ async function init(){
 
 
 async function entrar(user){
+  showToast('Entrando: '+user.email);
   S.userId=user.id;
   $('user-nome').textContent=user.email;
   $('user-email').textContent=user.email;
