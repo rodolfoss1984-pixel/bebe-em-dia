@@ -9,7 +9,7 @@
 <title>Bebe em Dia</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.png">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase.min.js"></script>
 <style>
 :root{
   --cor:#1A2744;--cor2:#243060;--acc:#4EC9B0;--acc2:#2980B9;
@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // TOUR
   $('tour-skip').onclick=fecharTour;
   $('tour-next').onclick=avancarTour;
-  $('tour-backdrop').onclick=fecharTour;
+  if($('tour-backdrop'))$('tour-backdrop').onclick=fecharTour;
   // INIT
   init();
 });
