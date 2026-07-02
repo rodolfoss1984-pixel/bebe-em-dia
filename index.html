@@ -1234,8 +1234,10 @@ async function init(){
     });
     return;
   }
-  history.pushState(null,'',location.href);
-  window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
+  if(!location.hash.includes('access_token')){
+    history.pushState(null,'',location.href);
+    window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
+  }
   const {data:{session}}=await db.auth.getSession();
   if(session&&session.user){
     await entrar(session.user);
