@@ -1183,8 +1183,11 @@ async function init(){
     }
   }
   db.auth.onAuthStateChange(async(ev,ses)=>{
-    if(ev==='SIGNED_IN'&&ses){await entrar(ses.user);}
-    else if(ev==='SIGNED_OUT'){mostrarTela('tela-login');}
+    if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION')&&ses&&ses.user){
+      await entrar(ses.user);
+    } else if(ev==='SIGNED_OUT'){
+      mostrarTela('tela-login');
+    }
   });
 }
 
@@ -1249,7 +1252,17 @@ async function verificarSono(){
 // EVENTOS
 document.addEventListener('DOMContentLoaded',()=>{
   // LOGIN
-  $('btn-google').onclick=()=>db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}});
+  $('btn-google').onclick=async()=>{
+    const {error}=await db.auth.signInWithOAuth({
+      provider:'google',
+      options:{
+        redirectTo:location.origin,
+        skipBrowserRedirect:false,
+        queryParams:{prompt:'select_account'}
+      }
+    });
+    if(error)showToast('Erro: '+error.message);
+  };
   // ONBOARDING
   $('btn-ob').onclick=salvarOB;
   // NAV
