@@ -1168,11 +1168,23 @@ async function init(){
   window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
   aplicarTema(localStorage.getItem('tema')||'azul');
   const {data:{session}}=await db.auth.getSession();
-  if(session){await entrar(session.user);}
-  else mostrarTela('tela-login');
+  if(session){
+    await entrar(session.user);
+  } else {
+    const hash=window.location.hash;
+    if(hash&&(hash.includes('access_token')||hash.includes('type=recovery'))){
+      setTimeout(async()=>{
+        const {data:{session:s}}=await db.auth.getSession();
+        if(s)await entrar(s.user);
+        else mostrarTela('tela-login');
+      },500);
+    } else {
+      mostrarTela('tela-login');
+    }
+  }
   db.auth.onAuthStateChange(async(ev,ses)=>{
-    if(ev==='SIGNED_IN'&&ses)await entrar(ses.user);
-    else if(ev==='SIGNED_OUT')mostrarTela('tela-login');
+    if(ev==='SIGNED_IN'&&ses){await entrar(ses.user);}
+    else if(ev==='SIGNED_OUT'){mostrarTela('tela-login');}
   });
 }
 
