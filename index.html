@@ -1225,35 +1225,26 @@ function fecharTour(){
 // AUTENTICACAO
 async function init(){
   aplicarTema(localStorage.getItem('tema')||'azul');
-  const hash=window.location.hash;
-  if(hash&&hash.includes('access_token')){
-    mostrarTela('tela-login');
-    db.auth.onAuthStateChange(async(ev,ses)=>{
-      console.log('AUTH EVENT (hash):', ev, ses ? ses.user?.email : 'no session');
-      if(ses&&ses.user){await entrar(ses.user);}
-      else if(ev==='SIGNED_OUT'){S.bebeId=null;S.userId=null;mostrarTela('tela-login');}
-    });
-    return;
-  }
-  if(!location.hash.includes('access_token')){
-    history.pushState(null,'',location.href);
-    window.addEventListener('popstate',()=>history.pushState(null,'',location.href));
-  }
+  window.addEventListener('popstate',()=>{
+    if(!location.hash.includes('access_token'))
+      history.pushState(null,'',location.href);
+  });
+  db.auth.onAuthStateChange(async(ev,ses)=>{
+    if(ses&&ses.user){
+      await entrar(ses.user);
+    } else if(ev==='SIGNED_OUT'){
+      S.bebeId=null;S.userId=null;
+      mostrarTela('tela-login');
+    }
+  });
   const {data:{session}}=await db.auth.getSession();
   if(session&&session.user){
     await entrar(session.user);
   } else {
     mostrarTela('tela-login');
   }
-  db.auth.onAuthStateChange(async(ev,ses)=>{
-    console.log('AUTH EVENT (normal):', ev, ses ? ses.user?.email : 'no session');
-    if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION')&&ses&&ses.user){
-      await entrar(ses.user);
-    } else if(ev==='SIGNED_OUT'){
-      mostrarTela('tela-login');
-    }
-  });
 }
+
 
 async function entrar(user){
   S.userId=user.id;
