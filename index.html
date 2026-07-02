@@ -878,7 +878,7 @@ async function carregarHist(){
     let lbl=r._t==='mamada'?'Mamadeira':r._t==='sono'?'Sono':'Fralda '+r._t;
     if(r._t==='sono'&&r.fim){const dur=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);const h=Math.floor(dur/60),mn=dur%60;lbl+=' - '+(h?h+'h ':'')+mn+'min';}
     const dt=fmtDt(r.registrado_em||r.inicio);
-    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg+'">'+ico+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" onclick="abrirEditById(''+r.id+'',''+r._t+'')">Editar</div></div>';
+    return'<div class="hist-item"><div class="hist-ico" style="background:'+bg+'">'+ico+'</div><div class="hist-info"><strong>'+lbl+'</strong><span>'+dt+'</span></div><div class="hist-edit" data-id="'+r.id+'" data-tipo="'+r._t+'" onclick="abrirEditById(this.dataset.id,this.dataset.tipo)">Editar</div></div>';
   }).join('');
 }
 
