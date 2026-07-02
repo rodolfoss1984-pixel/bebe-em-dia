@@ -1229,6 +1229,7 @@ async function init(){
   if(hash&&hash.includes('access_token')){
     mostrarTela('tela-login');
     db.auth.onAuthStateChange(async(ev,ses)=>{
+      console.log('AUTH EVENT (hash):', ev, ses ? ses.user?.email : 'no session');
       if(ses&&ses.user){await entrar(ses.user);}
       else if(ev==='SIGNED_OUT'){S.bebeId=null;S.userId=null;mostrarTela('tela-login');}
     });
@@ -1245,6 +1246,7 @@ async function init(){
     mostrarTela('tela-login');
   }
   db.auth.onAuthStateChange(async(ev,ses)=>{
+    console.log('AUTH EVENT (normal):', ev, ses ? ses.user?.email : 'no session');
     if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION')&&ses&&ses.user){
       await entrar(ses.user);
     } else if(ev==='SIGNED_OUT'){
