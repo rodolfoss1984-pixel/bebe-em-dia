@@ -1415,31 +1415,25 @@ function abrirGrafico(){
   modal.innerHTML=`<div style="background:white;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto">
     <div style="width:40px;height:4px;background:#E0E8F0;border-radius:2px;margin:0 auto 16px"></div>
     <div style="font-size:16px;font-weight:800;color:#1A2744;margin-bottom:16px">Evolucao do crescimento</div>
-    <div style="margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Peso (kg)</div>
-      <canvas id="graf-peso" height="120"></canvas>
-    </div>
-    <div style="margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Altura (cm)</div>
-      <canvas id="graf-alt" height="120"></canvas>
-    </div>
     <div style="margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;color:#A0AABB;margin-bottom:8px;text-transform:uppercase">Perimetro Cefalico (cm)</div>
-      <canvas id="graf-pc" height="120"></canvas>
+      <canvas id="graf-unico" height="220"></canvas>
     </div>
     <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:14px;background:#1A2744;color:white;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer">Fechar</button>
   </div>`;
   document.body.appendChild(modal);
   modal.onclick=e=>{if(e.target===modal)modal.remove();};
-  const cfg=(id,lbl,cor,vals)=>{
-    const ctx=document.getElementById(id);
-    if(!ctx)return;
-    new Chart(ctx,{type:'line',data:{labels:datas,datasets:[{label:lbl,data:vals,borderColor:cor,backgroundColor:cor+'22',borderWidth:2.5,pointRadius:4,pointBackgroundColor:cor,tension:0.3,spanGaps:true}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'#F0F4FB'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:10},maxRotation:0}}}}});
-  };
   setTimeout(()=>{
-    cfg('graf-peso','Peso','#4EC9B0',pesos);
-    cfg('graf-alt','Altura','#2980B9',alturas);
-    cfg('graf-pc','PC','#9B59B6',pcs);
+    const ctx=document.getElementById('graf-unico');
+    if(!ctx)return;
+    new Chart(ctx,{type:'line',data:{labels:datas,datasets:[
+      {label:'Peso (kg)',data:pesos,borderColor:'#4EC9B0',backgroundColor:'#4EC9B022',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#4EC9B0',tension:0.3,spanGaps:true,yAxisID:'y'},
+      {label:'Altura (cm)',data:alturas,borderColor:'#2980B9',backgroundColor:'#2980B922',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#2980B9',tension:0.3,spanGaps:true,yAxisID:'y1'},
+      {label:'PC (cm)',data:pcs,borderColor:'#9B59B6',backgroundColor:'#9B59B622',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#9B59B6',tension:0.3,spanGaps:true,yAxisID:'y1'},
+    ]},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},boxWidth:12,usePointStyle:true}}},scales:{
+      y:{type:'linear',position:'left',beginAtZero:false,title:{display:true,text:'Peso (kg)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:11}}},
+      y1:{type:'linear',position:'right',beginAtZero:false,title:{display:true,text:'Altura / PC (cm)',font:{size:10}},grid:{display:false},ticks:{font:{size:11}}},
+      x:{grid:{display:false},ticks:{font:{size:10},maxRotation:0}},
+    }}});
   },100);
 }
 
