@@ -1128,11 +1128,11 @@ const CALENDARIO_SUS=[
 // pontos [mes,valor] para -3DP,-2DP,mediana,+2DP,+3DP (WHO Child Growth Standards)
 const WHO_PESO={
   M:{
-    m3:[[0,2.1],[1,2.9],[2,3.8],[3,4.4],[4,4.9],[5,5.3],[6,5.7],[7,5.9],[8,6.2],[9,6.4],[10,6.6],[11,6.8],[12,6.9],[14,7.2],[16,7.5],[18,7.8],[20,8.1],[22,8.3],[24,8.6]],
-    m2:[[0,2.5],[1,3.4],[2,4.3],[3,5.0],[4,5.6],[5,6.0],[6,6.4],[7,6.7],[8,6.9],[9,7.1],[10,7.4],[11,7.6],[12,7.7],[14,8.1],[16,8.4],[18,8.8],[20,9.1],[22,9.4],[24,9.7]],
-    md:[[0,3.3],[1,4.5],[2,5.6],[3,6.4],[4,7.0],[5,7.5],[6,7.9],[7,8.3],[8,8.6],[9,8.9],[10,9.2],[11,9.4],[12,9.6],[14,10.1],[16,10.5],[18,10.9],[20,11.3],[22,11.7],[24,12.2]],
-    p2:[[0,4.4],[1,5.8],[2,7.1],[3,8.0],[4,8.7],[5,9.3],[6,9.8],[7,10.3],[8,10.7],[9,11.0],[10,11.4],[11,11.7],[12,12.0],[14,12.6],[16,13.1],[18,13.7],[20,14.1],[22,14.6],[24,15.3]],
-    p3:[[0,5.0],[1,6.6],[2,8.0],[3,9.0],[4,9.7],[5,10.4],[6,10.9],[7,11.4],[8,11.9],[9,12.3],[10,12.7],[11,13.0],[12,13.3],[14,14.0],[16,14.6],[18,15.2],[20,15.7],[22,16.2],[24,17.0]],
+    m3:[[0,2.1],[1,2.9],[2,3.8],[3,4.4],[4,4.8],[5,5.3],[6,5.7],[7,5.9],[8,6.2],[9,6.7],[10,6.6],[11,6.8],[12,6.9],[14,7.2],[16,7.5],[18,7.8],[20,8.1],[22,8.3],[24,8.6]],
+    m2:[[0,2.5],[1,3.4],[2,4.3],[3,5.0],[4,5.5],[5,6.0],[6,6.4],[7,6.7],[8,6.9],[9,7.5],[10,7.4],[11,7.6],[12,7.7],[14,8.1],[16,8.4],[18,8.8],[20,9.1],[22,9.4],[24,9.7]],
+    md:[[0,3.3],[1,4.5],[2,5.6],[3,6.4],[4,7.0],[5,7.5],[6,7.9],[7,8.3],[8,8.6],[9,9.2],[10,9.2],[11,9.4],[12,9.6],[14,10.1],[16,10.5],[18,10.9],[20,11.3],[22,11.7],[24,12.2]],
+    p2:[[0,4.4],[1,5.8],[2,7.1],[3,8.0],[4,8.7],[5,9.3],[6,9.8],[7,10.3],[8,10.7],[9,11.3],[10,11.4],[11,11.7],[12,12.0],[14,12.6],[16,13.1],[18,13.7],[20,14.1],[22,14.6],[24,15.3]],
+    p3:[[0,5.0],[1,6.6],[2,8.0],[3,9.0],[4,9.7],[5,10.4],[6,10.9],[7,11.4],[8,11.9],[9,12.7],[10,12.7],[11,13.0],[12,13.3],[14,14.0],[16,14.6],[18,15.2],[20,15.7],[22,16.2],[24,17.0]],
   },
   F:{
     m3:[[0,2.0],[1,2.7],[2,3.4],[3,4.0],[4,4.4],[5,4.8],[6,5.1],[7,5.3],[8,5.6],[9,5.8],[10,5.9],[11,6.1],[12,6.3],[14,6.6],[16,6.9],[18,7.2],[20,7.5],[22,7.7],[24,8.0]],
@@ -1142,6 +1142,68 @@ const WHO_PESO={
     p3:[[0,4.8],[1,6.2],[2,7.5],[3,8.5],[4,9.3],[5,10.0],[6,10.6],[7,11.1],[8,11.6],[9,12.0],[10,12.4],[11,12.8],[12,13.1],[14,13.8],[16,14.5],[18,15.1],[20,15.7],[22,16.3],[24,16.9]],
   },
 };
+
+function girlizar(pontos,delta){
+  return pontos.map(([m,v])=>[m,+(v-delta).toFixed(1)]);
+}
+
+// DADOS DE REFERENCIA OMS - COMPRIMENTO/ALTURA POR IDADE (cm), meninos, 0-24 meses
+// pontos [mes,valor] para P3,P15,P50,P85,P97 (WHO Child Growth Standards). Meninas: -1.5cm (aproximacao)
+const WHO_ALTURA_M={
+  p3:[[0,46.1],[1,50.8],[2,54.4],[3,57.3],[4,59.7],[6,63.3],[9,67.7],[12,71.0],[15,74.1],[18,76.9],[21,79.4],[24,81.7]],
+  p15:[[0,47.9],[1,52.8],[2,56.4],[3,59.4],[4,61.8],[6,65.5],[9,70.1],[12,73.4],[15,76.6],[18,79.5],[21,82.1],[24,84.5]],
+  p50:[[0,49.9],[1,54.7],[2,58.4],[3,61.4],[4,63.9],[6,67.6],[9,72.3],[12,75.7],[15,79.1],[18,82.3],[21,85.1],[24,87.8]],
+  p85:[[0,51.8],[1,56.7],[2,60.4],[3,63.5],[4,66.0],[6,69.8],[9,74.5],[12,78.0],[15,81.6],[18,85.0],[21,88.0],[24,91.0]],
+  p97:[[0,53.4],[1,58.1],[2,62.0],[3,65.1],[4,67.6],[6,71.6],[9,76.3],[12,80.0],[15,83.7],[18,87.3],[21,90.5],[24,93.9]],
+};
+const WHO_ALTURA={
+  M:WHO_ALTURA_M,
+  F:{p3:girlizar(WHO_ALTURA_M.p3,1.5),p15:girlizar(WHO_ALTURA_M.p15,1.5),p50:girlizar(WHO_ALTURA_M.p50,1.5),p85:girlizar(WHO_ALTURA_M.p85,1.5),p97:girlizar(WHO_ALTURA_M.p97,1.5)},
+};
+
+// DADOS DE REFERENCIA OMS - PERIMETRO CEFALICO POR IDADE (cm), meninos, 0-24 meses
+// pontos [mes,valor] para P3,P15,P50,P85,P97 (WHO Child Growth Standards). Meninas: -0.7cm (aproximacao)
+const WHO_PC_M={
+  p3:[[0,31.9],[1,34.9],[2,36.4],[3,37.9],[4,39.0],[6,40.6],[9,42.3],[12,43.4],[15,44.2],[18,44.8],[21,45.3],[24,45.7]],
+  p15:[[0,33.0],[1,36.1],[2,37.8],[3,39.2],[4,40.4],[6,42.1],[9,43.5],[12,44.9],[15,45.6],[18,46.2],[21,46.7],[24,47.1]],
+  p50:[[0,34.5],[1,37.3],[2,39.1],[3,40.5],[4,41.6],[6,43.3],[9,45.0],[12,46.1],[15,46.9],[18,47.4],[21,47.9],[24,48.3]],
+  p85:[[0,35.9],[1,38.8],[2,40.5],[3,41.9],[4,43.0],[6,44.8],[9,46.3],[12,47.6],[15,48.3],[18,48.8],[21,49.3],[24,49.7]],
+  p97:[[0,37.0],[1,39.9],[2,41.5],[3,43.0],[4,44.1],[6,45.8],[9,47.5],[12,48.8],[15,49.5],[18,50.0],[21,50.5],[24,50.9]],
+};
+const WHO_PC={
+  M:WHO_PC_M,
+  F:{p3:girlizar(WHO_PC_M.p3,0.7),p15:girlizar(WHO_PC_M.p15,0.7),p50:girlizar(WHO_PC_M.p50,0.7),p85:girlizar(WHO_PC_M.p85,0.7),p97:girlizar(WHO_PC_M.p97,0.7)},
+};
+
+const PESO_LINHAS=[{key:'m3',label:'-3 DP',cor:'#E74C3C'},{key:'m2',label:'-2 DP',cor:'#FFB020'},{key:'md',label:'Mediana',cor:'#C0C8D8'},{key:'p2',label:'+2 DP',cor:'#FFB020'},{key:'p3',label:'+3 DP',cor:'#E74C3C'}];
+const PERCENTIL_LINHAS=[{key:'p3',label:'P3',cor:'#E74C3C'},{key:'p15',label:'P15',cor:'#FFB020'},{key:'p50',label:'P50',cor:'#C0C8D8'},{key:'p85',label:'P85',cor:'#FFB020'},{key:'p97',label:'P97',cor:'#E74C3C'}];
+
+function construirGraficoWHO(ctx,tabelaSexo,linhas,unidade,dadosBebe){
+  const datasets=linhas.map(l=>({
+    label:l.label,data:tabelaSexo[l.key].map(([x,y])=>({x,y})),
+    borderColor:l.cor,borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,
+  }));
+  datasets.push({label:S.bebeNome,data:dadosBebe,borderColor:'#4EC9B0',backgroundColor:'#4EC9B0',borderWidth:3,pointRadius:5,pointBackgroundColor:'#4EC9B0',tension:0.3});
+  return new Chart(ctx,{type:'line',data:{datasets},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:8}}},scales:{
+    x:{type:'linear',min:0,max:24,title:{display:true,text:'Idade (meses)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10},stepSize:3}},
+    y:{title:{display:true,text:unidade,font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10}}},
+  }}});
+}
+
+let graficosWHO={peso:null,altura:null,pc:null};
+
+function renderGraficosWHO(sexo,crescDados){
+  Object.values(graficosWHO).forEach(c=>{if(c)c.destroy();});
+  const pesoBebe=crescDados.filter(r=>r.peso_kg&&S.bebeNasc).map(r=>({x:mesesEntreDatas(S.bebeNasc,r.data_medicao),y:r.peso_kg}));
+  const altBebe=crescDados.filter(r=>r.altura_cm&&S.bebeNasc).map(r=>({x:mesesEntreDatas(S.bebeNasc,r.data_medicao),y:r.altura_cm}));
+  const pcBebe=crescDados.filter(r=>r.pc_cm&&S.bebeNasc).map(r=>({x:mesesEntreDatas(S.bebeNasc,r.data_medicao),y:r.pc_cm}));
+  const cPeso=document.getElementById('grafico-who-peso');
+  const cAlt=document.getElementById('grafico-who-altura');
+  const cPc=document.getElementById('grafico-who-pc');
+  if(cPeso)graficosWHO.peso=construirGraficoWHO(cPeso,WHO_PESO[sexo],PESO_LINHAS,'Peso (kg)',pesoBebe);
+  if(cAlt)graficosWHO.altura=construirGraficoWHO(cAlt,WHO_ALTURA[sexo],PERCENTIL_LINHAS,'Altura (cm)',altBebe);
+  if(cPc)graficosWHO.pc=construirGraficoWHO(cPc,WHO_PC[sexo],PERCENTIL_LINHAS,'PC (cm)',pcBebe);
+}
 
 async function gerarCalendarioSUS(bebeId,userId,dataNascimento){
   try{
@@ -1604,7 +1666,16 @@ async function gerarRelatorio(){
   // SECAO 2 - CRESCIMENTO
   html+=tituloSecao('Crescimento');
   html+=renderCrescStats(crescDados);
-  html+='<div style="margin-top:14px"><canvas id="grafico-who" height="220"></canvas></div>';
+  html+='<div style="display:flex;gap:8px;margin:16px 0 4px">'
+    +'<div class="filtro-btn'+(S.bebeSexo!=='F'?' ativo':'')+'" data-sexo="M" id="who-tab-m">Meninos</div>'
+    +'<div class="filtro-btn'+(S.bebeSexo==='F'?' ativo':'')+'" data-sexo="F" id="who-tab-f">Meninas</div>'
+    +'</div>';
+  html+='<div style="font-size:11px;font-weight:700;color:#4A5A7A;margin:14px 0 6px">Peso para Idade</div>';
+  html+='<canvas id="grafico-who-peso" height="200"></canvas>';
+  html+='<div style="font-size:11px;font-weight:700;color:#4A5A7A;margin:18px 0 6px">Comprimento para Idade</div>';
+  html+='<canvas id="grafico-who-altura" height="200"></canvas>';
+  html+='<div style="font-size:11px;font-weight:700;color:#4A5A7A;margin:18px 0 6px">Perimetro Cefalico para Idade</div>';
+  html+='<canvas id="grafico-who-pc" height="200"></canvas>';
 
   // SECAO 3 - ALIMENTACAO
   html+=tituloSecao('Alimentacao - Ultimos 7 dias');
@@ -1639,20 +1710,11 @@ async function gerarRelatorio(){
   $('relatorio-conteudo-print').innerHTML=html;
 
   setTimeout(()=>{
-    const ctx=document.getElementById('grafico-who');
-    if(!ctx)return;
-    const who=WHO_PESO[S.bebeSexo==='F'?'F':'M'];
-    const toXY=arr=>arr.map(([x,y])=>({x,y}));
-    const pesoBebe=crescDados.filter(r=>r.peso_kg&&S.bebeNasc).map(r=>({x:mesesEntreDatas(S.bebeNasc,r.data_medicao),y:r.peso_kg}));
-    new Chart(ctx,{type:'line',data:{datasets:[
-      {label:'-2 DP',data:toXY(who.m2),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
-      {label:'Mediana',data:toXY(who.md),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
-      {label:'+2 DP',data:toXY(who.p2),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
-      {label:S.bebeNome,data:pesoBebe,borderColor:'#4EC9B0',backgroundColor:'#4EC9B0',borderWidth:3,pointRadius:5,pointBackgroundColor:'#4EC9B0',tension:0.2},
-    ]},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10}}},scales:{
-      x:{type:'linear',min:0,max:24,title:{display:true,text:'Idade (meses)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10},stepSize:2}},
-      y:{title:{display:true,text:'Peso (kg)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10}}},
-    }}});
+    const sexoInicial=S.bebeSexo==='F'?'F':'M';
+    renderGraficosWHO(sexoInicial,crescDados);
+    const tabM=document.getElementById('who-tab-m'),tabF=document.getElementById('who-tab-f');
+    if(tabM)tabM.onclick=()=>{tabM.classList.add('ativo');tabF.classList.remove('ativo');renderGraficosWHO('M',crescDados);};
+    if(tabF)tabF.onclick=()=>{tabF.classList.add('ativo');tabM.classList.remove('ativo');renderGraficosWHO('F',crescDados);};
   },100);
 
   const resumo=gerarResumoRelatorio(m7,f7,s7,crescDados,slots,aplicadas);
