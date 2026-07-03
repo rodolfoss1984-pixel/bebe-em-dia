@@ -288,10 +288,12 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 
 /* RELATORIO PRINT */
 @media print{
+  @page{size:A4;margin:12mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body>*:not(#relatorio-modal){display:none!important}
   #relatorio-modal{position:static!important;background:white!important}
   #relatorio-modal>div:first-child,#relatorio-modal>div:last-child{display:none!important}
-  #relatorio-conteudo-print{padding:0!important;overflow:visible!important}
+  #relatorio-conteudo-print{overflow:visible!important}
 }
 </style>
 </head>
@@ -543,11 +545,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
       <!-- RELATORIOS -->
       <div id="screen-relatorios" class="screen">
         <div class="sec">Relatorios</div>
-        <div class="doc-btn" data-tipo="consulta"><div class="doc-ico" style="background:#E8F4FF">&#x1F4CB;</div><div class="doc-info"><strong>Relatorio para consulta</strong><span>Resumo do periodo para o pediatra</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
-        <div class="doc-btn" data-tipo="vacinas"><div class="doc-ico" style="background:#E8FBF7">&#x1F489;</div><div class="doc-info"><strong>Carteirinha de vacinacao</strong><span>Vacinas tomadas e pendentes</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
-        <div class="doc-btn" data-tipo="crescimento"><div class="doc-ico" style="background:#FFF0E8">&#x1F4C8;</div><div class="doc-info"><strong>Curva de crescimento</strong><span>Peso, altura e PC ao longo do tempo</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
-        <div class="doc-btn" data-tipo="sono"><div class="doc-ico" style="background:#EEF0FF">&#x1F319;</div><div class="doc-info"><strong>Relatorio de sono</strong><span>Padrao de sono dos ultimos 30 dias</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
-        <div class="doc-btn" data-tipo="diario"><div class="doc-ico" style="background:#FFF8E8">&#x1F4D3;</div><div class="doc-info"><strong>Diario do bebe</strong><span>Resumo do dia completo</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
+        <div class="doc-btn" id="btn-relatorio-consulta"><div class="doc-ico" style="background:#E8F4FF">&#x1F4CB;</div><div class="doc-info"><strong>Relatorio para consulta</strong><span>Vacinas, crescimento, alimentacao e sono</span></div><span style="margin-left:auto;color:#C0C8D8;font-size:18px">&#x203A;</span></div>
       </div>
 
       <!-- CONFIG -->
@@ -1126,6 +1124,25 @@ const CALENDARIO_SUS=[
   {nome:'Hepatite A',meses:15,dose:'unica',descricao:'Previne hepatite A'},
 ];
 
+// DADOS DE REFERENCIA OMS - PESO POR IDADE (kg), meninos e meninas, 0-24 meses
+// pontos [mes,valor] para -3DP,-2DP,mediana,+2DP,+3DP (WHO Child Growth Standards)
+const WHO_PESO={
+  M:{
+    m3:[[0,2.1],[1,2.9],[2,3.8],[3,4.4],[4,4.9],[5,5.3],[6,5.7],[7,5.9],[8,6.2],[9,6.4],[10,6.6],[11,6.8],[12,6.9],[14,7.2],[16,7.5],[18,7.8],[20,8.1],[22,8.3],[24,8.6]],
+    m2:[[0,2.5],[1,3.4],[2,4.3],[3,5.0],[4,5.6],[5,6.0],[6,6.4],[7,6.7],[8,6.9],[9,7.1],[10,7.4],[11,7.6],[12,7.7],[14,8.1],[16,8.4],[18,8.8],[20,9.1],[22,9.4],[24,9.7]],
+    md:[[0,3.3],[1,4.5],[2,5.6],[3,6.4],[4,7.0],[5,7.5],[6,7.9],[7,8.3],[8,8.6],[9,8.9],[10,9.2],[11,9.4],[12,9.6],[14,10.1],[16,10.5],[18,10.9],[20,11.3],[22,11.7],[24,12.2]],
+    p2:[[0,4.4],[1,5.8],[2,7.1],[3,8.0],[4,8.7],[5,9.3],[6,9.8],[7,10.3],[8,10.7],[9,11.0],[10,11.4],[11,11.7],[12,12.0],[14,12.6],[16,13.1],[18,13.7],[20,14.1],[22,14.6],[24,15.3]],
+    p3:[[0,5.0],[1,6.6],[2,8.0],[3,9.0],[4,9.7],[5,10.4],[6,10.9],[7,11.4],[8,11.9],[9,12.3],[10,12.7],[11,13.0],[12,13.3],[14,14.0],[16,14.6],[18,15.2],[20,15.7],[22,16.2],[24,17.0]],
+  },
+  F:{
+    m3:[[0,2.0],[1,2.7],[2,3.4],[3,4.0],[4,4.4],[5,4.8],[6,5.1],[7,5.3],[8,5.6],[9,5.8],[10,5.9],[11,6.1],[12,6.3],[14,6.6],[16,6.9],[18,7.2],[20,7.5],[22,7.7],[24,8.0]],
+    m2:[[0,2.4],[1,3.2],[2,3.9],[3,4.5],[4,5.0],[5,5.4],[6,5.7],[7,6.0],[8,6.3],[9,6.5],[10,6.7],[11,6.9],[12,7.0],[14,7.4],[16,7.7],[18,8.1],[20,8.4],[22,8.7],[24,9.0]],
+    md:[[0,3.2],[1,4.2],[2,5.1],[3,5.8],[4,6.4],[5,6.9],[6,7.3],[7,7.6],[8,7.9],[9,8.2],[10,8.5],[11,8.7],[12,8.9],[14,9.4],[16,9.8],[18,10.2],[20,10.6],[22,10.9],[24,11.5]],
+    p2:[[0,4.2],[1,5.5],[2,6.6],[3,7.5],[4,8.2],[5,8.8],[6,9.3],[7,9.8],[8,10.2],[9,10.5],[10,10.9],[11,11.2],[12,11.5],[14,12.1],[16,12.6],[18,13.2],[20,13.7],[22,14.2],[24,14.8]],
+    p3:[[0,4.8],[1,6.2],[2,7.5],[3,8.5],[4,9.3],[5,10.0],[6,10.6],[7,11.1],[8,11.6],[9,12.0],[10,12.4],[11,12.8],[12,13.1],[14,13.8],[16,14.5],[18,15.1],[20,15.7],[22,16.3],[24,16.9]],
+  },
+};
+
 async function gerarCalendarioSUS(bebeId,userId,dataNascimento){
   try{
     const {data:existentes}=await db.from('vacinas').select('nome').eq('bebe_id',bebeId);
@@ -1173,8 +1190,7 @@ const VAC_ABREV={
 let vacStatusAtual='tomada';
 let vacGridAtual=[];
 
-async function carregarVac(){
-  if(!S.bebeId)return;
+async function buscarSlotsVac(){
   const {data}=await db.from('vacinas').select('*').eq('bebe_id',S.bebeId).order('data_prevista');
   const todasVac=data||[];
   const porNome={};
@@ -1210,7 +1226,13 @@ async function carregarVac(){
     idadeLbl:dtNasc?labelPeriodoVac(mesesEntreDatas(S.bebeNasc,v.data_prevista)):'',
   }));
 
-  vacGridAtual=[...slots,...extras];
+  return {slots,extras,todos:[...slots,...extras]};
+}
+
+async function carregarVac(){
+  if(!S.bebeId)return;
+  const {slots,todos}=await buscarSlotsVac();
+  vacGridAtual=todos;
 
   // header + progresso
   const aplicadas=slots.filter(s=>s.status==='aplicada').length;
@@ -1448,14 +1470,6 @@ async function salvarCresc(){
 }
 
 // RELATORIOS
-const RELATORIO_TITULOS={
-  consulta:'Relatorio para consulta',
-  vacinas:'Carteirinha de vacinacao',
-  crescimento:'Curva de crescimento',
-  sono:'Relatorio de sono',
-  diario:'Diario do bebe',
-};
-
 function tituloSecao(txt){
   return '<div style="font-size:10px;font-weight:800;color:#A0AABB;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px">'+txt+'</div>';
 }
@@ -1464,47 +1478,14 @@ function statCard(lbl,val){
   return '<div style="background:#F2F5FB;border-radius:12px;padding:12px;text-align:center"><div style="font-size:17px;font-weight:800;color:#1A2744">'+val+'</div><div style="font-size:9px;color:#A0AABB;font-weight:700;text-transform:uppercase;margin-top:4px">'+lbl+'</div></div>';
 }
 
-function renderStatsCards(mDados,fDados,sDados,dias){
-  const mamDia=(mDados.length/dias).toFixed(1);
-  const totalSono=sDados.reduce((a,r)=>{if(r.fim)a+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return a;},0);
-  const sonoDiaMin=Math.round(totalSono/dias);
-  const sonoTxt=(Math.floor(sonoDiaMin/60)?Math.floor(sonoDiaMin/60)+'h':'')+(sonoDiaMin%60?(sonoDiaMin%60)+'m':(sonoDiaMin<60?'0m':''));
-  const fraDia=(fDados.length/dias).toFixed(1);
-  return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
-    +statCard('Mamadas/dia',mamDia+'x')
-    +statCard('Sono/dia',sonoTxt||'0m')
-    +statCard('Fraldas/dia',fraDia+'x')
+function barraMetrica(lbl,min,maxRef){
+  const pct=Math.min(100,Math.round(min/maxRef*100));
+  const h=Math.floor(min/60),m=min%60;
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+    +'<div style="width:70px;font-size:10px;color:#A0AABB;font-weight:700">'+lbl+'</div>'
+    +'<div style="flex:1;background:#F0F4FB;border-radius:6px;height:16px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:var(--acc);border-radius:6px"></div></div>'
+    +'<div style="width:55px;font-size:10px;color:#1A2744;font-weight:700;text-align:right">'+(h?h+'h ':'')+m+'m</div>'
     +'</div>';
-}
-
-function calcularSonoPorDia(sDados,ndias){
-  const map=[];
-  const hoje=new Date();
-  for(let i=ndias-1;i>=0;i--){
-    const d=new Date(hoje);d.setDate(d.getDate()-i);
-    map.push({key:d.toISOString().split('T')[0],min:0});
-  }
-  (sDados||[]).forEach(r=>{
-    if(!r.fim)return;
-    const key=new Date(r.inicio).toISOString().split('T')[0];
-    const item=map.find(x=>x.key===key);
-    if(item)item.min+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);
-  });
-  return map;
-}
-
-function renderBarraSono(dias){
-  const max=Math.max(...dias.map(d=>d.min),60);
-  return dias.map(d=>{
-    const pct=Math.round(d.min/max*100);
-    const h=Math.floor(d.min/60),m=d.min%60;
-    const lbl=new Date(d.key+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short'});
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-      +'<div style="width:34px;font-size:10px;color:#A0AABB;font-weight:700;text-transform:capitalize">'+lbl+'</div>'
-      +'<div style="flex:1;background:#F0F4FB;border-radius:6px;height:16px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:var(--acc);border-radius:6px"></div></div>'
-      +'<div style="width:50px;font-size:10px;color:#1A2744;font-weight:700;text-align:right">'+(h?h+'h':'')+' '+(h?m+'m':m+'m')+'</div>'
-      +'</div>';
-  }).join('');
 }
 
 function renderCrescStats(crescDados){
@@ -1525,53 +1506,46 @@ function renderCrescStats(crescDados){
     +'</div>';
 }
 
-function renderVacList(vacDados){
-  if(!vacDados||!vacDados.length)return '<div class="empty" style="padding:20px">Nenhuma vacina cadastrada.</div>';
-  const hj=new Date();
-  return vacDados.map(v=>{
-    const dt=new Date(v.data_aplicada||v.data_prevista);const dtf=dt.toLocaleDateString('pt-BR');
-    const atrasada=v.status==='pendente'&&dt<hj;
-    const status=v.status==='aplicada'?'aplicada':atrasada?'atrasada':'pendente';
-    const ico=status==='aplicada'?'&#x2705;':status==='atrasada'?'&#x1F534;':'&#x23F0;';
-    const cor=status==='aplicada'?'#4EC9B0':status==='atrasada'?'#E74C3C':'#2980B9';
-    const txt=status==='aplicada'?'Aplicada em '+dtf:status==='atrasada'?'Atrasada desde '+dtf:'Prevista para '+dtf;
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0F4FB"><div style="font-size:16px">'+ico+'</div><div style="flex:1"><strong style="font-size:12px;color:#1A2744;display:block">'+v.nome+'</strong><span style="font-size:10px;color:'+cor+';font-weight:600">'+txt+'</span></div></div>';
-  }).join('');
+function renderVacGrid(slots){
+  const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
+  return '<div class="vac-grid">'+slots.map(s=>{
+    const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
+    return '<div class="vac-bloco st-'+s.status+'">'
+      +'<div class="vac-bloco-num">'+s.numero+'</div>'
+      +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
+      +'<div class="vac-bloco-abrev">'+abrev+'</div>'
+      +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
+      +'</div>';
+  }).join('')+'</div>';
 }
 
-function gerarResumoTexto(titulo,mDados,fDados,sDados,crescDados,vacDados,dias){
-  const linhas=[titulo+' - '+S.bebeNome+' ('+idade()+' dias)',''];
-  const totalSono=sDados.reduce((a,r)=>{if(r.fim)a+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return a;},0);
-  const sonoDiaMin=Math.round(totalSono/dias);
-  linhas.push('Mamadas/dia: '+(mDados.length/dias).toFixed(1)+'x');
-  linhas.push('Sono/dia: '+Math.floor(sonoDiaMin/60)+'h'+(sonoDiaMin%60)+'m');
-  linhas.push('Fraldas/dia: '+(fDados.length/dias).toFixed(1)+'x');
+function gerarResumoRelatorio(m7,f7,s7,crescDados,slots,aplicadas){
+  const linhas=['Relatorio para consulta - '+S.bebeNome+' ('+idade()+' dias)',''];
+  linhas.push('Mamadas/dia (7d): '+(m7.length/7).toFixed(1)+'x  (total: '+m7.length+')');
+  const totalSono=s7.reduce((a,r)=>{if(r.fim)a+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return a;},0);
+  const sonoDiaMin=Math.round(totalSono/7);
+  linhas.push('Sono/dia (7d): '+Math.floor(sonoDiaMin/60)+'h'+(sonoDiaMin%60)+'m');
+  linhas.push('Fraldas/dia (7d): '+(f7.length/7).toFixed(1)+'x');
   if(crescDados.length){
     const u=crescDados[crescDados.length-1];
     linhas.push('');
     linhas.push('Peso: '+(u.peso_kg||'--')+'kg, Altura: '+(u.altura_cm||'--')+'cm, PC: '+(u.pc_cm||'--')+'cm');
   }
-  if(vacDados.length){
-    const pend=vacDados.filter(v=>v.status==='pendente').length;
-    linhas.push('');
-    linhas.push('Vacinas pendentes: '+pend);
-  }
+  linhas.push('');
+  linhas.push('Vacinas: '+aplicadas+' de '+slots.length+' doses aplicadas');
   return linhas.join('\n');
 }
 
-async function gerarRelatorio(tipo){
+async function gerarRelatorio(){
   if(!S.bebeId)return;
-  const titulo=RELATORIO_TITULOS[tipo];
-  if(!titulo)return;
   const modal=document.createElement('div');
   modal.id='relatorio-modal';
   modal.style.cssText='position:fixed;inset:0;background:white;z-index:600;display:flex;flex-direction:column;overscroll-behavior:none';
-  modal.innerHTML='<div style="background:var(--hdr);padding:env(safe-area-inset-top,24px) 20px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0">'
-    +'<div id="rel-fechar" style="color:white;font-size:26px;cursor:pointer;line-height:1">&#x2039;</div>'
-    +'<div><div style="color:white;font-size:15px;font-weight:800">'+titulo+'</div><div style="color:rgba(255,255,255,.6);font-size:11px;margin-top:2px">'+S.bebeNome+' &middot; '+idade()+' dias</div></div>'
+  modal.innerHTML='<div style="background:#1A2744;padding:env(safe-area-inset-top,20px) 16px 10px;display:flex;align-items:center;flex-shrink:0">'
+    +'<div id="rel-fechar" style="color:white;font-size:26px;cursor:pointer;line-height:1;padding:4px 8px">&#x2039;</div>'
     +'</div>'
-    +'<div style="flex:1;overflow-y:auto;padding:20px;overscroll-behavior:contain" id="relatorio-conteudo-print">'
-    +'<div style="text-align:center;color:#A0AABB;padding:40px 0" id="relatorio-loading">Carregando dados...</div>'
+    +'<div style="flex:1;overflow-y:auto;overscroll-behavior:contain" id="relatorio-conteudo-print">'
+    +'<div style="text-align:center;color:#A0AABB;padding:80px 20px" id="relatorio-loading"><div class="spinner" style="display:block;margin:0 auto 14px;border-color:#EEF0F8;border-top-color:var(--acc)"></div>Gerando relatorio...</div>'
     +'</div>'
     +'<div style="display:flex;gap:8px;padding:14px 20px;background:white;border-top:1px solid #EEF0F8;flex-shrink:0">'
     +'<button id="rel-pdf" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--cor);color:white;font-size:12px;font-weight:700;cursor:pointer">&#x1F4C4; PDF</button>'
@@ -1579,47 +1553,112 @@ async function gerarRelatorio(tipo){
     +'<button id="rel-email" style="flex:1;padding:12px;border-radius:12px;border:none;background:#2980B9;color:white;font-size:12px;font-weight:700;cursor:pointer">&#x2709; Email</button>'
     +'</div>';
   document.body.appendChild(modal);
-  S.modalAberto=tipo;
+  S.modalAberto='consulta';
   $('rel-fechar').onclick=()=>{modal.remove();S.modalAberto=null;};
 
-  const dias=Math.min(30,Math.max(idade(),1));
   const ini=new Date();ini.setDate(ini.getDate()-30);const iniISO=ini.toISOString();
-  const [m,f,s,cresc,vac]=await Promise.all([
+  const [m,f,s,cresc,slotsRes]=await Promise.all([
     db.from('mamadas').select('registrado_em').eq('bebe_id',S.bebeId).gte('registrado_em',iniISO),
     db.from('fraldas').select('tipo,registrado_em').eq('bebe_id',S.bebeId).gte('registrado_em',iniISO),
     db.from('sono').select('inicio,fim').eq('bebe_id',S.bebeId).gte('registrado_em',iniISO),
     db.from('crescimento').select('*').eq('bebe_id',S.bebeId).order('data_medicao',{ascending:true}),
-    db.from('vacinas').select('*').eq('bebe_id',S.bebeId).order('data_prevista'),
+    buscarSlotsVac(),
   ]);
   if(!document.body.contains(modal))return;
 
-  const mDados=m.data||[],fDados=f.data||[],sDados=s.data||[],crescDados=cresc.data||[],vacDados=vac.data||[];
-  let html='';
-  if(tipo==='consulta'||tipo==='diario'||tipo==='sono'){
-    html+=renderStatsCards(mDados,fDados,sDados,dias);
-  }
-  if(tipo==='consulta'||tipo==='sono'){
-    html+=tituloSecao('Sono - ultimos 7 dias');
-    html+=renderBarraSono(calcularSonoPorDia(sDados,7));
-  }
-  if(tipo==='consulta'||tipo==='crescimento'){
-    html+=tituloSecao('Crescimento');
-    html+=renderCrescStats(crescDados);
-  }
-  if(tipo==='consulta'||tipo==='vacinas'){
-    html+=tituloSecao('Vacinas');
-    html+=renderVacList(vacDados);
-  }
-  if(tipo==='diario'){
-    html+=tituloSecao('Resumo do dia');
-    html+='<div style="background:#F2F5FB;border-radius:12px;padding:14px;font-size:12px;color:#4A5A7A;line-height:1.7">'+S.bebeNome+' esta com '+idade()+' dias. Nos ultimos '+dias+' dias: '+mDados.length+' mamadas, '+fDados.filter(x=>x.tipo==='xixi').length+' trocas de xixi e '+fDados.filter(x=>x.tipo==='coco').length+' de coco.</div>';
-  }
-  $('relatorio-conteudo-print').innerHTML=html||'<div class="empty">Sem dados suficientes.</div>';
+  const mDados=m.data||[],fDados=f.data||[],sDados=s.data||[],crescDados=cresc.data||[];
+  const {slots}=slotsRes;
+  const aplicadas=slots.filter(x=>x.status==='aplicada').length;
 
-  const resumo=gerarResumoTexto(titulo,mDados,fDados,sDados,crescDados,vacDados,dias);
+  // janela de 7 dias, a partir dos 30 dias ja buscados
+  const sete=new Date();sete.setDate(sete.getDate()-7);
+  const m7=mDados.filter(r=>new Date(r.registrado_em)>=sete);
+  const f7=fDados.filter(r=>new Date(r.registrado_em)>=sete);
+  const s7=sDados.filter(r=>new Date(r.inicio)>=sete);
+
+  const sexoLbl=S.bebeSexo==='F'?'Menina':'Menino';
+  const dataGeracao=new Date().toLocaleDateString('pt-BR');
+  const corDot={aplicada:'#4EC9B0',atrasada:'#E74C3C',proxima:'#2980B9',futura:'#DDE3EF'};
+
+  // HEADER
+  let html='<div style="background:linear-gradient(160deg,#1A2744 0%,#243060 100%);padding:20px;color:white">'
+    +'<div style="font-size:18px;font-weight:800">'+S.bebeNome+'</div>'
+    +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">'+idade()+' dias &middot; '+sexoLbl+' &middot; Gerado em '+dataGeracao+'</div>'
+    +'<div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px">Pediatra: '+(S.pedNome||'nao informado')+'</div>'
+    +'<div style="margin-top:16px">'
+    +'<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:6px">'+aplicadas+' de '+slots.length+' doses aplicadas</div>'
+    +'<div style="background:rgba(255,255,255,.15);border-radius:8px;height:8px;overflow:hidden;margin-bottom:8px"><div style="width:'+Math.round(aplicadas/slots.length*100)+'%;height:100%;background:#4EC9B0;border-radius:8px"></div></div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:4px">'+slots.map(x=>'<div class="vac-dot" style="background:'+corDot[x.status]+'"></div>').join('')+'</div>'
+    +'</div></div>';
+
+  // INFO BAR
+  html+='<div style="background:#F2F5FB;padding:10px 20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;font-size:10px;color:#6B7A99;font-weight:600">'
+    +'<span>Pediatra: '+(S.pedNome||'--')+'</span><span>'+dataGeracao+'</span><span>Periodo: ultimos 30 dias</span></div>';
+
+  html+='<div style="padding:20px">';
+
+  // SECAO 1 - VACINAS
+  html+=tituloSecao('Carteirinha de Vacinacao ('+aplicadas+'/'+slots.length+')');
+  html+=renderVacGrid(slots);
+
+  // SECAO 2 - CRESCIMENTO
+  html+=tituloSecao('Crescimento');
+  html+=renderCrescStats(crescDados);
+  html+='<div style="margin-top:14px"><canvas id="grafico-who" height="220"></canvas></div>';
+
+  // SECAO 3 - ALIMENTACAO
+  html+=tituloSecao('Alimentacao - Ultimos 7 dias');
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+    +statCard('Media mamadas/dia',(m7.length/7).toFixed(1)+'x')
+    +statCard('Total mamadas',m7.length)
+    +statCard('Fraldas/dia',(f7.length/7).toFixed(1)+'x')
+    +'</div>';
+
+  // SECAO 4 - SONO
+  let totalMin=0,noturnoMin=0,sonecaMin=0;
+  s7.forEach(r=>{
+    if(!r.fim)return;
+    const dur=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);
+    totalMin+=dur;
+    const h=new Date(r.inicio).getHours();
+    if(h>=19||h<7)noturnoMin+=dur;else sonecaMin+=dur;
+  });
+  const totalDiaMin=Math.round(totalMin/7),noturnoDiaMin=Math.round(noturnoMin/7),sonecaDiaMin=Math.round(sonecaMin/7);
+  const maxRef=Math.max(totalDiaMin,60);
+  html+=tituloSecao('Sono - Media 7 dias');
+  html+=barraMetrica('Total/dia',totalDiaMin,maxRef)+barraMetrica('Noturno',noturnoDiaMin,maxRef)+barraMetrica('Sonecas/dia',sonecaDiaMin,maxRef);
+
+  // SECAO 5 - ASSINATURA
+  html+='<div style="margin-top:36px;text-align:center">'
+    +'<div style="border-top:1.5px solid #1A2744;width:220px;margin:0 auto 8px"></div>'
+    +'<div style="font-size:11px;color:#6B7A99">Assinatura do responsavel</div></div>';
+
+  html+='<div style="text-align:center;font-size:9px;color:#C0C8D8;margin-top:24px">Gerado pelo app Bebe em Dia &middot; bebe-em-dia.vercel.app</div>';
+  html+='</div>';
+
+  $('relatorio-conteudo-print').innerHTML=html;
+
+  setTimeout(()=>{
+    const ctx=document.getElementById('grafico-who');
+    if(!ctx)return;
+    const who=WHO_PESO[S.bebeSexo==='F'?'F':'M'];
+    const toXY=arr=>arr.map(([x,y])=>({x,y}));
+    const pesoBebe=crescDados.filter(r=>r.peso_kg&&S.bebeNasc).map(r=>({x:mesesEntreDatas(S.bebeNasc,r.data_medicao),y:r.peso_kg}));
+    new Chart(ctx,{type:'line',data:{datasets:[
+      {label:'-2 DP',data:toXY(who.m2),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
+      {label:'Mediana',data:toXY(who.md),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
+      {label:'+2 DP',data:toXY(who.p2),borderColor:'#C0C8D8',borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false},
+      {label:S.bebeNome,data:pesoBebe,borderColor:'#4EC9B0',backgroundColor:'#4EC9B0',borderWidth:3,pointRadius:5,pointBackgroundColor:'#4EC9B0',tension:0.2},
+    ]},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10}}},scales:{
+      x:{type:'linear',min:0,max:24,title:{display:true,text:'Idade (meses)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10},stepSize:2}},
+      y:{title:{display:true,text:'Peso (kg)',font:{size:10}},grid:{color:'#F0F4FB'},ticks:{font:{size:10}}},
+    }}});
+  },100);
+
+  const resumo=gerarResumoRelatorio(m7,f7,s7,crescDados,slots,aplicadas);
   $('rel-pdf').onclick=()=>window.print();
   $('rel-whats').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(resumo),'_blank');
-  $('rel-email').onclick=()=>{location.href='mailto:?subject='+encodeURIComponent(titulo)+'&body='+encodeURIComponent(resumo);};
+  $('rel-email').onclick=()=>{location.href='mailto:?subject='+encodeURIComponent('Relatorio para consulta')+'&body='+encodeURIComponent(resumo);};
 }
 
 // COMPARTILHAMENTO
@@ -1977,7 +2016,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('ec-salvar').onclick=salvarEditCresc;
   $('ec-excluir').onclick=excluirEditCresc;
   // RELATORIOS
-  document.querySelectorAll('#screen-relatorios .doc-btn[data-tipo]').forEach(b=>b.onclick=()=>gerarRelatorio(b.dataset.tipo));
+  $('btn-relatorio-consulta').onclick=()=>gerarRelatorio();
   // CONFIG
   $('btn-foto-cfg').onclick=()=>$('input-foto').click();
   $('btn-alterar-foto').onclick=()=>$('input-foto').click();
