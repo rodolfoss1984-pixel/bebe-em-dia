@@ -149,6 +149,11 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .status-btn.sel-tomada{border-color:var(--acc);color:#1A8A70;background:#E8FBF7}
 .status-btn.sel-agendada{border-color:#2980B9;color:#2980B9;background:#E8F4FF}
 
+/* SEXO */
+.sexo-btns{display:flex;gap:8px}
+.sexo-btn{flex:1;padding:14px 10px;border-radius:12px;border:1.5px solid #EEF0F8;background:white;font-size:13px;font-weight:700;color:#A0AABB;cursor:pointer;text-align:center}
+.sexo-btn.sel{border-color:var(--cor);background:var(--cor);color:white}
+
 /* ALERT */
 .alert-banner{background:#FFF0F0;border:1.5px solid #E74C3C;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .alert-ico{font-size:20px;flex-shrink:0}
@@ -311,6 +316,13 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
   <div class="ob-card">
     <h3>Dados do bebe</h3>
     <div class="ob-field"><label>Nome do bebe</label><input type="text" id="ob-nome" placeholder="Ex: Levi Jose"/></div>
+    <div class="ob-field">
+      <label>Sexo do bebe</label>
+      <div class="sexo-btns">
+        <div class="sexo-btn sel" data-sexo="M" id="ob-sexo-m">&#x1F466; Menino</div>
+        <div class="sexo-btn" data-sexo="F" id="ob-sexo-f">&#x1F467; Menina</div>
+      </div>
+    </div>
     <div class="ob-field"><label>Data de nascimento</label><input type="date" id="ob-nasc"/></div>
     <div class="ob-field"><label>Peso ao nascer (kg)</label><input type="number" id="ob-peso" placeholder="Ex: 3.5" step="0.01"/></div>
     <div class="ob-field"><label>Altura ao nascer (cm)</label><input type="number" id="ob-altura" placeholder="Ex: 50" step="0.1"/></div>
@@ -526,6 +538,13 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
         <div class="sec">Dados do bebe</div>
         <div class="cfg-card">
           <div class="cfg-item"><div class="cfg-label">Nome</div><input class="cfg-input" id="cfg-nome" type="text"/></div>
+          <div class="cfg-item">
+            <div class="cfg-label">Sexo</div>
+            <div class="sexo-btns" style="flex:1">
+              <div class="sexo-btn" data-sexo="M" id="cfg-sexo-m">&#x1F466; Menino</div>
+              <div class="sexo-btn" data-sexo="F" id="cfg-sexo-f">&#x1F467; Menina</div>
+            </div>
+          </div>
           <div class="cfg-item"><div class="cfg-label">Nascimento</div><input class="cfg-input" id="cfg-nasc" type="date"/></div>
           <div class="cfg-item"><div class="cfg-label">Peso nasc.</div><input class="cfg-input" id="cfg-peso-nasc" type="text" placeholder="Ex: 3.5 kg"/></div>
         </div>
@@ -705,7 +724,7 @@ const db=supabase.createClient(SURL,SKEY);
 
 // ESTADO GLOBAL
 const S={
-  bebeId:null,userId:null,bebeNome:'Bebe',bebeNasc:'',pedNome:'',
+  bebeId:null,userId:null,bebeNome:'Bebe',bebeNasc:'',bebeSexo:'M',pedNome:'',
   sonoAtivo:false,sonoId:null,bsTipo:null,vacStatus:'tomada',
   editId:null,editTipo:null,tema:'azul'
 };
@@ -1412,6 +1431,13 @@ async function usarCodigo(){
 }
 
 // CONFIG
+let cfgSexo='M';
+function selCfgSexo(s){
+  cfgSexo=s;
+  $('cfg-sexo-m').classList.toggle('sel',s==='M');
+  $('cfg-sexo-f').classList.toggle('sel',s==='F');
+}
+
 async function salvarConfig(){
   const nome=$('cfg-nome').value.trim();
   const nasc=$('cfg-nasc').value;
@@ -1420,8 +1446,8 @@ async function salvarConfig(){
   const pesoNasc=$('cfg-peso-nasc').value.trim();
   if(!nome){showToast('Digite o nome do bebe!');return;}
   if(!nasc){showToast('Selecione a data de nascimento!');return;}
-  S.bebeNome=nome;S.bebeNasc=nasc;S.pedNome=pedNome;
-  const {error}=await db.from('bebes').update({nome,data_nascimento:nasc,pediatra_nome:pedNome,pediatra_tel:pedTel,peso_nascimento:parseFloat(pesoNasc)||null}).eq('id',S.bebeId);
+  S.bebeNome=nome;S.bebeNasc=nasc;S.bebeSexo=cfgSexo;S.pedNome=pedNome;
+  const {error}=await db.from('bebes').update({nome,data_nascimento:nasc,sexo:cfgSexo,pediatra_nome:pedNome,pediatra_tel:pedTel,peso_nascimento:parseFloat(pesoNasc)||null}).eq('id',S.bebeId);
   if(error){showToast('Erro: '+error.message);return;}
   atualizarHeader();showToast('Configuracoes salvas!');mudarTela('home');
 }
@@ -1533,8 +1559,9 @@ async function entrar(user){
   const {data:bebes}=await db.from('bebes').select('*').eq('user_id',S.userId).limit(1);
   if(bebes&&bebes.length){
     const b=bebes[0];
-    S.bebeId=b.id;S.bebeNome=b.nome;S.bebeNasc=b.data_nascimento;S.pedNome=b.pediatra_nome||'';
+    S.bebeId=b.id;S.bebeNome=b.nome;S.bebeNasc=b.data_nascimento;S.bebeSexo=b.sexo||'M';S.pedNome=b.pediatra_nome||'';
     $('cfg-nome').value=b.nome;$('cfg-nasc').value=b.data_nascimento;
+    selCfgSexo(S.bebeSexo);
     if(b.pediatra_nome)$('cfg-ped-nome').value=b.pediatra_nome;
     if(b.pediatra_tel)$('cfg-ped-tel').value=b.pediatra_tel;
     if(b.peso_nascimento)$('cfg-peso-nasc').value=b.peso_nascimento;
@@ -1544,6 +1571,13 @@ async function entrar(user){
     mostrarTela('tela-ob');
     $('ob-nasc').value=new Date().toISOString().split('T')[0];
   }
+}
+
+let obSexo='M';
+function selObSexo(s){
+  obSexo=s;
+  $('ob-sexo-m').classList.toggle('sel',s==='M');
+  $('ob-sexo-f').classList.toggle('sel',s==='F');
 }
 
 async function salvarOB(){
@@ -1556,9 +1590,9 @@ async function salvarOB(){
   $('ob-txt').textContent='Salvando...';
   $('ob-spinner').style.display='block';
   $('btn-ob').disabled=true;
-  const {data,error}=await db.from('bebes').insert({nome,data_nascimento:nasc,peso_nascimento:parseFloat(peso)||null,user_id:S.userId}).select().single();
+  const {data,error}=await db.from('bebes').insert({nome,data_nascimento:nasc,sexo:obSexo,peso_nascimento:parseFloat(peso)||null,user_id:S.userId}).select().single();
   if(error){showToast('Erro: '+error.message);$('ob-txt').textContent='Comecar';$('ob-spinner').style.display='none';$('btn-ob').disabled=false;return;}
-  S.bebeId=data.id;S.bebeNome=nome;S.bebeNasc=nasc;
+  S.bebeId=data.id;S.bebeNome=nome;S.bebeNasc=nasc;S.bebeSexo=obSexo;
   if((peso||alt)&&data.id){
     await db.from('crescimento').insert({bebe_id:data.id,user_id:S.userId,data_medicao:nasc,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(alt)||null}).catch(()=>{});
   }
@@ -1647,6 +1681,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('login-senha').onkeypress=e=>{if(e.key==='Enter')$('btn-entrar').click();};
   // ONBOARDING
   $('btn-ob').onclick=salvarOB;
+  $('ob-sexo-m').onclick=()=>selObSexo('M');
+  $('ob-sexo-f').onclick=()=>selObSexo('F');
   // NAV
   $('nav-home').onclick=()=>mudarTela('home');
   $('nav-historico').onclick=()=>mudarTela('historico');
@@ -1701,6 +1737,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btn-foto-cfg').onclick=()=>$('input-foto').click();
   $('btn-alterar-foto').onclick=()=>$('input-foto').click();
   $('input-foto').onchange=e=>atualizarFoto(e.target);
+  $('cfg-sexo-m').onclick=()=>selCfgSexo('M');
+  $('cfg-sexo-f').onclick=()=>selCfgSexo('F');
   $('btn-salvar-cfg').onclick=salvarConfig;
   $('btn-logout').onclick=async()=>{await db.auth.signOut();S.bebeId=null;S.userId=null;mostrarTela('tela-login');};
   $('btn-gerar-codigo').onclick=gerarCodigo;
