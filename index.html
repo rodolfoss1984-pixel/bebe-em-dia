@@ -1089,20 +1089,28 @@ const CALENDARIO_SUS=[
 ];
 
 async function gerarCalendarioSUS(bebeId,userId,dataNascimento){
-  const {data:existentes}=await db.from('vacinas').select('nome').eq('bebe_id',bebeId);
-  const nomesExistentes=new Set((existentes||[]).map(v=>v.nome));
-  const novas=CALENDARIO_SUS.map(v=>{
-    const nomeCompleto=v.nome+' ('+v.dose+')';
-    const dt=new Date(dataNascimento);
-    dt.setMonth(dt.getMonth()+v.meses);
-    return {nomeCompleto,dataPrevista:dt.toISOString().split('T')[0]};
-  }).filter(v=>!nomesExistentes.has(v.nomeCompleto)).map(v=>({
-    bebe_id:bebeId,user_id:userId,nome:v.nomeCompleto,status:'pendente',data_prevista:v.dataPrevista,
-  }));
-  if(!novas.length)return 0;
-  const {error}=await db.from('vacinas').insert(novas);
-  if(error){showToast('Erro ao gerar calendario: '+error.message);return 0;}
-  return novas.length;
+  try{
+    const {data:existentes}=await db.from('vacinas').select('nome').eq('bebe_id',bebeId);
+    const nomesExistentes=new Set((existentes||[]).map(v=>v.nome));
+    const novas=CALENDARIO_SUS.map(v=>{
+      const nomeCompleto=v.nome+' ('+v.dose+')';
+      const dt=new Date(dataNascimento);
+      dt.setMonth(dt.getMonth()+v.meses);
+      return {nomeCompleto,dataPrevista:dt.toISOString().split('T')[0]};
+    }).filter(v=>!nomesExistentes.has(v.nomeCompleto)).map(v=>({
+      bebe_id:bebeId,user_id:userId,nome:v.nomeCompleto,status:'pendente',data_prevista:v.dataPrevista,
+    }));
+    if(!novas.length)return 0;
+    console.log('gerarCalendarioSUS: vacinas a inserir',novas);
+    const {data,error}=await db.from('vacinas').insert(novas);
+    console.log('gerarCalendarioSUS: resultado do insert',{data,error});
+    if(error){console.error('Erro vacinas:',error);showToast('Erro ao gerar calendario: '+error.message);return 0;}
+    return novas.length;
+  }catch(e){
+    console.error('Erro vacinas:',e);
+    showToast('Erro ao gerar calendario: '+e.message);
+    return 0;
+  }
 }
 
 function mesesEntreDatas(dataNasc,dataVac){
@@ -1526,7 +1534,8 @@ async function usarCodigo(){
   const {data,error}=await db.from('convites').select('*').eq('codigo',cod).is('usado_por',null).gt('expira_em',new Date().toISOString()).single();
   if(error||!data){showToast('Codigo invalido ou expirado!');return;}
   await db.from('convites').update({usado_por:S.userId,usado_em:new Date().toISOString()}).eq('id',data.id);
-  await db.from('bebe_membros').insert({bebe_id:data.bebe_id,user_id:S.userId}).catch(()=>{});
+  const {error:erroMembro}=await db.from('bebe_membros').insert({bebe_id:data.bebe_id,user_id:S.userId});
+  if(erroMembro)console.error('Erro bebe_membros:',erroMembro);
   S.bebeId=data.bebe_id;
   showToast('Grupo compartilhado com sucesso!');
   $('codigo-input').value='';
@@ -1711,12 +1720,14 @@ async function salvarOB(){
   if(error){showToast('Erro: '+error.message);$('ob-txt').textContent='Comecar';$('ob-spinner').style.display='none';$('btn-ob').disabled=false;return;}
   S.bebeId=data.id;S.bebeNome=nome;S.bebeNasc=nasc;S.bebeSexo=obSexo;
   if((peso||alt)&&data.id){
-    await db.from('crescimento').insert({bebe_id:data.id,user_id:S.userId,data_medicao:nasc,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(alt)||null}).catch(()=>{});
+    const {error:erroCresc}=await db.from('crescimento').insert({bebe_id:data.id,user_id:S.userId,data_medicao:nasc,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(alt)||null});
+    if(erroCresc)console.error('Erro crescimento:',erroCresc);
   }
-  const criadas=await gerarCalendarioSUS(data.id,S.userId,nasc).catch(()=>0);
-  if(criadas)showToast(criadas+' vacinas do calendario SUS adicionadas!');
   mostrarTela('app');atualizarHeader();carregarStats();
   setTimeout(iniciarTour,800);
+  gerarCalendarioSUS(data.id,S.userId,nasc).then(criadas=>{
+    if(criadas){showToast(criadas+' vacinas do calendario SUS adicionadas!');carregarVac();}
+  });
 }
 
 async function verificarSono(){
