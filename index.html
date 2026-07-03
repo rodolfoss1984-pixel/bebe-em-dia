@@ -238,20 +238,34 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .hist-resumo{background:white;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(26,39,68,.07)}
 .hist-resumo span{font-size:12px;font-weight:600;color:#4A5A7A}
 
-/* VACINAS */
-.vac-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F0F4FB}
-.vac-item:last-child{border-bottom:none}
-.vac-status{font-size:18px;flex-shrink:0;width:24px}
-.vac-info{flex:1}
-.vac-info strong{font-size:12px;font-weight:700;color:#1A2744;display:block}
-.vac-info span{font-size:10px;color:#A0AABB}
-.vac-marcar{background:var(--acc);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:9px;font-weight:700;cursor:pointer}
-.vac-marcar.late{background:#E74C3C}
-.vac-dt{font-size:10px;font-weight:700}
-.vac-dt.ok{color:#4EC9B0}
-.vac-dt.next{color:#2980B9}
-.vac-dt.late{color:#E74C3C}
-.vac-grupo-hdr{padding:10px 16px 6px;font-size:10px;font-weight:800;color:#A0AABB;text-transform:uppercase;letter-spacing:.5px;background:#FAFBFD;border-bottom:1px solid #F0F4FB}
+/* VACINAS - TABELA PERIODICA */
+.vac-header-card{background:var(--cor);border-radius:18px;padding:18px;margin-bottom:14px;color:white}
+.vac-header-nome{font-size:15px;font-weight:800}
+.vac-header-idade{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:14px}
+.vac-progress-txt{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:6px}
+.vac-progress-track{background:rgba(255,255,255,.15);border-radius:8px;height:8px;overflow:hidden;margin-bottom:12px}
+.vac-progress-fill{background:#4EC9B0;height:100%;border-radius:8px;transition:width .3s}
+.vac-dots{display:flex;flex-wrap:wrap;gap:4px}
+.vac-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.vac-legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:0 2px}
+.vac-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#6B7A99;font-weight:600}
+.vac-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.vac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.vac-bloco{position:relative;height:80px;border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;text-align:center;overflow:hidden}
+.vac-bloco-num{position:absolute;top:4px;left:6px;font-size:8px;font-weight:700;opacity:.7}
+.vac-bloco-ico{font-size:18px}
+.vac-bloco-abrev{font-size:9px;font-weight:800;line-height:1.15;padding:0 2px}
+.vac-bloco-idade{font-size:7px;opacity:.8}
+.vac-bloco.st-aplicada{background:#4EC9B0;color:white}
+.vac-bloco.st-atrasada{background:#E74C3C;color:white}
+.vac-bloco.st-proxima{background:#2980B9;color:white}
+.vac-bloco.st-futura{background:#DDE3EF;color:#6B7A99}
+
+.dv-linha{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F0F4FB;font-size:12px;color:#1A2744}
+.dv-linha span{color:#A0AABB}
+.dv-linha:last-child{border-bottom:none}
 
 /* NAV */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #EEF0F8;display:flex;padding:8px 0 env(safe-area-inset-bottom,20px);z-index:100;box-shadow:0 -4px 20px rgba(26,39,68,.08)}
@@ -424,6 +438,20 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 
       <!-- VACINAS -->
       <div id="screen-vacinas" class="screen">
+        <div class="vac-header-card">
+          <div class="vac-header-nome" id="vac-hdr-nome">Bebe</div>
+          <div class="vac-header-idade" id="vac-hdr-idade">0 dias de vida</div>
+          <div class="vac-progress-txt" id="vac-progress-txt">0 de 23 doses</div>
+          <div class="vac-progress-track"><div class="vac-progress-fill" id="vac-progress-fill" style="width:0%"></div></div>
+          <div class="vac-dots" id="vac-dots"></div>
+        </div>
+        <div class="vac-legend">
+          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#4EC9B0"></span>Tomada</div>
+          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#E74C3C"></span>Atrasada</div>
+          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#2980B9"></span>Proxima</div>
+          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#DDE3EF"></span>Futura</div>
+        </div>
+        <div class="vac-grid" id="vac-grid"></div>
         <div id="vac-alertas"></div>
         <div id="form-vac" style="display:none">
           <div class="form-card">
@@ -442,10 +470,6 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
           </div>
         </div>
         <button class="btn-primary" id="btn-add-vac">+ Adicionar vacina</button>
-        <div class="card-white">
-          <div class="card-hdr" style="background:var(--cor)"><strong>Carteira de Vacinacao</strong></div>
-          <div id="lista-vac"><div class="empty">Nenhuma vacina cadastrada.</div></div>
-        </div>
       </div>
 
       <!-- CRESCIMENTO -->
@@ -715,6 +739,20 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
         <button class="bs-cancel" id="mv-cancel">Cancelar</button>
         <button class="bs-confirm" id="mv-salvar" style="flex:2">Confirmar</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET DETALHE VACINA -->
+<div class="bs-overlay" id="detalhe-vac-overlay">
+  <div class="bs-sheet">
+    <div class="bs-handle"></div>
+    <div class="bs-title" id="dv-titulo">Vacina</div>
+    <div class="bs-sub" id="dv-descricao"></div>
+    <div id="dv-info"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="bs-cancel" id="dv-fechar">Fechar</button>
+      <button class="bs-confirm" id="dv-marcar" style="flex:2;background:var(--acc);display:none">Marcar como tomada</button>
     </div>
   </div>
 </div>
@@ -1124,40 +1162,105 @@ function labelPeriodoVac(meses){
   return meses===0?'Nascimento':meses+' meses';
 }
 
+const VAC_ABREV={
+  'BCG':'BCG','Hepatite B':'HepB','Pentavalente':'Penta','VIP (Poliomielite inativada)':'VIP',
+  'Pneumococica 10V':'Pneu','Rotavirus':'Rota','Meningococica C':'MenC','Influenza':'Influ',
+  'Febre Amarela':'FA','Triplice Viral':'SCR','DTP':'DTP','VOP (Poliomielite oral)':'VOP',
+  'Varicela':'Vari','Hepatite A':'HepA',
+};
+
 // VACINAS
 let vacStatusAtual='tomada';
+let vacGridAtual=[];
+
 async function carregarVac(){
   if(!S.bebeId)return;
   const {data}=await db.from('vacinas').select('*').eq('bebe_id',S.bebeId).order('data_prevista');
-  const alertas=$('vac-alertas');alertas.innerHTML='';
-  if(!data||!data.length){$('lista-vac').innerHTML='<div class="empty">Nenhuma vacina.</div>';return;}
+  const todasVac=data||[];
+  const porNome={};
+  todasVac.forEach(v=>{porNome[v.nome]=v;});
   const hj=new Date();
-  const at=data.filter(v=>v.status==='pendente'&&new Date(v.data_prevista)<hj);
-  const pr=data.filter(v=>{const d=Math.floor((new Date(v.data_prevista)-hj)/86400000);return v.status==='pendente'&&d>=0&&d<=7;});
-  if(at.length)alertas.innerHTML='<div class="alert-banner"><div class="alert-ico">&#x1F534;</div><div><strong>'+at.length+' vacina'+(at.length>1?'s':'')+' atrasada'+(at.length>1?'s':'')+'!</strong><span>'+at.map(v=>v.nome).join(', ')+'</span></div></div>';
-  else if(pr.length)alertas.innerHTML='<div class="alert-banner alert-warn"><div class="alert-ico">&#x26A0;</div><div><strong>'+pr.length+' vacina esta semana!</strong><span>'+pr.map(v=>v.nome).join(', ')+'</span></div></div>';
-  const b=$('hdr-badge');
-  if(at.length){b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
-  else{b.classList.remove('alerta');$('hdr-idade').textContent=idade()+' dias de vida';}
-  const si={aplicada:'&#x2705;',pendente:'&#x23F0;',atrasada:'&#x1F534;'};
-  const grupos=[];
-  data.forEach(v=>{
-    const meses=S.bebeNasc?mesesEntreDatas(S.bebeNasc,v.data_prevista):0;
-    let g=grupos.find(x=>x.meses===meses);
-    if(!g){g={meses,itens:[]};grupos.push(g);}
-    g.itens.push(v);
+  const dtNasc=S.bebeNasc?new Date(S.bebeNasc):null;
+
+  const statusDe=(registro,dataPrevista)=>{
+    if(registro&&registro.status==='aplicada')return 'aplicada';
+    if(!dataPrevista)return 'futura';
+    const dt=new Date(dataPrevista);
+    if(dt<hj)return 'atrasada';
+    const dias=Math.floor((dt-hj)/86400000);
+    return dias<=60?'proxima':'futura';
+  };
+
+  // 23 doses fixas do calendario SUS, em ordem
+  const slots=CALENDARIO_SUS.map((cal,i)=>{
+    const nomeCompleto=cal.nome+' ('+cal.dose+')';
+    const registro=porNome[nomeCompleto]||null;
+    let dataPrevista=registro?registro.data_prevista:null;
+    if(!dataPrevista&&dtNasc){const d=new Date(dtNasc);d.setMonth(d.getMonth()+cal.meses);dataPrevista=d.toISOString().split('T')[0];}
+    return {numero:i+1,cal,nomeCompleto,registro,dataPrevista,status:statusDe(registro,dataPrevista),idadeLbl:cal.meses===0?'Nasc.':cal.meses+'m'};
   });
-  grupos.sort((a,b)=>a.meses-b.meses);
-  $('lista-vac').innerHTML=grupos.map(g=>{
-    const itensHtml=g.itens.map(v=>{
-      const dt=new Date(v.data_aplicada||v.data_prevista);const dtf=dt.toLocaleDateString('pt-BR');
-      const atv=v.status==='pendente'&&dt<hj;const st=atv?'atrasada':v.status;
-      const cls=st==='aplicada'?'ok':st==='atrasada'?'late':'next';
-      const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" data-id="'+v.id+'" onclick="marcarVac(this.dataset.id)">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
-      return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada: '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
-    }).join('');
-    return '<div class="vac-grupo-hdr">'+labelPeriodoVac(g.meses)+'</div>'+itensHtml;
+
+  // vacinas manuais que nao pertencem ao calendario SUS
+  const nomesCalendario=new Set(CALENDARIO_SUS.map(c=>c.nome+' ('+c.dose+')'));
+  const extras=todasVac.filter(v=>!nomesCalendario.has(v.nome)).map((v,i)=>({
+    numero:slots.length+i+1,
+    cal:{nome:v.nome,descricao:''},
+    nomeCompleto:v.nome,registro:v,dataPrevista:v.data_prevista,
+    status:statusDe(v,v.data_prevista),
+    idadeLbl:dtNasc?labelPeriodoVac(mesesEntreDatas(S.bebeNasc,v.data_prevista)):'',
+  }));
+
+  vacGridAtual=[...slots,...extras];
+
+  // header + progresso
+  const aplicadas=slots.filter(s=>s.status==='aplicada').length;
+  $('vac-hdr-nome').textContent=S.bebeNome;
+  $('vac-hdr-idade').textContent=idade()+' dias de vida';
+  $('vac-progress-txt').textContent=aplicadas+' de '+slots.length+' doses';
+  $('vac-progress-fill').style.width=Math.round(aplicadas/slots.length*100)+'%';
+  const corDot={aplicada:'#4EC9B0',atrasada:'#E74C3C',proxima:'#2980B9',futura:'#DDE3EF'};
+  $('vac-dots').innerHTML=slots.map(s=>'<div class="vac-dot" style="background:'+corDot[s.status]+'"></div>').join('');
+
+  // grid estilo tabela periodica
+  const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
+  $('vac-grid').innerHTML=vacGridAtual.map((s,idx)=>{
+    const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
+    return '<div class="vac-bloco st-'+s.status+'" data-idx="'+idx+'" onclick="abrirDetalheVac('+idx+')">'
+      +'<div class="vac-bloco-num">'+s.numero+'</div>'
+      +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
+      +'<div class="vac-bloco-abrev">'+abrev+'</div>'
+      +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
+      +'</div>';
   }).join('');
+
+  // alerta de atrasadas, abaixo do grid
+  const atrasadas=vacGridAtual.filter(s=>s.status==='atrasada');
+  $('vac-alertas').innerHTML=atrasadas.length?'<div class="alert-banner"><div class="alert-ico">&#x1F534;</div><div><strong>'+atrasadas.length+' vacina'+(atrasadas.length>1?'s':'')+' atrasada'+(atrasadas.length>1?'s':'')+'!</strong><span>'+atrasadas.map(s=>s.cal.nome).join(', ')+'</span></div></div>':'';
+
+  const b=$('hdr-badge');
+  if(atrasadas.length){b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
+  else{b.classList.remove('alerta');$('hdr-idade').textContent=idade()+' dias de vida';}
+}
+
+function abrirDetalheVac(idx){
+  const s=vacGridAtual[idx];
+  if(!s)return;
+  const statusLbl={aplicada:'Aplicada',atrasada:'Atrasada',proxima:'Proxima',futura:'Futura'}[s.status];
+  $('dv-titulo').textContent=s.cal.nome+(s.cal.dose?' - '+s.cal.dose:'');
+  $('dv-descricao').textContent=s.cal.descricao||'';
+  $('dv-descricao').style.display=s.cal.descricao?'block':'none';
+  const dtPrevista=s.dataPrevista?new Date(s.dataPrevista).toLocaleDateString('pt-BR'):'--';
+  let html='<div class="dv-linha"><span>Status</span><strong>'+statusLbl+'</strong></div>';
+  html+='<div class="dv-linha"><span>Data prevista</span><strong>'+dtPrevista+'</strong></div>';
+  if(s.registro&&s.registro.data_aplicada)html+='<div class="dv-linha"><span>Data aplicada</span><strong>'+new Date(s.registro.data_aplicada).toLocaleDateString('pt-BR')+'</strong></div>';
+  if(s.registro&&s.registro.lote)html+='<div class="dv-linha"><span>Lote</span><strong>'+s.registro.lote+'</strong></div>';
+  if(s.registro&&s.registro.unidade_saude)html+='<div class="dv-linha"><span>Unidade</span><strong>'+s.registro.unidade_saude+'</strong></div>';
+  $('dv-info').innerHTML=html;
+  const podeMarcar=s.status!=='aplicada'&&s.registro&&s.registro.id;
+  const btn=$('dv-marcar');
+  btn.style.display=podeMarcar?'flex':'none';
+  btn.dataset.id=podeMarcar?s.registro.id:'';
+  $('detalhe-vac-overlay').classList.add('show');
 }
 
 let marcarVacId=null;
@@ -1857,6 +1960,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('marcar-vac-overlay').onclick=e=>{if(e.target===$('marcar-vac-overlay'))$('marcar-vac-overlay').classList.remove('show');};
   $('mv-cancel').onclick=()=>$('marcar-vac-overlay').classList.remove('show');
   $('mv-salvar').onclick=confirmarMarcarVac;
+  $('detalhe-vac-overlay').onclick=e=>{if(e.target===$('detalhe-vac-overlay'))$('detalhe-vac-overlay').classList.remove('show');};
+  $('dv-fechar').onclick=()=>$('detalhe-vac-overlay').classList.remove('show');
+  $('dv-marcar').onclick=()=>{
+    const id=$('dv-marcar').dataset.id;
+    $('detalhe-vac-overlay').classList.remove('show');
+    if(id)marcarVac(id);
+  };
   // CRESCIMENTO
   $('btn-add-cresc').onclick=()=>{$('form-cresc').style.display='block';$('cr-data').value=new Date().toISOString().split('T')[0];};
   $('btn-cancelar-cresc').onclick=()=>$('form-cresc').style.display='none';
