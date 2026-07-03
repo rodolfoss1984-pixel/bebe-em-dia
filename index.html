@@ -72,7 +72,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .tour-dot.ativo{background:var(--cor)}
 
 /* HEADER */
-.hdr{background:var(--hdr);padding:env(safe-area-inset-top,48px) 20px 56px;position:relative;overflow:hidden;flex-shrink:0}
+.hdr{background:var(--hdr);padding:max(48px,env(safe-area-inset-top,48px)) 20px 56px;position:relative;overflow:hidden;flex-shrink:0}
 .hdr-deco{position:absolute;right:-20px;top:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
 .hdr-deco2{position:absolute;left:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)}
 .hdr-main{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
@@ -512,7 +512,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
         </div>
 
         <button class="btn-secondary" id="btn-ver-grafico" style="margin-bottom:8px">Ver grafico de evolucao</button>
-        <div class="sec">Historico de medicoes</div>
+        <div class="sec" style="margin-top:16px">Historico de medicoes</div>
         <div id="lista-cresc"><div class="empty">Nenhuma medicao ainda.</div></div>
       </div>
 
@@ -569,7 +569,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
             <button class="btn-secondary" id="btn-copiar-codigo">&#x1F4CB; Copiar codigo</button>
           </div>
           <div style="text-align:center;font-size:11px;color:#A0AABB;margin:8px 0">ou</div>
-          <div class="form-field"><label>Entrar com codigo de parceiro</label><input type="text" id="codigo-input" placeholder="Digite o codigo de 6 digitos" maxlength="6" style="text-align:center;font-size:24px;letter-spacing:4px;font-weight:700;padding:12px"/></div>
+          <div class="form-field"><label>Entrar com codigo de parceiro</label><input type="text" id="codigo-input" placeholder="Ex: AB12CD" maxlength="6" style="text-align:center;font-size:24px;letter-spacing:4px;font-weight:700;padding:12px"/></div>
           <button class="btn-green" id="btn-usar-codigo">Entrar no grupo</button>
         </div>
         <div class="sec">Tour do app</div>
@@ -1136,7 +1136,9 @@ async function carregarVac(){
   const pr=data.filter(v=>{const d=Math.floor((new Date(v.data_prevista)-hj)/86400000);return v.status==='pendente'&&d>=0&&d<=7;});
   if(at.length)alertas.innerHTML='<div class="alert-banner"><div class="alert-ico">&#x1F534;</div><div><strong>'+at.length+' vacina'+(at.length>1?'s':'')+' atrasada'+(at.length>1?'s':'')+'!</strong><span>'+at.map(v=>v.nome).join(', ')+'</span></div></div>';
   else if(pr.length)alertas.innerHTML='<div class="alert-banner alert-warn"><div class="alert-ico">&#x26A0;</div><div><strong>'+pr.length+' vacina esta semana!</strong><span>'+pr.map(v=>v.nome).join(', ')+'</span></div></div>';
-  if(at.length){const b=$('hdr-badge');b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
+  const b=$('hdr-badge');
+  if(at.length){b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
+  else{b.classList.remove('alerta');$('hdr-idade').textContent=idade()+' dias de vida';}
   const si={aplicada:'&#x2705;',pendente:'&#x23F0;',atrasada:'&#x1F534;'};
   const grupos=[];
   data.forEach(v=>{
