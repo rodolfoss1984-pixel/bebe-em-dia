@@ -20,12 +20,12 @@
 p,h1,h2,h3,h4,span,label,div{-webkit-user-select:none;user-select:none}
 input,textarea,select{-webkit-user-select:text;user-select:text}
 body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;overscroll-behavior-y:none}
-.app{width:100%;max-width:430px;min-height:100vh;display:none;flex-direction:column;background:#F2F5FB;position:relative}
-.app.show{display:flex}
+.app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;background:#F2F5FB;position:relative;opacity:0;pointer-events:none;transition:opacity .2s}
+.app.show{opacity:1;pointer-events:auto}
 
 /* TELAS FIXAS */
-.fullscreen{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--hdr)}
-.fullscreen.show{display:flex}
+.fullscreen{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--hdr);opacity:0;pointer-events:none;transition:opacity .2s}
+.fullscreen.show{opacity:1;pointer-events:auto}
 
 /* LOGIN */
 .login-logo{font-size:64px;margin-bottom:16px}
@@ -276,6 +276,13 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
 
 /* EMPTY */
 .empty{text-align:center;color:#C0C8D8;font-size:14px;padding:40px 20px;line-height:1.6}
+
+/* RELATORIO PRINT */
+@media print{
+  body>*:not(#relatorio-modal){display:none!important}
+  #relatorio-modal{position:static!important}
+  #relatorio-modal>div:first-child,#relatorio-modal>div:last-child{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -502,14 +509,15 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
         </div>
 
         <button class="btn-secondary" id="btn-ver-grafico" style="margin-bottom:8px">Ver grafico de evolucao</button>
-        <div id="lista-cresc" style="display:none"></div>
+        <div class="sec">Historico de medicoes</div>
+        <div id="lista-cresc"><div class="empty">Nenhuma medicao ainda.</div></div>
       </div>
 
       <!-- DR BEBE -->
       <div id="screen-drbebe" class="screen">
         <button class="btn-secondary" id="btn-resumo">&#x1F4CA; Como esta o bebe hoje?</button>
         <button class="btn-primary" id="btn-analise">&#x1F52C; Analise inteligente 7 dias</button>
-        <div class="sec">Documentos</div>
+        <div class="sec">Relatorios</div>
         <div class="doc-btn" id="doc-consulta"><div class="doc-ico" style="background:#E8F4FF">&#x1F4CB;</div><div class="doc-info"><strong>Relatorio para consulta</strong><span>Resumo do periodo para o pediatra</span></div></div>
         <div class="doc-btn" id="doc-vacinas"><div class="doc-ico" style="background:#E8FBF7">&#x1F489;</div><div class="doc-info"><strong>Carteirinha de vacinacao</strong><span>Vacinas tomadas e pendentes</span></div></div>
         <div class="doc-btn" id="doc-crescimento"><div class="doc-ico" style="background:#FFF0E8">&#x1F4C8;</div><div class="doc-info"><strong>Curva de crescimento</strong><span>Peso e altura ao longo do tempo</span></div></div>
@@ -660,6 +668,36 @@ body{background:var(--cor);display:flex;justify-content:center;min-height:100vh;
       <div style="display:flex;gap:10px;margin-top:16px">
         <button class="bs-cancel" id="novo-cancel">Cancelar</button>
         <button class="bs-confirm" id="novo-salvar" style="flex:2">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET EDICAO CRESCIMENTO -->
+<div class="bs-overlay" id="edit-cresc-overlay">
+  <div class="bs-sheet">
+    <div class="bs-handle"></div>
+    <div class="bs-title">Editar medicao</div>
+    <div class="edit-sheet-content">
+      <div class="form-field"><label>Data</label><input type="date" id="ec-data"/></div>
+      <div class="form-row">
+        <div class="form-field"><label>Peso (kg)</label><input type="number" id="ec-peso" placeholder="Ex: 4.2" step="0.01"/></div>
+        <div class="form-field"><label>Altura (cm)</label><input type="number" id="ec-altura" placeholder="Ex: 53" step="0.1"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>PC (cm)</label><input type="number" id="ec-pc" placeholder="Ex: 36" step="0.1"/></div>
+        <div class="form-field"><label>Local</label>
+          <select id="ec-local">
+            <option value="consulta">Consulta</option>
+            <option value="casa">Em casa</option>
+            <option value="ubs">UBS</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="bs-cancel" id="ec-cancel">Cancelar</button>
+        <button class="bs-confirm" id="ec-salvar" style="flex:2">Salvar</button>
+        <button style="flex:1;padding:14px;border-radius:14px;border:none;background:#FFF0F0;color:#E74C3C;font-size:13px;font-weight:700;cursor:pointer" id="ec-excluir">Excluir</button>
       </div>
     </div>
   </div>
@@ -852,14 +890,14 @@ async function excluirEdit(){
 function abrirNovoReg(){
   $('novo-dt').value=dtLocal();
   $('novo-fim').value=dtLocal();
-  $('novo-overlay').classList.add('show');
+  $('novo-reg-overlay').classList.add('show');
   $('novo-tipo').onchange=()=>{
     $('novo-extra').style.display=$('novo-tipo').value==='sono'?'block':'none';
   };
 }
 
 async function salvarNovoReg(){
-  $('novo-overlay').classList.remove('show');
+  $('novo-reg-overlay').classList.remove('show');
   const tipo=$('novo-tipo').value;
   const dt=new Date($('novo-dt').value).toISOString();
   try{
@@ -1062,18 +1100,21 @@ async function carregarCresc(){
   const {data}=await db.from('crescimento').select('*').eq('bebe_id',S.bebeId).order('data_medicao',{ascending:true});
   if(!data||!data.length){
     ['c-peso','c-alt','c-pc','c-ultima-dt','c-ganho-peso','c-dias-medicao'].forEach(id=>{const el=$(id);if(el)el.textContent='--';});
+    S.crescData=[];
+    $('lista-cresc').innerHTML='<div class="empty">Nenhuma medicao ainda.</div>';
     return;
   }
   const ultimo=data[data.length-1];
   const primeiro=data[0];
   const anterior=data.length>1?data[data.length-2]:null;
+  const diasEntre=anterior?Math.floor((new Date(ultimo.data_medicao)-new Date(anterior.data_medicao))/86400000):0;
 
   // Peso atual
   if(ultimo.peso_kg){
     $('c-peso').textContent=ultimo.peso_kg+'kg';
     if(anterior&&anterior.peso_kg){
       const diff=(ultimo.peso_kg-anterior.peso_kg).toFixed(2);
-      $('c-peso-d').textContent=(diff>0?'+':'')+diff+'kg';
+      $('c-peso-d').textContent=(diff>0?'+':'')+diff+'kg em '+diasEntre+' dias';
       $('c-peso-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
     }
   }
@@ -1083,7 +1124,7 @@ async function carregarCresc(){
     $('c-alt').textContent=ultimo.altura_cm+'cm';
     if(anterior&&anterior.altura_cm){
       const diff=(ultimo.altura_cm-anterior.altura_cm).toFixed(1);
-      $('c-alt-d').textContent=(diff>0?'+':'')+diff+'cm';
+      $('c-alt-d').textContent=(diff>0?'+':'')+diff+'cm em '+diasEntre+' dias';
       $('c-alt-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
     }
   }
@@ -1093,7 +1134,7 @@ async function carregarCresc(){
     $('c-pc').textContent=ultimo.pc_cm+'cm';
     if(anterior&&anterior.pc_cm){
       const diff=(ultimo.pc_cm-anterior.pc_cm).toFixed(1);
-      $('c-pc-d').textContent=(diff>0?'+':'')+diff+'cm';
+      $('c-pc-d').textContent=(diff>0?'+':'')+diff+'cm em '+diasEntre+' dias';
       $('c-pc-d').style.color=diff>=0?'#4EC9B0':'#E74C3C';
     }
   }
@@ -1116,8 +1157,63 @@ async function carregarCresc(){
   $('c-dias-medicao').textContent=diasDesde;
   if(diasDesde>30)$('c-dias-medicao').style.color='#E74C3C';
 
-  // Guardar dados para grafico
+  // Guardar dados para grafico e edicao
   S.crescData=data;
+  renderListaCresc();
+}
+
+function renderListaCresc(){
+  const data=S.crescData||[];
+  if(!data.length){$('lista-cresc').innerHTML='<div class="empty">Nenhuma medicao ainda.</div>';return;}
+  const loc={consulta:'Consulta',casa:'Em casa',ubs:'UBS'};
+  $('lista-cresc').innerHTML=data.slice().reverse().map(r=>{
+    const dt=new Date(r.data_medicao).toLocaleDateString('pt-BR');
+    const parts=[];
+    if(r.peso_kg)parts.push(r.peso_kg+'kg');
+    if(r.altura_cm)parts.push(r.altura_cm+'cm');
+    if(r.pc_cm)parts.push('PC '+r.pc_cm+'cm');
+    const localTxt=loc[r.local]||'';
+    return'<div class="hist-item"><div class="hist-ico" style="background:#FFF0E8">&#x1F4C8;</div><div class="hist-info"><strong>'+(parts.join(' · ')||'Medicao')+'</strong><span>'+dt+(localTxt?' · '+localTxt:'')+'</span></div><div class="hist-edit" data-id="'+r.id+'" onclick="abrirEditCresc(this.dataset.id)">Editar</div></div>';
+  }).join('');
+}
+
+let editCrescId=null;
+function abrirEditCresc(id){
+  const r=(S.crescData||[]).find(x=>String(x.id)===String(id));
+  if(!r)return;
+  editCrescId=id;
+  $('ec-data').value=r.data_medicao;
+  $('ec-peso').value=r.peso_kg||'';
+  $('ec-altura').value=r.altura_cm||'';
+  $('ec-pc').value=r.pc_cm||'';
+  $('ec-local').value=r.local||'consulta';
+  $('edit-cresc-overlay').classList.add('show');
+}
+
+async function salvarEditCresc(){
+  $('edit-cresc-overlay').classList.remove('show');
+  const data=$('ec-data').value;
+  const peso=$('ec-peso').value;
+  const alt=$('ec-altura').value;
+  const pc=$('ec-pc').value;
+  const local=$('ec-local').value;
+  if(!data){showToast('Selecione a data!');return;}
+  if(!peso&&!alt&&!pc){showToast('Preencha ao menos um campo!');return;}
+  const obj={data_medicao:data,local,peso_kg:peso?parseFloat(peso):null,altura_cm:alt?parseFloat(alt):null,pc_cm:pc?parseFloat(pc):null};
+  try{
+    const {error}=await db.from('crescimento').update(obj).eq('id',editCrescId);
+    if(error)throw error;
+    showToast('Medicao atualizada!');carregarCresc();
+  }catch(e){showToast('Erro: '+e.message);}
+}
+
+async function excluirEditCresc(){
+  $('edit-cresc-overlay').classList.remove('show');
+  try{
+    const {error}=await db.from('crescimento').delete().eq('id',editCrescId);
+    if(error)throw error;
+    showToast('Medicao excluida!');carregarCresc();
+  }catch(e){showToast('Erro: '+e.message);}
 }
 
 async function salvarCresc(){
@@ -1191,12 +1287,15 @@ async function pedirAnalise(){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function gerarDoc(tipo){
-  const msgs=$('chat-msgs');
-  mudarTela('drbebe');
-  const mb=document.createElement('div');mb.className='msg-b';
-  mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Documento</span></div><span style="color:#A0AABB">Gerando documento...</span>';
-  msgs.appendChild(mb);msgs.scrollTop=msgs.scrollHeight;
+const RELATORIO_TITULOS={
+  consulta:'Relatorio para consulta',
+  vacinas:'Carteirinha de vacinacao',
+  crescimento:'Curva de crescimento',
+  sono:'Relatorio de sono',
+  diario:'Diario do bebe',
+};
+
+function relatorioPrompt(tipo){
   const d=idade();
   const prompts={
     consulta:'Gere um relatorio medico estruturado para consulta pediatrica do '+S.bebeNome+' ('+d+' dias). Inclua: resumo geral, padroes de alimentacao, sono, higiene e desenvolvimento esperado. Formato de relatorio medico. Max 300 palavras.',
@@ -1205,13 +1304,44 @@ async function gerarDoc(tipo){
     sono:'Gere um relatorio sobre padroes de sono para bebes de '+d+' dias. Explique quantas horas sao esperadas, como identificar regressao de sono e dicas praticas. Max 200 palavras.',
     diario:'Gere um modelo de diario do bebe para o '+S.bebeNome+' ('+d+' dias). Inclua um resumo acolhedor do dia, marcos de desenvolvimento esperados para essa fase e mensagem para os pais. Max 250 palavras.',
   };
+  return prompts[tipo];
+}
+
+async function abrirRelatorio(tipo){
+  const titulo=RELATORIO_TITULOS[tipo];
+  if(!titulo)return;
+  const modal=document.createElement('div');
+  modal.id='relatorio-modal';
+  modal.style.cssText='position:fixed;inset:0;background:#F2F5FB;z-index:600;display:flex;flex-direction:column';
+  modal.innerHTML='<div style="background:var(--hdr);padding:env(safe-area-inset-top,24px) 20px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0">'
+    +'<div id="rel-fechar" style="color:white;font-size:24px;cursor:pointer;line-height:1">&#x2039;</div>'
+    +'<div style="color:white;font-size:15px;font-weight:800">'+titulo+'</div>'
+    +'</div>'
+    +'<div style="flex:1;overflow-y:auto;padding:20px" id="relatorio-conteudo-print">'
+    +'<div style="text-align:center;color:#A0AABB;padding:40px 0" id="relatorio-loading">Gerando relatorio...</div>'
+    +'<div style="background:white;border-radius:16px;padding:18px;font-size:13px;line-height:1.7;color:#1A2744;display:none" id="relatorio-texto"></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;padding:14px 20px;background:white;border-top:1px solid #EEF0F8;flex-shrink:0">'
+    +'<button id="rel-pdf" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--cor);color:white;font-size:12px;font-weight:700;cursor:pointer">&#x1F4C4; PDF</button>'
+    +'<button id="rel-whats" style="flex:1;padding:12px;border-radius:12px;border:none;background:#25D366;color:white;font-size:12px;font-weight:700;cursor:pointer">&#x1F4AC; WhatsApp</button>'
+    +'<button id="rel-email" style="flex:1;padding:12px;border-radius:12px;border:none;background:#2980B9;color:white;font-size:12px;font-weight:700;cursor:pointer">&#x2709; Email</button>'
+    +'</div>';
+  document.body.appendChild(modal);
+  $('rel-fechar').onclick=()=>modal.remove();
+  let texto='Erro ao gerar relatorio.';
   try{
-    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompts[tipo]}]})});
+    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:relatorioPrompt(tipo)}]})});
     const json=await resp.json();
-    const txt=json.content&&json.content[0]?json.content[0].text:'Erro.';
-    mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong><span class="ia-pill">Documento</span></div>'+txt.replace(/\n/g,'<br>');
-  }catch(e){mb.innerHTML='<div class="bot-hdr"><strong>Dr. Bebe</strong></div>Erro de conexao.';}
-  msgs.scrollTop=msgs.scrollHeight;
+    texto=json.content&&json.content[0]?json.content[0].text:texto;
+  }catch(e){texto='Erro de conexao ao gerar relatorio.';}
+  if(!document.body.contains(modal))return;
+  $('relatorio-loading').style.display='none';
+  const txtEl=$('relatorio-texto');
+  txtEl.style.display='block';
+  txtEl.innerHTML=texto.replace(/\n/g,'<br>');
+  $('rel-pdf').onclick=()=>window.print();
+  $('rel-whats').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(titulo+'\n\n'+texto),'_blank');
+  $('rel-email').onclick=()=>{location.href='mailto:?subject='+encodeURIComponent(titulo)+'&body='+encodeURIComponent(texto);};
 }
 
 async function enviarChat(){
@@ -1514,16 +1644,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btn-cancelar-cresc').onclick=()=>$('form-cresc').style.display='none';
   $('btn-salvar-cresc').onclick=salvarCresc;
   $('btn-ver-grafico').onclick=abrirGrafico;
+  $('edit-cresc-overlay').onclick=e=>{if(e.target===$('edit-cresc-overlay'))$('edit-cresc-overlay').classList.remove('show');};
+  $('ec-cancel').onclick=()=>$('edit-cresc-overlay').classList.remove('show');
+  $('ec-salvar').onclick=salvarEditCresc;
+  $('ec-excluir').onclick=excluirEditCresc;
   // DR BEBE
   $('btn-resumo').onclick=pedirResumo;
   $('btn-analise').onclick=pedirAnalise;
   $('btn-send').onclick=enviarChat;
   $('chat-in').onkeypress=e=>{if(e.key==='Enter')enviarChat();};
-  $('doc-consulta').onclick=()=>gerarDoc('consulta');
-  $('doc-vacinas').onclick=()=>gerarDoc('vacinas');
-  $('doc-crescimento').onclick=()=>gerarDoc('crescimento');
-  $('doc-sono').onclick=()=>gerarDoc('sono');
-  $('doc-diario').onclick=()=>gerarDoc('diario');
+  $('doc-consulta').onclick=()=>abrirRelatorio('consulta');
+  $('doc-vacinas').onclick=()=>abrirRelatorio('vacinas');
+  $('doc-crescimento').onclick=()=>abrirRelatorio('crescimento');
+  $('doc-sono').onclick=()=>abrirRelatorio('sono');
+  $('doc-diario').onclick=()=>abrirRelatorio('diario');
   // CONFIG
   $('btn-foto-cfg').onclick=()=>$('input-foto').click();
   $('btn-alterar-foto').onclick=()=>$('input-foto').click();
