@@ -151,8 +151,9 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 
 /* SEXO */
 .sexo-btns{display:flex;gap:8px}
-.sexo-btn{flex:1;padding:14px 10px;border-radius:12px;border:1.5px solid #EEF0F8;background:white;font-size:13px;font-weight:700;color:#A0AABB;cursor:pointer;text-align:center}
+.sexo-btn{flex:1;padding:16px 12px;border-radius:12px;border:2px solid #D5DCE8;background:white;font-size:14px;font-weight:700;color:#8A96AC;cursor:pointer;text-align:center;transition:background .15s,border-color .15s,color .15s}
 .sexo-btn.sel{border-color:var(--cor);background:var(--cor);color:white}
+.sexo-btn.sel::before{content:'\2713\FE0E  '}
 
 /* ALERT */
 .alert-banner{background:#FFF0F0;border:1.5px solid #E74C3C;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
