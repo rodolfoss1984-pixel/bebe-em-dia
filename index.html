@@ -19,13 +19,13 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 p,h1,h2,h3,h4,span,label,div{-webkit-user-select:none;user-select:none}
 input,textarea,select{-webkit-user-select:text;user-select:text}
-html{background:#1A2744}
+html{background:#1A2744;overscroll-behavior-y:none}
 body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;overscroll-behavior-y:none}
 .app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column;background:#F2F5FB;position:relative;opacity:0;pointer-events:none;transition:opacity .2s}
 .app.show{opacity:1;pointer-events:auto}
 
 /* TELAS FIXAS */
-.fullscreen{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--hdr);opacity:0;pointer-events:none;transition:opacity .2s}
+.fullscreen{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100%;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--hdr);opacity:0;pointer-events:none;transition:opacity .2s;overscroll-behavior:none}
 .fullscreen.show{opacity:1;pointer-events:auto}
 
 /* LOGIN */
@@ -57,7 +57,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* TOUR */
-.tour-overlay{position:fixed;inset:0;z-index:600;display:none;pointer-events:none}
+.tour-overlay{position:fixed;inset:0;z-index:600;display:none;pointer-events:none;overscroll-behavior:none;touch-action:none}
 .tour-overlay.show{display:block}
 .tour-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.7)}
 .tour-card{position:absolute;background:white;border-radius:20px;padding:20px;width:calc(100% - 48px);max-width:382px;left:50%;transform:translateX(-50%);box-shadow:0 20px 60px rgba(0,0,0,.3);pointer-events:all}
@@ -207,9 +207,9 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .tema-btn.sel .tema-nome{color:#1A2744}
 
 /* BOTTOM SHEET */
-.bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-end;justify-content:center;overscroll-behavior:none;touch-action:none}
 .bs-overlay.show{display:flex}
-.bs-sheet{background:white;border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;max-width:430px;animation:slideUp .25s ease}
+.bs-sheet{background:white;border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;max-width:430px;animation:slideUp .25s ease;overscroll-behavior:none}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .bs-handle{width:40px;height:4px;background:#E0E8F0;border-radius:2px;margin:0 auto 20px}
 .bs-ico{width:64px;height:64px;border-radius:20px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:32px}
@@ -744,7 +744,7 @@ const db=supabase.createClient(SURL,SKEY);
 const S={
   bebeId:null,userId:null,bebeNome:'Bebe',bebeNasc:'',bebeSexo:'M',pedNome:'',
   sonoAtivo:false,sonoId:null,bsTipo:null,vacStatus:'tomada',
-  editId:null,editTipo:null,tema:'azul'
+  editId:null,editTipo:null,tema:'azul',modalAberto:null
 };
 
 // TEMAS
@@ -1451,12 +1451,12 @@ async function gerarRelatorio(tipo){
   if(!titulo)return;
   const modal=document.createElement('div');
   modal.id='relatorio-modal';
-  modal.style.cssText='position:fixed;inset:0;background:white;z-index:600;display:flex;flex-direction:column';
+  modal.style.cssText='position:fixed;inset:0;background:white;z-index:600;display:flex;flex-direction:column;overscroll-behavior:none';
   modal.innerHTML='<div style="background:var(--hdr);padding:env(safe-area-inset-top,24px) 20px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0">'
     +'<div id="rel-fechar" style="color:white;font-size:26px;cursor:pointer;line-height:1">&#x2039;</div>'
     +'<div><div style="color:white;font-size:15px;font-weight:800">'+titulo+'</div><div style="color:rgba(255,255,255,.6);font-size:11px;margin-top:2px">'+S.bebeNome+' &middot; '+idade()+' dias</div></div>'
     +'</div>'
-    +'<div style="flex:1;overflow-y:auto;padding:20px" id="relatorio-conteudo-print">'
+    +'<div style="flex:1;overflow-y:auto;padding:20px;overscroll-behavior:contain" id="relatorio-conteudo-print">'
     +'<div style="text-align:center;color:#A0AABB;padding:40px 0" id="relatorio-loading">Carregando dados...</div>'
     +'</div>'
     +'<div style="display:flex;gap:8px;padding:14px 20px;background:white;border-top:1px solid #EEF0F8;flex-shrink:0">'
@@ -1465,7 +1465,8 @@ async function gerarRelatorio(tipo){
     +'<button id="rel-email" style="flex:1;padding:12px;border-radius:12px;border:none;background:#2980B9;color:white;font-size:12px;font-weight:700;cursor:pointer">&#x2709; Email</button>'
     +'</div>';
   document.body.appendChild(modal);
-  $('rel-fechar').onclick=()=>modal.remove();
+  S.modalAberto=tipo;
+  $('rel-fechar').onclick=()=>{modal.remove();S.modalAberto=null;};
 
   const dias=Math.min(30,Math.max(idade(),1));
   const ini=new Date();ini.setDate(ini.getDate()-30);const iniISO=ini.toISOString();
@@ -1608,15 +1609,29 @@ function existeModalAberto(){
 }
 
 function fecharModalAberto(){
-  const rel=document.getElementById('relatorio-modal');if(rel){rel.remove();return;}
+  const rel=document.getElementById('relatorio-modal');if(rel){rel.remove();S.modalAberto=null;return;}
   const graf=document.getElementById('grafico-modal');if(graf){graf.remove();return;}
   const bs=document.querySelector('.bs-overlay.show');if(bs){bs.classList.remove('show');return;}
   const tour=document.querySelector('.tour-overlay.show');if(tour){tour.classList.remove('show');return;}
 }
 
+// TRAVAR SCROLL DE FUNDO QUANDO HA MODAL ABERTO
+function sincronizarScrollFundo(){
+  if(existeModalAberto()){
+    document.documentElement.style.overflow='hidden';
+    document.documentElement.style.overscrollBehaviorY='none';
+    document.body.style.overflow='hidden';
+    document.body.style.overscrollBehaviorY='none';
+  }else{
+    document.documentElement.style.overflow='';
+    document.body.style.overflow='';
+  }
+}
+
 // AUTENTICACAO
 async function init(){
   aplicarTema(localStorage.getItem('tema')||'azul');
+  new MutationObserver(sincronizarScrollFundo).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   history.pushState({screen:'home'},'',location.href);
   window.addEventListener('popstate',()=>{
     if(location.hash.includes('access_token'))return;
@@ -1725,8 +1740,8 @@ function abrirGrafico(){
   const pcs=data.map(r=>r.pc_cm||null);
   const modal=document.createElement('div');
   modal.id='grafico-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center';
-  modal.innerHTML=`<div style="background:white;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto">
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;justify-content:center;overscroll-behavior:none';
+  modal.innerHTML=`<div style="background:white;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto;overscroll-behavior:contain">
     <div style="width:40px;height:4px;background:#E0E8F0;border-radius:2px;margin:0 auto 16px"></div>
     <div style="font-size:16px;font-weight:800;color:#1A2744;margin-bottom:16px">Evolucao do crescimento</div>
     <div style="margin-bottom:20px">
