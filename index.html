@@ -250,6 +250,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .vac-dt.ok{color:#4EC9B0}
 .vac-dt.next{color:#2980B9}
 .vac-dt.late{color:#E74C3C}
+.vac-grupo-hdr{padding:10px 16px 6px;font-size:10px;font-weight:800;color:#A0AABB;text-transform:uppercase;letter-spacing:.5px;background:#FAFBFD;border-bottom:1px solid #F0F4FB}
 
 /* NAV */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #EEF0F8;display:flex;padding:8px 0 env(safe-area-inset-bottom,20px);z-index:100;box-shadow:0 -4px 20px rgba(26,39,68,.08)}
@@ -700,6 +701,23 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
   </div>
 </div>
 
+<!-- BOTTOM SHEET MARCAR VACINA -->
+<div class="bs-overlay" id="marcar-vac-overlay">
+  <div class="bs-sheet">
+    <div class="bs-handle"></div>
+    <div class="bs-title">Registrar vacina aplicada</div>
+    <div class="edit-sheet-content">
+      <div class="form-field"><label>Data de aplicacao</label><input type="date" id="mv-data"/></div>
+      <div class="form-field"><label>Lote (opcional)</label><input type="text" id="mv-lote" placeholder="Ex: L12345"/></div>
+      <div class="form-field"><label>Unidade de saude (opcional)</label><input type="text" id="mv-unidade" placeholder="Ex: UBS Central"/></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="bs-cancel" id="mv-cancel">Cancelar</button>
+        <button class="bs-confirm" id="mv-salvar" style="flex:2">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TOUR -->
 <div class="tour-overlay" id="tour-overlay">
   <div class="tour-backdrop"></div>
@@ -1042,6 +1060,61 @@ async function abrirEditById(id,tipo){
   if(data)abrirEdit(id,tipo,data);
 }
 
+// CALENDARIO SUS
+const CALENDARIO_SUS=[
+  {nome:'BCG',meses:0,dose:'unica',descricao:'Protege contra formas graves de tuberculose'},
+  {nome:'Hepatite B',meses:0,dose:'ao nascer',descricao:'Previne a hepatite B'},
+  {nome:'Pentavalente',meses:2,dose:'1a dose',descricao:'DTP + Hib + Hepatite B'},
+  {nome:'VIP (Poliomielite inativada)',meses:2,dose:'1a dose',descricao:'Previne a poliomielite'},
+  {nome:'Pneumococica 10V',meses:2,dose:'1a dose',descricao:'Previne pneumonia, otite e meningite'},
+  {nome:'Rotavirus',meses:2,dose:'1a dose',descricao:'Previne diarreia grave por rotavirus'},
+  {nome:'Meningococica C',meses:3,dose:'1a dose',descricao:'Previne meningite e doenca meningococica'},
+  {nome:'Pentavalente',meses:4,dose:'2a dose',descricao:'DTP + Hib + Hepatite B'},
+  {nome:'VIP (Poliomielite inativada)',meses:4,dose:'2a dose',descricao:'Previne a poliomielite'},
+  {nome:'Pneumococica 10V',meses:4,dose:'2a dose',descricao:'Previne pneumonia, otite e meningite'},
+  {nome:'Rotavirus',meses:4,dose:'2a dose',descricao:'Previne diarreia grave por rotavirus'},
+  {nome:'Meningococica C',meses:5,dose:'2a dose',descricao:'Previne meningite e doenca meningococica'},
+  {nome:'Pentavalente',meses:6,dose:'3a dose',descricao:'DTP + Hib + Hepatite B'},
+  {nome:'VIP (Poliomielite inativada)',meses:6,dose:'3a dose',descricao:'Previne a poliomielite'},
+  {nome:'Influenza',meses:6,dose:'1a dose',descricao:'Previne gripe (dose anual)'},
+  {nome:'Febre Amarela',meses:9,dose:'unica',descricao:'Previne febre amarela'},
+  {nome:'Triplice Viral',meses:12,dose:'1a dose',descricao:'Previne sarampo, caxumba e rubeola'},
+  {nome:'Pneumococica 10V',meses:12,dose:'reforco',descricao:'Previne pneumonia, otite e meningite'},
+  {nome:'Meningococica C',meses:12,dose:'reforco',descricao:'Previne meningite e doenca meningococica'},
+  {nome:'DTP',meses:15,dose:'reforco 1a',descricao:'Previne difteria, tetano e coqueluche'},
+  {nome:'VOP (Poliomielite oral)',meses:15,dose:'reforco',descricao:'Previne a poliomielite'},
+  {nome:'Varicela',meses:15,dose:'unica',descricao:'Previne catapora'},
+  {nome:'Hepatite A',meses:15,dose:'unica',descricao:'Previne hepatite A'},
+];
+
+async function gerarCalendarioSUS(bebeId,userId,dataNascimento){
+  const {data:existentes}=await db.from('vacinas').select('nome').eq('bebe_id',bebeId);
+  const nomesExistentes=new Set((existentes||[]).map(v=>v.nome));
+  const novas=CALENDARIO_SUS.map(v=>{
+    const nomeCompleto=v.nome+' ('+v.dose+')';
+    const dt=new Date(dataNascimento);
+    dt.setMonth(dt.getMonth()+v.meses);
+    return {nomeCompleto,dataPrevista:dt.toISOString().split('T')[0]};
+  }).filter(v=>!nomesExistentes.has(v.nomeCompleto)).map(v=>({
+    bebe_id:bebeId,user_id:userId,nome:v.nomeCompleto,status:'pendente',data_prevista:v.dataPrevista,
+  }));
+  if(!novas.length)return 0;
+  const {error}=await db.from('vacinas').insert(novas);
+  if(error){showToast('Erro ao gerar calendario: '+error.message);return 0;}
+  return novas.length;
+}
+
+function mesesEntreDatas(dataNasc,dataVac){
+  const a=new Date(dataNasc),b=new Date(dataVac);
+  let meses=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());
+  if(b.getDate()<a.getDate())meses--;
+  return Math.max(meses,0);
+}
+
+function labelPeriodoVac(meses){
+  return meses===0?'Nascimento':meses+' meses';
+}
+
 // VACINAS
 let vacStatusAtual='tomada';
 async function carregarVac(){
@@ -1056,17 +1129,45 @@ async function carregarVac(){
   else if(pr.length)alertas.innerHTML='<div class="alert-banner alert-warn"><div class="alert-ico">&#x26A0;</div><div><strong>'+pr.length+' vacina esta semana!</strong><span>'+pr.map(v=>v.nome).join(', ')+'</span></div></div>';
   if(at.length){const b=$('hdr-badge');b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
   const si={aplicada:'&#x2705;',pendente:'&#x23F0;',atrasada:'&#x1F534;'};
-  $('lista-vac').innerHTML=data.map(v=>{
-    const dt=new Date(v.data_aplicada||v.data_prevista);const dtf=dt.toLocaleDateString('pt-BR');
-    const atv=v.status==='pendente'&&dt<hj;const st=atv?'atrasada':v.status;
-    const cls=st==='aplicada'?'ok':st==='atrasada'?'late':'next';
-    const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" data-id="'+v.id+'" onclick="marcarVac(this.dataset.id)">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
-    return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada: '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
+  const grupos=[];
+  data.forEach(v=>{
+    const meses=S.bebeNasc?mesesEntreDatas(S.bebeNasc,v.data_prevista):0;
+    let g=grupos.find(x=>x.meses===meses);
+    if(!g){g={meses,itens:[]};grupos.push(g);}
+    g.itens.push(v);
+  });
+  grupos.sort((a,b)=>a.meses-b.meses);
+  $('lista-vac').innerHTML=grupos.map(g=>{
+    const itensHtml=g.itens.map(v=>{
+      const dt=new Date(v.data_aplicada||v.data_prevista);const dtf=dt.toLocaleDateString('pt-BR');
+      const atv=v.status==='pendente'&&dt<hj;const st=atv?'atrasada':v.status;
+      const cls=st==='aplicada'?'ok':st==='atrasada'?'late':'next';
+      const btn=st!=='aplicada'?'<button class="vac-marcar '+(st==='atrasada'?'late':'')+'" data-id="'+v.id+'" onclick="marcarVac(this.dataset.id)">Tomada</button>':'<div class="vac-dt '+cls+'">'+dtf+'</div>';
+      return'<div class="vac-item"><div class="vac-status">'+(si[st]||'&#x23F0;')+'</div><div class="vac-info"><strong>'+v.nome+'</strong><span>'+(st==='aplicada'?'Aplicada: '+dtf:'Prevista: '+dtf)+'</span></div>'+btn+'</div>';
+    }).join('');
+    return '<div class="vac-grupo-hdr">'+labelPeriodoVac(g.meses)+'</div>'+itensHtml;
   }).join('');
 }
 
-async function marcarVac(id){
-  await db.from('vacinas').update({status:'aplicada',data_aplicada:new Date().toISOString().split('T')[0]}).eq('id',id);
+let marcarVacId=null;
+function marcarVac(id){
+  marcarVacId=id;
+  $('mv-data').value=new Date().toISOString().split('T')[0];
+  $('mv-lote').value='';
+  $('mv-unidade').value='';
+  $('marcar-vac-overlay').classList.add('show');
+}
+
+async function confirmarMarcarVac(){
+  $('marcar-vac-overlay').classList.remove('show');
+  const dataAplicada=$('mv-data').value||new Date().toISOString().split('T')[0];
+  const lote=$('mv-lote').value.trim();
+  const unidade=$('mv-unidade').value.trim();
+  const obj={status:'aplicada',data_aplicada:dataAplicada};
+  if(lote)obj.lote=lote;
+  if(unidade)obj.unidade_saude=unidade;
+  const {error}=await db.from('vacinas').update(obj).eq('id',marcarVacId);
+  if(error){showToast('Erro: '+error.message);return;}
   showToast('Vacina marcada!');carregarVac();carregarEventos();
 }
 
@@ -1596,6 +1697,8 @@ async function salvarOB(){
   if((peso||alt)&&data.id){
     await db.from('crescimento').insert({bebe_id:data.id,user_id:S.userId,data_medicao:nasc,peso_kg:parseFloat(peso)||null,altura_cm:parseFloat(alt)||null}).catch(()=>{});
   }
+  const criadas=await gerarCalendarioSUS(data.id,S.userId,nasc).catch(()=>0);
+  if(criadas)showToast(criadas+' vacinas do calendario SUS adicionadas!');
   mostrarTela('app');atualizarHeader();carregarStats();
   setTimeout(iniciarTour,800);
 }
@@ -1722,6 +1825,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btn-salvar-vac').onclick=salvarVac;
   $('sb-tomada').onclick=()=>selVacStatus('tomada');
   $('sb-agendada').onclick=()=>selVacStatus('agendada');
+  $('marcar-vac-overlay').onclick=e=>{if(e.target===$('marcar-vac-overlay'))$('marcar-vac-overlay').classList.remove('show');};
+  $('mv-cancel').onclick=()=>$('marcar-vac-overlay').classList.remove('show');
+  $('mv-salvar').onclick=confirmarMarcarVac;
   // CRESCIMENTO
   $('btn-add-cresc').onclick=()=>{$('form-cresc').style.display='block';$('cr-data').value=new Date().toISOString().split('T')[0];};
   $('btn-cancelar-cresc').onclick=()=>$('form-cresc').style.display='none';
