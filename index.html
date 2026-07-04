@@ -89,6 +89,12 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .av-inner{width:100%;height:100%;border-radius:50%;background:var(--cor);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}
 .av-inner img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .av-name{font-size:9px;color:rgba(255,255,255,.6);font-weight:600;text-align:center}
+.ticker-wrap{overflow:hidden;height:26px;display:flex;align-items:center;background:rgba(0,0,0,.15);position:relative;z-index:2;border-left:3px solid var(--acc);transition:border-color .3s}
+.ticker-wrap.alerta{border-left-color:#E74C3C;background:rgba(231,76,60,.1)}
+.ticker-track{display:flex;animation:tickerAnim 25s linear infinite;white-space:nowrap;align-items:center}
+@keyframes tickerAnim{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{font-size:10px;color:rgba(255,255,255,.75);font-weight:500;padding:0 20px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ticker-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .hdr-stats{display:flex;gap:8px;margin-top:16px;position:relative;z-index:2}
 .hdr-stat{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer}
 .hdr-stat .hn{font-size:15px;font-weight:800;color:white}
@@ -369,11 +375,14 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
         <div class="av-name" id="av-nome">Bebe</div>
       </div>
     </div>
+    <div class="ticker-wrap" id="ticker-wrap">
+      <div class="ticker-track" id="ticker-track"></div>
+    </div>
     <div class="hdr-stats">
       <div class="hdr-stat" id="stat-mam"><div class="hn" id="hs-mam">0</div><div class="hl">Mamadas</div></div>
       <div class="hdr-stat" id="stat-son"><div class="hn" id="hs-son">0h</div><div class="hl">Sono</div></div>
-      <div class="hdr-stat" id="stat-vac"><div class="hn" id="hs-vac">--</div><div class="hl">Vacina</div></div>
-      <div class="hdr-stat" id="stat-fra"><div class="hn" id="hs-fra">0</div><div class="hl">Fraldas</div></div>
+      <div class="hdr-stat" id="stat-xixi"><div class="hn" id="hs-xixi">0</div><div class="hl">Xixi</div></div>
+      <div class="hdr-stat" id="stat-coco"><div class="hn" id="hs-coco">0</div><div class="hl">Coco</div></div>
     </div>
   </div>
 
@@ -645,6 +654,10 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
     <div class="bs-title" id="bs-title"></div>
     <div class="bs-sub" id="bs-sub"></div>
     <div class="bs-time" id="bs-time"></div>
+    <div class="sexo-btns" id="bs-mamada-tipo" style="display:none;margin-bottom:14px">
+      <div class="sexo-btn sel" data-mtipo="peito" id="bs-mtipo-peito">&#x1F931; Peito</div>
+      <div class="sexo-btn" data-mtipo="formula" id="bs-mtipo-formula">&#x1F37C; Formula</div>
+    </div>
     <div class="bs-btns">
       <button class="bs-cancel" id="bs-cancel">Cancelar</button>
       <button class="bs-confirm" id="bs-confirm">Confirmar</button>
@@ -782,7 +795,7 @@ const db=supabase.createClient(SURL,SKEY);
 // ESTADO GLOBAL
 const S={
   bebeId:null,userId:null,bebeNome:'Bebe',bebeNasc:'',bebeSexo:'M',pedNome:'',
-  sonoAtivo:false,sonoId:null,bsTipo:null,vacStatus:'tomada',
+  sonoAtivo:false,sonoId:null,bsTipo:null,vacStatus:'tomada',mamadaTipo:'peito',
   editId:null,editTipo:null,tema:'azul',modalAberto:null
 };
 
@@ -864,6 +877,12 @@ const BS={
   coco:{t:'Registrar fralda coco?',s:'Confirme o registro',cor:'#8B4513',ico:'&#x1F4A9;'},
 };
 
+function selMamadaTipo(t){
+  S.mamadaTipo=t;
+  $('bs-mtipo-peito').classList.toggle('sel',t==='peito');
+  $('bs-mtipo-formula').classList.toggle('sel',t==='formula');
+}
+
 function abrirBS(tipo){
   S.bsTipo=tipo;
   const c=BS[tipo];
@@ -871,6 +890,8 @@ function abrirBS(tipo){
   $('bs-ico').innerHTML=c.ico;$('bs-ico').style.background=tipo==='mamada'?'#FFF0E8':tipo==='sono'?'#E8F8F5':tipo==='xixi'?'#FFFBE6':'#FFF3E6';
   $('bs-title').textContent=c.t;$('bs-sub').textContent=c.s;
   $('bs-time').textContent='Agora: '+hora();$('bs-confirm').style.background=c.cor;
+  $('bs-mamada-tipo').style.display=tipo==='mamada'?'flex':'none';
+  if(tipo==='mamada')selMamadaTipo('peito');
   $('bs-overlay').classList.add('show');
 }
 
@@ -879,7 +900,7 @@ async function confirmarBS(){
   if(!S.bebeId||!S.bsTipo)return;
   const tipo=S.bsTipo;S.bsTipo=null;
   try{
-    if(tipo==='mamada'){await db.from('mamadas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'amamentacao'});showToast('🍼 Mamada registrada!');}
+    if(tipo==='mamada'){await db.from('mamadas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:S.mamadaTipo});showToast('🍼 Mamada registrada!');}
     else if(tipo==='xixi'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'xixi'});showToast('💧 Xixi registrado!');}
     else if(tipo==='coco'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'coco'});showToast('💩 Coco registrado!');}
     else if(tipo==='sono'){
@@ -970,13 +991,15 @@ async function salvarNovoReg(){
 async function carregarStats(){
   if(!S.bebeId)return;
   const hj=new Date().toISOString().split('T')[0];
-  const [m,f,s]=await Promise.all([
+  const [m,xi,co,s]=await Promise.all([
     db.from('mamadas').select('id',{count:'exact'}).eq('bebe_id',S.bebeId).gte('registrado_em',hj),
-    db.from('fraldas').select('id',{count:'exact'}).eq('bebe_id',S.bebeId).gte('registrado_em',hj),
+    db.from('fraldas').select('id',{count:'exact'}).eq('bebe_id',S.bebeId).eq('tipo','xixi').gte('registrado_em',hj),
+    db.from('fraldas').select('id',{count:'exact'}).eq('bebe_id',S.bebeId).eq('tipo','coco').gte('registrado_em',hj),
     db.from('sono').select('inicio,fim').eq('bebe_id',S.bebeId).gte('registrado_em',hj),
   ]);
   $('hs-mam').textContent=m.count||0;
-  $('hs-fra').textContent=f.count||0;
+  $('hs-xixi').textContent=xi.count||0;
+  $('hs-coco').textContent=co.count||0;
   const ts=((s.data||[]).reduce((a,r)=>{if(r.fim)a+=Math.floor((new Date(r.fim)-new Date(r.inicio))/60000);return a;},0));
   const hS=Math.floor(ts/60),mS=ts%60;
   $('hs-son').textContent=ts>0?(hS>0?hS+'h':mS+'m'):'0h';
@@ -1006,9 +1029,38 @@ async function carregarEventos(){
     const at=dias<0;const cor=at?'#E74C3C':dias<=7?'#FFB020':'#2980B9';
     const txt=at?'atraso '+Math.abs(dias)+'d':dias===0?'hoje!':dias+'d';
     items.push('<div class="card-item"><div class="card-item-dot" style="background:#FFF8E8">&#x2B50;</div><div class="card-item-info"><strong>'+v.nome+'</strong><span>'+(at?'ATRASADA!':'Proxima vacina')+'</span></div><div class="card-item-right" style="color:'+cor+'">'+txt+'</div></div>');
-    $('hs-vac').textContent=at?'!':dias+'d';
   }
   $('lista-eventos').innerHTML=items.length?items.join(''):'<div class="empty" style="padding:16px;font-size:12px">Sem eventos proximos</div>';
+}
+
+async function atualizarTicker(){
+  if(!S.bebeId)return;
+  const [{slots},cresc]=await Promise.all([
+    buscarSlotsVac(),
+    db.from('crescimento').select('*').eq('bebe_id',S.bebeId).order('data_medicao',{ascending:false}).limit(1),
+  ]);
+  const atrasadas=slots.filter(s=>s.status==='atrasada');
+  const items=[];
+  atrasadas.forEach(s=>{
+    const dias=Math.floor((new Date()-new Date(s.dataPrevista))/86400000);
+    items.push({cor:'#E74C3C',txt:s.cal.nome+' atrasada — '+dias+' dias'});
+  });
+  const proxima=slots.filter(s=>s.status!=='aplicada').sort((a,b)=>new Date(a.dataPrevista)-new Date(b.dataPrevista))[0];
+  if(proxima){
+    const dias=Math.max(0,Math.floor((new Date(proxima.dataPrevista)-new Date())/86400000));
+    items.push({cor:'#2980B9',txt:'Proxima vacina: '+proxima.cal.nome+' em '+dias+'d'});
+  }
+  items.push({cor:'#4EC9B0',txt:S.bebeNome+' tem '+idade()+' dias de vida'});
+  const ultimoCresc=cresc.data&&cresc.data[0];
+  if(ultimoCresc&&(ultimoCresc.peso_kg||ultimoCresc.altura_cm)){
+    const partes=[];
+    if(ultimoCresc.peso_kg)partes.push('Peso: '+ultimoCresc.peso_kg+'kg');
+    if(ultimoCresc.altura_cm)partes.push('Altura: '+ultimoCresc.altura_cm+'cm');
+    items.push({cor:'#4EC9B0',txt:partes.join(' · ')});
+  }
+  const dobradas=[...items,...items];
+  $('ticker-track').innerHTML=dobradas.map(it=>'<div class="ticker-item"><div class="ticker-dot" style="background:'+it.cor+'"></div>'+it.txt+'</div>').join('');
+  $('ticker-wrap').classList.toggle('alerta',atrasadas.length>0);
 }
 
 // HISTORICO
@@ -1919,7 +1971,7 @@ async function entrar(user){
     if(b.pediatra_nome)$('cfg-ped-nome').value=b.pediatra_nome;
     if(b.pediatra_tel)$('cfg-ped-tel').value=b.pediatra_tel;
     if(b.peso_nascimento)$('cfg-peso-nasc').value=b.peso_nascimento;
-    mostrarTela('app');atualizarHeader();carregarStats();carregarVac();verificarSono();
+    mostrarTela('app');atualizarHeader();carregarStats();atualizarTicker();carregarVac();verificarSono();
     if(!localStorage.getItem('tour_visto'))setTimeout(iniciarTour,800);
   }else{
     mostrarTela('tela-ob');
@@ -2060,6 +2112,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('bs-overlay').onclick=e=>{if(e.target===$('bs-overlay')){$('bs-overlay').classList.remove('show');S.bsTipo=null;}};
   $('bs-cancel').onclick=()=>{$('bs-overlay').classList.remove('show');S.bsTipo=null;};
   $('bs-confirm').onclick=confirmarBS;
+  $('bs-mtipo-peito').onclick=()=>selMamadaTipo('peito');
+  $('bs-mtipo-formula').onclick=()=>selMamadaTipo('formula');
   // EDICAO
   $('edit-overlay').onclick=e=>{if(e.target===$('edit-overlay'))$('edit-overlay').classList.remove('show');};
   $('edit-cancel').onclick=()=>$('edit-overlay').classList.remove('show');
