@@ -77,13 +77,8 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .hdr-deco2{position:absolute;left:-30px;bottom:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)}
 .hdr-main{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
 .hdr-left p{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.hdr-left h2{font-size:22px;font-weight:800;color:white;line-height:1.2;margin-bottom:14px}
+.hdr-left h2{font-size:22px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px}
 .hdr-left h2 em{color:var(--acc);font-style:normal}
-.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 12px}
-.hdr-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc)}
-.hdr-badge span{font-size:10px;color:rgba(255,255,255,.85);font-weight:600}
-.hdr-badge.alerta{background:rgba(231,76,60,.2);border-color:rgba(231,76,60,.4)}
-.hdr-badge.alerta .hdr-badge-dot{background:#E74C3C;box-shadow:0 0 8px #E74C3C}
 .hdr-right{display:flex;flex-direction:column;align-items:center;gap:5px}
 .av-ring{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));padding:3px;box-shadow:0 4px 16px rgba(78,201,176,.4);flex-shrink:0;cursor:pointer}
 .av-inner{width:100%;height:100%;border-radius:50%;background:var(--cor);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}
@@ -161,14 +156,6 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .sexo-btn.sel{border-color:var(--cor);background:var(--cor);color:white}
 .sexo-btn.sel::before{content:'\2713\FE0E  '}
 
-/* ALERT */
-.alert-banner{background:#FFF0F0;border:1.5px solid #E74C3C;border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
-.alert-ico{font-size:20px;flex-shrink:0}
-.alert-banner strong{font-size:12px;font-weight:700;color:#C0392B;display:block}
-.alert-banner span{font-size:10px;color:#E74C3C}
-.alert-warn{background:#FFF8E8;border-color:#FFB020}
-.alert-warn strong{color:#B7790A}
-.alert-warn span{color:#FFB020}
 
 /* CRESCIMENTO */
 .cresc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
@@ -258,18 +245,26 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .vac-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#6B7A99;font-weight:600}
 .vac-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
-.vac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.vac-bloco{position:relative;height:80px;border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;text-align:center;overflow:hidden}
-.vac-bloco-num{position:absolute;top:4px;left:6px;font-size:8px;font-weight:700;opacity:.7}
-.vac-bloco-ico{font-size:18px}
-.vac-bloco-abrev{font-size:9px;font-weight:800;line-height:1.15;padding:0 2px}
-.vac-bloco-idade{font-size:7px;opacity:.8}
-.vac-bloco-data{font-size:7px;color:white;opacity:.9;margin-top:1px}
-.vac-bloco-data-prevista{font-size:6px;color:#8A96AC;opacity:.85;margin-top:1px}
+.vac-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.vac-bloco{position:relative;border-radius:14px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;text-align:center;overflow:hidden}
+.vac-bloco-num{position:absolute;top:4px;left:6px;font-size:8px;font-weight:700;opacity:.65}
+.vac-bloco-ico{font-size:22px;margin-top:4px}
+.vac-bloco-abrev{font-size:11px;font-weight:800;line-height:1.15;padding:0 2px;text-align:center}
+.vac-bloco-idade{font-size:8px;opacity:.65}
+.vac-bloco-data{font-size:8px;opacity:.5}
 .vac-bloco.st-aplicada{background:#4EC9B0;color:white}
 .vac-bloco.st-atrasada{background:#E74C3C;color:white}
 .vac-bloco.st-proxima{background:#2980B9;color:white}
-.vac-bloco.st-futura{background:#DDE3EF;color:#6B7A99}
+.vac-bloco.st-futura{background:#E8ECF4;color:#6B7A99}
+
+.vac-alert-card{background:white;border-radius:14px;border-left:4px solid #E74C3C;box-shadow:0 3px 14px rgba(26,39,68,.07);margin-bottom:14px;overflow:hidden}
+.vac-alert-title{font-size:11px;font-weight:800;color:#C0392B;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px 8px}
+.vac-alert-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid #F0F4FB}
+.vac-alert-ico{width:36px;height:36px;border-radius:11px;background:#FFF0F0;color:#E74C3C;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.vac-alert-info{flex:1;min-width:0}
+.vac-alert-info strong{font-size:12px;font-weight:700;color:#1A2744;display:block}
+.vac-alert-info span{font-size:10px;color:#A0AABB}
+.vac-alert-badge{font-size:10px;font-weight:800;color:white;background:#E74C3C;border-radius:10px;padding:4px 8px;white-space:nowrap;flex-shrink:0}
 
 .dv-linha{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F0F4FB;font-size:12px;color:#1A2744}
 .dv-linha span{color:#A0AABB}
@@ -367,8 +362,8 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
     <div class="hdr-main">
       <div class="hdr-left">
         <p id="hdr-saudacao">Boa tarde</p>
-        <h2 id="hdr-titulo">Bebe esta<br><em>bem hoje?</em></h2>
-        <div class="hdr-badge" id="hdr-badge"><div class="hdr-badge-dot"></div><span id="hdr-idade">0 dias</span></div>
+        <h2 id="hdr-titulo">Bebe</h2>
+        <p id="hdr-idade" style="font-size:11px;color:rgba(255,255,255,.4);text-transform:none;letter-spacing:normal;font-weight:500;margin-bottom:0">0 dias de vida</p>
       </div>
       <div class="hdr-right">
         <div class="av-ring" id="btn-avatar"><div class="av-inner" id="av-inner">&#x1F476;</div></div>
@@ -462,7 +457,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
           <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#4EC9B0"></span>Tomada</div>
           <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#E74C3C"></span>Atrasada</div>
           <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#2980B9"></span>Proxima</div>
-          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#DDE3EF"></span>Futura</div>
+          <div class="vac-legend-item"><span class="vac-legend-dot" style="background:#E8ECF4"></span>Futura</div>
         </div>
         <div class="vac-grid" id="vac-grid"></div>
         <div id="vac-alertas"></div>
@@ -1351,6 +1346,43 @@ async function buscarSlotsVac(){
   return {slots,extras,todos:[...slots,...extras]};
 }
 
+function vacDataInfo(s){
+  const hj=new Date();
+  if(s.status==='aplicada')return s.registro&&s.registro.data_aplicada?fmtDDMM(s.registro.data_aplicada):'';
+  if(!s.dataPrevista)return '';
+  if(s.status==='atrasada'){const dias=Math.floor((hj-new Date(s.dataPrevista))/86400000);return dias+'d atraso';}
+  if(s.status==='proxima'){const dias=Math.floor((new Date(s.dataPrevista)-hj)/86400000);return 'em '+Math.max(dias,0)+'d';}
+  return fmtDDMM(s.dataPrevista);
+}
+
+function renderVacGrid(vacs){
+  const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
+  return vacs.map((s,idx)=>{
+    const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
+    const dataInfo=vacDataInfo(s);
+    return '<div class="vac-bloco st-'+s.status+'" data-idx="'+idx+'" onclick="abrirDetalheVac('+idx+')">'
+      +'<div class="vac-bloco-num">'+s.numero+'</div>'
+      +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
+      +'<div class="vac-bloco-abrev">'+abrev+'</div>'
+      +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
+      +(dataInfo?'<div class="vac-bloco-data">'+dataInfo+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function renderVacAlertas(atrasadas){
+  if(!atrasadas.length)return '';
+  const hj=new Date();
+  let html='<div class="vac-alert-card"><div class="vac-alert-title">'+atrasadas.length+' vacina'+(atrasadas.length>1?'s':'')+' atrasada'+(atrasadas.length>1?'s':'')+'</div>';
+  html+=atrasadas.map(s=>{
+    const dias=s.dataPrevista?Math.floor((hj-new Date(s.dataPrevista))/86400000):0;
+    const dt=s.dataPrevista?fmtDDMM(s.dataPrevista):'--';
+    return '<div class="vac-alert-item"><div class="vac-alert-ico">&#x1F489;</div><div class="vac-alert-info"><strong>'+s.cal.nome+(s.cal.dose?' - '+s.cal.dose:'')+'</strong><span>Prevista: '+dt+'</span></div><div class="vac-alert-badge">'+dias+'d atraso</div></div>';
+  }).join('');
+  html+='</div>';
+  return html;
+}
+
 async function carregarVac(){
   if(!S.bebeId)return;
   const {slots,todos}=await buscarSlotsVac();
@@ -1362,32 +1394,15 @@ async function carregarVac(){
   $('vac-hdr-idade').textContent=idade()+' dias de vida';
   $('vac-progress-txt').textContent=aplicadas+' de '+slots.length+' doses';
   $('vac-progress-fill').style.width=Math.round(aplicadas/slots.length*100)+'%';
-  const corDot={aplicada:'#4EC9B0',atrasada:'#E74C3C',proxima:'#2980B9',futura:'#DDE3EF'};
+  const corDot={aplicada:'#4EC9B0',atrasada:'#E74C3C',proxima:'#2980B9',futura:'#E8ECF4'};
   $('vac-dots').innerHTML=slots.map(s=>'<div class="vac-dot" style="background:'+corDot[s.status]+'"></div>').join('');
 
   // grid estilo tabela periodica
-  const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
-  $('vac-grid').innerHTML=vacGridAtual.map((s,idx)=>{
-    const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
-    const dataLinha=s.status==='aplicada'
-      ?(s.registro&&s.registro.data_aplicada?'<div class="vac-bloco-data">'+fmtDDMM(s.registro.data_aplicada)+'</div>':'')
-      :(s.dataPrevista?'<div class="vac-bloco-data-prevista">'+fmtDDMM(s.dataPrevista)+'</div>':'');
-    return '<div class="vac-bloco st-'+s.status+'" data-idx="'+idx+'" onclick="abrirDetalheVac('+idx+')">'
-      +'<div class="vac-bloco-num">'+s.numero+'</div>'
-      +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
-      +'<div class="vac-bloco-abrev">'+abrev+'</div>'
-      +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
-      +dataLinha
-      +'</div>';
-  }).join('');
+  $('vac-grid').innerHTML=renderVacGrid(vacGridAtual);
 
   // alerta de atrasadas, abaixo do grid
   const atrasadas=vacGridAtual.filter(s=>s.status==='atrasada');
-  $('vac-alertas').innerHTML=atrasadas.length?'<div class="alert-banner"><div class="alert-ico">&#x1F534;</div><div><strong>'+atrasadas.length+' vacina'+(atrasadas.length>1?'s':'')+' atrasada'+(atrasadas.length>1?'s':'')+'!</strong><span>'+atrasadas.map(s=>s.cal.nome).join(', ')+'</span></div></div>':'';
-
-  const b=$('hdr-badge');
-  if(atrasadas.length){b.classList.add('alerta');$('hdr-idade').textContent='Vacina atrasada!';}
-  else{b.classList.remove('alerta');$('hdr-idade').textContent=idade()+' dias de vida';}
+  $('vac-alertas').innerHTML=renderVacAlertas(atrasadas);
 }
 
 function abrirDetalheVac(idx){
@@ -1846,10 +1861,9 @@ async function salvarConfig(){
 
 function atualizarHeader(){
   const d=idade();
-  $('hdr-titulo').innerHTML=S.bebeNome+' esta<br><em>bem hoje?</em>';
+  $('hdr-titulo').textContent=S.bebeNome;
   $('av-nome').textContent=S.bebeNome;
-  const badge=$('hdr-badge');
-  if(!badge.classList.contains('alerta'))$('hdr-idade').textContent=d+' dias de vida';
+  $('hdr-idade').textContent=d+' dias de vida';
 }
 
 function atualizarFoto(input){
