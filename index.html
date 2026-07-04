@@ -258,6 +258,8 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
 .vac-bloco-ico{font-size:18px}
 .vac-bloco-abrev{font-size:9px;font-weight:800;line-height:1.15;padding:0 2px}
 .vac-bloco-idade{font-size:7px;opacity:.8}
+.vac-bloco-data{font-size:7px;color:white;opacity:.9;margin-top:1px}
+.vac-bloco-data-prevista{font-size:6px;color:#8A96AC;opacity:.85;margin-top:1px}
 .vac-bloco.st-aplicada{background:#4EC9B0;color:white}
 .vac-bloco.st-atrasada{background:#E74C3C;color:white}
 .vac-bloco.st-proxima{background:#2980B9;color:white}
@@ -735,7 +737,7 @@ body{background:#1A2744;display:flex;justify-content:center;min-height:100vh;ove
       <div class="form-field"><label>Unidade de saude (opcional)</label><input type="text" id="mv-unidade" placeholder="Ex: UBS Central"/></div>
       <div style="display:flex;gap:10px;margin-top:16px">
         <button class="bs-cancel" id="mv-cancel">Cancelar</button>
-        <button class="bs-confirm" id="mv-salvar" style="flex:2">Confirmar</button>
+        <button class="bs-confirm" id="mv-salvar" style="flex:2;background:var(--cor)">Confirmar</button>
       </div>
     </div>
   </div>
@@ -877,23 +879,23 @@ async function confirmarBS(){
   if(!S.bebeId||!S.bsTipo)return;
   const tipo=S.bsTipo;S.bsTipo=null;
   try{
-    if(tipo==='mamada'){await db.from('mamadas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'amamentacao'});showToast('&#x1F37C; Mamada registrada!');}
-    else if(tipo==='xixi'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'xixi'});showToast('&#x1F4A7; Xixi registrado!');}
-    else if(tipo==='coco'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'coco'});showToast('&#x1F4A9; Coco registrado!');}
+    if(tipo==='mamada'){await db.from('mamadas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'amamentacao'});showToast('🍼 Mamada registrada!');}
+    else if(tipo==='xixi'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'xixi'});showToast('💧 Xixi registrado!');}
+    else if(tipo==='coco'){await db.from('fraldas').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'coco'});showToast('💩 Coco registrado!');}
     else if(tipo==='sono'){
       if(!S.sonoAtivo){
         const {data}=await db.from('sono').insert({bebe_id:S.bebeId,user_id:S.userId,tipo:'soneca',inicio:new Date().toISOString()}).select().single();
         if(data){S.sonoAtivo=true;S.sonoId=data.id;}
         $('btn-sono').classList.add('sono-ativo');
         $('sono-lbl').textContent='Acordou agora';$('t-sono').textContent='dormindo agora';
-        showToast('&#x1F319; Sono iniciado!');
+        showToast('🌙 Sono iniciado!');
       }else{
         const {data:sd}=await db.from('sono').select('inicio').eq('id',S.sonoId).single();
         await db.from('sono').update({fim:new Date().toISOString()}).eq('id',S.sonoId);
         S.sonoAtivo=false;S.sonoId=null;
         $('btn-sono').classList.remove('sono-ativo');
         $('sono-lbl').textContent='Dormiu agora';
-        if(sd){const dur=Math.floor((new Date()-new Date(sd.inicio))/60000);const h=Math.floor(dur/60),m=dur%60;showToast('&#x2600; Dormiu '+(h>0?h+'h ':'')+m+'min!');}
+        if(sd){const dur=Math.floor((new Date()-new Date(sd.inicio))/60000);const h=Math.floor(dur/60),m=dur%60;showToast('☀️ Dormiu '+(h>0?h+'h ':'')+m+'min!');}
       }
     }
     carregarStats();
@@ -1241,6 +1243,12 @@ function labelPeriodoVac(meses){
   return meses===0?'Nascimento':meses+' meses';
 }
 
+function fmtDDMM(dataStr){
+  if(!dataStr)return '';
+  const p=dataStr.split('-');
+  return p[2]+'/'+p[1];
+}
+
 const VAC_ABREV={
   'BCG':'BCG','Hepatite B':'HepB','Pentavalente':'Penta','VIP (Poliomielite inativada)':'VIP',
   'Pneumococica 10V':'Pneu','Rotavirus':'Rota','Meningococica C':'MenC','Influenza':'Influ',
@@ -1309,11 +1317,15 @@ async function carregarVac(){
   const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
   $('vac-grid').innerHTML=vacGridAtual.map((s,idx)=>{
     const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
+    const dataLinha=s.status==='aplicada'
+      ?(s.registro&&s.registro.data_aplicada?'<div class="vac-bloco-data">'+fmtDDMM(s.registro.data_aplicada)+'</div>':'')
+      :(s.dataPrevista?'<div class="vac-bloco-data-prevista">'+fmtDDMM(s.dataPrevista)+'</div>':'');
     return '<div class="vac-bloco st-'+s.status+'" data-idx="'+idx+'" onclick="abrirDetalheVac('+idx+')">'
       +'<div class="vac-bloco-num">'+s.numero+'</div>'
       +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
       +'<div class="vac-bloco-abrev">'+abrev+'</div>'
       +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
+      +dataLinha
       +'</div>';
   }).join('');
 
@@ -1568,17 +1580,27 @@ function renderCrescStats(crescDados){
     +'</div>';
 }
 
-function renderVacGrid(slots){
-  const icoSt={aplicada:'&#x1F489;',proxima:'&#x1F489;',atrasada:'&#x26A0;',futura:'&#x1F512;'};
-  return '<div class="vac-grid">'+slots.map(s=>{
-    const abrev=VAC_ABREV[s.cal.nome]||s.cal.nome.slice(0,5);
-    return '<div class="vac-bloco st-'+s.status+'">'
-      +'<div class="vac-bloco-num">'+s.numero+'</div>'
-      +'<div class="vac-bloco-ico">'+icoSt[s.status]+'</div>'
-      +'<div class="vac-bloco-abrev">'+abrev+'</div>'
-      +'<div class="vac-bloco-idade">'+s.idadeLbl+'</div>'
+function renderVacinasAplicadas(slots){
+  const aplicadas=slots.filter(s=>s.status==='aplicada');
+  const total=slots.length;
+  let html='<div style="font-size:11px;font-weight:700;color:#4A5A7A;margin-bottom:10px">'+aplicadas.length+' vacinas tomadas de '+total+' do calendario SUS</div>';
+  if(!aplicadas.length){
+    html+='<div class="empty" style="padding:20px">Nenhuma vacina aplicada registrada.</div>';
+    return html;
+  }
+  html+='<div style="display:flex;flex-direction:column;gap:8px">'+aplicadas.map(s=>{
+    const dt=s.registro&&s.registro.data_aplicada?new Date(s.registro.data_aplicada).toLocaleDateString('pt-BR'):'--';
+    const lote=s.registro&&s.registro.lote?'Lote: '+s.registro.lote:'';
+    const unidade=s.registro&&s.registro.unidade_saude?s.registro.unidade_saude:'';
+    const detalhes=[lote,unidade].filter(Boolean).join(' · ');
+    return '<div style="background:#F2F5FB;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px">'
+      +'<div><div style="font-size:12px;font-weight:700;color:#1A2744">'+s.cal.nome+(s.cal.dose?' - '+s.cal.dose:'')+'</div>'
+      +(detalhes?'<div style="font-size:10px;color:#A0AABB;margin-top:2px">'+detalhes+'</div>':'')
+      +'</div>'
+      +'<div style="font-size:11px;font-weight:700;color:#4EC9B0;white-space:nowrap">'+dt+'</div>'
       +'</div>';
   }).join('')+'</div>';
+  return html;
 }
 
 function gerarResumoRelatorio(m7,f7,s7,crescDados,slots,aplicadas){
@@ -1660,8 +1682,8 @@ async function gerarRelatorio(){
   html+='<div style="padding:20px">';
 
   // SECAO 1 - VACINAS
-  html+=tituloSecao('Carteirinha de Vacinacao ('+aplicadas+'/'+slots.length+')');
-  html+=renderVacGrid(slots);
+  html+=tituloSecao('Vacinas');
+  html+=renderVacinasAplicadas(slots);
 
   // SECAO 2 - CRESCIMENTO
   html+=tituloSecao('Crescimento');
